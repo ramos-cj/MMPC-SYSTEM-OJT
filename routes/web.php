@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\InventoryAuthController;
 use App\Http\Controllers\Auth\ExitClearanceAuthController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -50,6 +51,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory-importfiles', function () {
         return Inertia::render('inventory-page/InventoryImportFiles');
     })->name('inventory-importfiles');
+
+    Route::post('/logout', function () {
+        Auth::logout();
+        return redirect('/'); // Redirect to welcome page after logout
+    })->name('logout');
 });
 
 // ✅ Exit Clearance System Routes
