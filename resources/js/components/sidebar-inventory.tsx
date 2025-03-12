@@ -77,11 +77,11 @@ const SidebarInventory: React.FC = () => {
                 </div>
 
                 {/* Header */}
-                <div className="header">
+                <div className="header1">
                     <button className="menu-btn" onClick={toggleSidebar}>
                         <FaBars />
                     </button>
-                    <span className="header-title">Mitsubishi Motors Philippines Corporation</span>
+                    <span className="header1-title">Mitsubishi Motors Philippines Corporation</span>
                 </div>
             </div>
 

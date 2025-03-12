@@ -6,6 +6,7 @@ import mmpcLogo from '../../assets/mmpc-logo.png';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Header from '@/components/header'; // Import Header component
 import '@/styles/Login.css';
 
 export default function InventoryLogin() {
@@ -40,12 +41,9 @@ export default function InventoryLogin() {
     return (
         <>
             <Head title={isLogin ? 'Login - Inventory System' : 'Sign Up - Inventory System'} />
-            <div className="header">
-                <img src={mmpcLogo} alt="Mitsubishi Logo" className="logo" />
-                <span className="header-title">Mitsubishi Motors Philippines Corporation</span>
-            </div>
 
             <div className="auth-container">
+            <Header />
                 <div className="auth-box">
                     <X className="close-icon" onClick={handleClose} />
                     <User className="auth-icon" />

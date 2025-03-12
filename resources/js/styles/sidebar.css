@@ -89,13 +89,12 @@
 }
 
 /* Move Menu Button When Sidebar Collapses */
-.menu-container.collapsed .menu-btn {
-    left: 50px;
-    
+.layout-container.collapsed .menu-btn {
+    left: 80px;
 }
 
 /* Header */
-.header {
+.header1 {
     background-color: black;
     color: white;
     display: flex;
@@ -107,15 +106,16 @@
     z-index: 1000;
 }
 
-.header-title {
+/* Move Header Title When Sidebar Collapses */
+.header1-title {
     font-size: 26px;
     font-weight: bold;
-    margin-left: 280px;
+    margin-left: 300px;
     transition: margin-left 0.3s ease-in-out;
 }
 
-.menu-container.collapsed .header-title {
-    margin-left: 10px;
+.layout-container.collapsed .header1-title {
+    margin-left: 140px;
 }
 
 /* Main Content */
@@ -134,7 +134,7 @@
 }
 
 /* Adjust when sidebar is collapsed */
-.menu-container.collapsed .menu-main-content {
+.layout-container.collapsed .menu-main-content {
     width: 88%;
     margin-left: 9%;
 }
