@@ -27,9 +27,29 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('inventory-page/InventoryUserList');
     })->name('inventory-userlist');
 
+    Route::get('/inventory-devicelist', function () {
+        return Inertia::render('inventory-page/InventoryDeviceList');
+    })->name('inventory-devicelist');
+
     Route::get('/inventory-usermanagement', function () {
         return Inertia::render('inventory-page/InventoryUserManagement');
     })->name('inventory-usermanagement');
+
+    Route::get('/inventory-devicemanagement', function () {
+        return Inertia::render('inventory-page/InventoryDeviceManagement');
+    })->name('inventory-devicemanagement');
+
+    Route::get('/inventory-deviceassignment', function () {
+        return Inertia::render('inventory-page/InventoryDeviceAssignment');
+    })->name('inventory-deviceassignment');
+
+    Route::get('/inventory-repairmanagement', function () {
+        return Inertia::render('inventory-page/InventoryRepairManagement');
+    })->name('inventory-repairmanagement');
+
+    Route::get('/inventory-importfiles', function () {
+        return Inertia::render('inventory-page/InventoryImportFiles');
+    })->name('inventory-importfiles');
 });
 
 // ✅ Exit Clearance System Routes

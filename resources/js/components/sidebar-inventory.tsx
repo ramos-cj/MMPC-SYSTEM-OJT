@@ -31,7 +31,7 @@ const SidebarInventory: React.FC = () => {
                         <FaUsers />
                         <span className={isCollapsed ? "hidden" : ""}>User List</span>
                     </li>
-                    <li className={window.location.pathname === "/device-list" ? "active" : ""} onClick={() => handleNavigation("/device-list")}>
+                    <li className={window.location.pathname === "/inventory-devicelist" ? "active" : ""} onClick={() => handleNavigation("/inventory-devicelist")}>
                         <MdList />
                         <span className={isCollapsed ? "hidden" : ""}>Device List</span>
                     </li>
@@ -39,19 +39,19 @@ const SidebarInventory: React.FC = () => {
                         <MdManageAccounts />
                         <span className={isCollapsed ? "hidden" : ""}>User Management</span>
                     </li>
-                    <li className={window.location.pathname === "/device-management" ? "active" : ""} onClick={() => handleNavigation("/device-management")}>
+                    <li className={window.location.pathname === "/inventory-devicemanagement" ? "active" : ""} onClick={() => handleNavigation("/inventory-devicemanagement")}>
                         <MdDevices />
                         <span className={isCollapsed ? "hidden" : ""}>Device Management</span>
                     </li>
-                    <li className={window.location.pathname === "/device-assignment" ? "active" : ""} onClick={() => handleNavigation("/device-assignment")}>
+                    <li className={window.location.pathname === "/inventory-deviceassignment" ? "active" : ""} onClick={() => handleNavigation("/inventory-deviceassignment")}>
                         <MdAssignment />
                         <span className={isCollapsed ? "hidden" : ""}>Device Assignment</span>
                     </li>
-                    <li className={window.location.pathname === "/repair-management" ? "active" : ""} onClick={() => handleNavigation("/repair-management")}>
+                    <li className={window.location.pathname === "/inventory-repairmanagement" ? "active" : ""} onClick={() => handleNavigation("/inventory-repairmanagement")}>
                         <FaTools />
                         <span className={isCollapsed ? "hidden" : ""}>Repair Management</span>
                     </li>
-                    <li className={window.location.pathname === "/import-files" ? "active" : ""} onClick={() => handleNavigation("/import-files")}>
+                    <li className={window.location.pathname === "/inventory-importfiles" ? "active" : ""} onClick={() => handleNavigation("/inventory-importfiles")}>
                         <FaFileImport />
                         <span className={isCollapsed ? "hidden" : ""}>Import Files</span>
                     </li>
