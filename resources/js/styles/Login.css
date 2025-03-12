@@ -1,0 +1,118 @@
+/* Auth Container */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: url('../assets/mmpc_car.png') no-repeat center center/cover;
+    position: relative;
+}
+
+.auth-box {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.close-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    color: red;
+}
+
+.auth-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: black;
+}
+
+.auth-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.auth-toggle {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.auth-toggle button {
+    width: 50%;
+    padding: 8px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    background: none;
+    font-weight: bold;
+}
+
+.auth-toggle .active {
+    background: red;
+    color: white;
+    border-radius: 5px;
+}
+
+.auth-form .input-group {
+    margin-bottom: 10px; /* Reduced spacing to fit within container */
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.auth-submit {
+    background: red;
+    color: white;
+    font-size: 16px;
+    padding: 10px;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px; /* Reduced margin to fit */
+}
+
+.auth-switch {
+    margin-top: 8px; /* Adjusted spacing */
+    font-size: 14px;
+}
+
+.auth-link {
+    color: red;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Ensure the auth box is centered properly */
+@media (max-height: 700px) {
+    .auth-container {
+        height: auto;
+        padding: 10px;
+    }
+
+    .auth-box {
+        width: 320px;
+        padding: 20px;
+    }
+
+    .auth-form input {
+        padding: 8px;
+    }
+
+    .auth-submit {
+        padding: 8px;
+    }
+}
