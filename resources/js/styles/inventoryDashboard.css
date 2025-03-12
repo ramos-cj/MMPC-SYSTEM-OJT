@@ -17,36 +17,95 @@
 /* Stats Cards */
 .stats-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 10px;
-    transition: all 0.3s ease-in-out;
+    grid-template-columns: repeat(4, 1fr); /* 4 columns */
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: center;
 }
 
 .stat-card {
-    background-color: #d32f2f;
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border-radius: 12px;
+    color: white;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 120px;
+    width: 100%;
+    max-width: 220px;
+    transition: all 0.3s ease-in-out;
 }
 
+/* Icons */
 .stat-card svg {
-    font-size: 24px;
-    margin-bottom: 5px;
+    font-size: 40px;
+    margin-bottom: 8px;
 }
 
+/* Number styling */
 .stat-card h3 {
+    font-size: 35px;
     margin: 0;
-    font-size: 20px;
+    font-weight: bold;
 }
 
+/* Label styling */
 .stat-card p {
-    margin: 5px 0 0;
     font-size: 14px;
+    font-weight: normal;
+    margin-bottom: 8px;
 }
+
+/* More Info Button */
+.stat-card .more-info {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.3);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    width: 80%;
+    transition: background 0.3s ease-in-out;
+}
+
+.stat-card .more-info:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.stat-card .more-info svg {
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+/* Specific Colors */
+.stat-card:nth-child(1) { background: #A91D3A; } /* Total Employees */
+.stat-card:nth-child(2) { background: #771F6C; } /* Laptop */
+.stat-card:nth-child(3) { background: #C05F5F; } /* Tablet */
+.stat-card:nth-child(4) { background: #C63D3D; } /* Phone */
+.stat-card:nth-child(5) { background: white; color: #B03030; border: 2px solid #B03030; } /* Accessories */
+.stat-card:nth-child(6) { background: white; color: #7D1E6A; border: 2px solid #7D1E6A; } /* Good Condition */
+.stat-card:nth-child(7) { background: white; color: #AE2012; border: 2px solid #AE2012; } /* Repair */
+.stat-card:nth-child(8) { background: white; color: #C70039; border: 2px solid #C70039; } /* Imported Files */
+
+/* Responsive: Adjust to 2 columns on smaller screens */
+@media (max-width: 768px) {
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
 
 /* Inventory Table */
 .inventory-table {
