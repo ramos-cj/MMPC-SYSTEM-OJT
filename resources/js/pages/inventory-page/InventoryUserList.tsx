@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrash, FaSearch } from "react-icons/fa";
+import mmpcLogo from '@/assets/mmpc-logo1.png'; // Ensure the path is correct
+import { FaEdit, FaTrash, FaSearch, FaTimes, FaUsers } from "react-icons/fa";
 import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
 import SidebarInventory from "@/components/sidebar-inventory";
 import "@/styles/userlist.css";
@@ -11,9 +12,11 @@ interface Employee {
   first_name: string;
   middle_initial?: string;
   last_name: string;
+  position: string;
   division_department: string;
   division_code: string;
   department_code: string;
+  section_code: string;
 }
 
 const InventoryUserList: React.FC = () => {
@@ -25,6 +28,8 @@ const InventoryUserList: React.FC = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(15);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
 
   // Fetch employees and divisions/departments from database
   useEffect(() => {
@@ -66,8 +71,18 @@ const InventoryUserList: React.FC = () => {
     setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
   };
 
+  // Open modal with employee data
+  const handleEmployeeClick = (employee: Employee) => {
+    setSelectedEmployee(employee);
+  };
+
+  // Close modal
+  const closeModal = () => {
+    setSelectedEmployee(null);
+  };
+
   return (
-    <div className="inventory-userlist-container">
+    <div className={`inventory-userlist-container ${selectedEmployee ? "blurred" : ""}`}>
       <SidebarInventory />
       <div className="userlist-content">
         <h2>USER LIST ({users.length} employees)</h2>
@@ -125,8 +140,8 @@ const InventoryUserList: React.FC = () => {
             <tbody>
               {filteredUsers.map((user, index) => (
                 <tr key={user.id}>
-                  <td>{index + 1}</td> {/* Auto-incrementing user ID */}
-                  <td>{user.employee_number}</td>
+                  <td>{index + 1}</td>
+                  <td className="clickable" onClick={() => handleEmployeeClick(user)}>{user.employee_number}</td>
                   <td>{user.first_name}</td>
                   <td>{user.middle_initial ?? "-"}</td>
                   <td>{user.last_name}</td>
@@ -142,6 +157,51 @@ const InventoryUserList: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Employee Info Modal */}
+      {selectedEmployee && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            {/* Header */}
+            <div className="modal-header">
+              <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+              <h2>Employee’s Information</h2>
+              <FaTimes className="close-icon" onClick={closeModal} />
+            </div>
+
+            {/* Profile Picture & Name */}
+            <div className="profile-section">
+              <FaUsers className="user-icon" />
+              <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial ?? ""} {selectedEmployee.last_name}</p>
+            </div>
+
+            {/* Employee Details (2 Columns) */}
+            <div className="employee-details">
+              <div className="column">
+                <label>First Name:</label>
+                <input type="text" value={selectedEmployee.first_name} readOnly />
+                <label>Middle Initial:</label>
+                <input type="text" value={selectedEmployee.middle_initial ?? "-"} readOnly />
+                <label>Last Name:</label>
+                <input type="text" value={selectedEmployee.last_name} readOnly />
+                <label>Position:</label>
+                <input type="text" value={selectedEmployee.position} readOnly />
+              </div>
+
+              <div className="column">
+                <label>Division Code:</label>
+                <input type="text" value={selectedEmployee.division_code} readOnly />
+                <label>Department Code:</label>
+                <input type="text" value={selectedEmployee.department_code} readOnly />
+                <label>Division/Department:</label>
+                <input type="text" value={selectedEmployee.division_department} readOnly />
+                <label>Section Code:</label>
+                <input type="text" value={selectedEmployee.section_code} readOnly />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

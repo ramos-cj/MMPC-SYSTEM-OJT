@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\ExitClearanceAuthController;
 use App\Http\Controllers\InventoryDashboardController;
 use App\Http\Controllers\InventoryDeviceManagementController;
 use App\Http\Controllers\InventoryUserManagementController;
+use App\Http\Controllers\InventoryDeviceAssignmentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -55,6 +56,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory-deviceassignment', function () {
         return Inertia::render('inventory-page/InventoryDeviceAssignment');
     })->name('inventory-deviceassignment');
+
+    Route::get('/inventory-device-assignment/available-devices', [InventoryDeviceAssignmentController::class, 'getAvailableDevices']);
+    Route::get('/inventory-device-assignment/assigned-devices', [InventoryDeviceAssignmentController::class, 'getAssignedDevices']);
+    Route::post('/inventory-device-assignment/assign', [InventoryDeviceAssignmentController::class, 'assignDevice']);
+    Route::post('/inventory-device-assignment/remove', [InventoryDeviceAssignmentController::class, 'removeDevice']);
+    Route::post('/inventory-device-assignment/transfer', [InventoryDeviceAssignmentController::class, 'transferDevice']);
 
     Route::get('/inventory-repairmanagement', function () {
         return Inertia::render('inventory-page/InventoryRepairManagement');

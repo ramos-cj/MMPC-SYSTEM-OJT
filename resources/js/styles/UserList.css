@@ -74,6 +74,10 @@ padding: 20px;
 margin-top: 10px; /* Lower table position */
 }
 
+.userlist-table-container .clickable{
+  cursor:pointer;
+  transition:cubic-bezier(0.075, 0.82, 0.165, 1)
+}
 /* Table Structure */
 .userlist-table-container table {
   width: 100%;
@@ -225,4 +229,113 @@ margin-top: 10px; /* Lower table position */
   .pagination {
     justify-content: center;
   }
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+/* Modal Content */
+.modal-content {
+  background: white;
+  padding: 20px;
+  width: 600px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #ccc;
+}
+
+.modal-header h2{
+  position: absolute;
+  margin-left: 150px;
+  font-size: 25px;
+
+}
+
+/* MMPC Logo */
+.mmpc-logo {
+  height: 50px;
+  width: 40px;
+  margin-right: auto;
+}
+
+/* Close Button */
+.close-icon {
+  font-size: 20px;
+  cursor: pointer;
+  color: red;
+}
+
+/* Profile Section */
+.profile-section {
+  margin-top: 10px;
+}
+
+.user-icon {
+  font-size: 50px;
+  color: red;
+  margin-bottom: 5px;
+  margin-left: 230px;
+  width: 90px;
+  height: 90px;
+}
+
+.employee-name {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Employee Details (2 Columns) */
+.employee-details {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.employee-details .column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.employee-details label {
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+}
+
+.employee-details input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+}
+
+/* Blurred Background */
+.blurred .userlist-content {
+  filter: blur(3px);
+  pointer-events: none;
 }
