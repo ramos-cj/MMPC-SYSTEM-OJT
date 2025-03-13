@@ -156,6 +156,7 @@
     top: 90px;
     margin-left: 15px;
     margin-top: 9px;
+    margin-right: 15px;
 }
 
 /* Adjust when sidebar is collapsed */
@@ -174,4 +175,14 @@
 /* Ensure icons also turn white when active */
 .sidebar ul .active svg {
     color: white;
+}
+
+/* Dashboard Header Styling */
+.dashboard-main-content h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid  red; /* Adds a line below the title */
+    text-align: left; /* Ensures text is aligned to the left */
 }

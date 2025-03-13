@@ -1,221 +1,228 @@
 /* Adjust layout container to push content down */
 .inventory-userlist-container {
-    display: flex;
-    height: 100vh;
-    transition: all 0.3s ease-in-out;
-  }
+  display: flex;
+  height: 100vh;
+  transition: all 0.3s ease-in-out;
+  width: 100%;
+ 
   
-  /* Ensure enough space for all content */
-  .userlist-content {
-    flex-grow: 1;
-    padding: 20px;
-    background-color: #f8f8f8;
-    transition: all 0.3s ease-in-out;
-    overflow-x: auto;
-    margin-top: 80px; /* Add margin to push content down */
-  }
-  
-  /* Title Header */
-  .userlist-content h2 {
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-  }
-  
-  /* Adjust Table & Filters */
+}
+
+/* Ensure enough space for all content */
+.userlist-content {
+  border-radius: 4px;
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #f8f8f8;
+  transition: all 0.3s ease-in-out;
+  overflow-x: auto;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: 97px; /* Add margin to push content down */
+}
+
+/* Title Header */
+.userlist-content h2 {
+font-size: 24px;
+font-weight: bold;
+margin-bottom: 15px;
+padding-bottom: 10px;
+border-bottom: 2px solid  red; /* Adds a line below the title */
+text-align: left; /* Ensures text is aligned to the left */
+}
+
+/* Adjust Table & Filters */
 .filter-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 15px;
-    padding: 10px;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 20px; /* Increase spacing */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 10px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 20px; /* Increase spacing */
+}
+
+.filter-container div {
+  display: flex;
+  align-items: center;
+}
+
+.filter-container select,
+.filter-container input {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  min-width: 160px;
+}
+
+.filter-container input {
+  padding-left: 30px;
+  width: 250px;
+}
+
+/* Fix Table Positioning */
+.userlist-table-container {
+background: white;
+border-radius: 4px;
+overflow-x: auto;
+padding: 20px;
+margin-top: 10px; /* Lower table position */
+}
+
+/* Table Structure */
+.userlist-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.userlist-table-container th,
+.userlist-table-container td {
+  padding: 12px;
+  text-align: center;
+  border: none;
+}
+
+.userlist-table-container th {
+  background-color: #d32f2f;
+  color: white;
+  font-weight: bold;
+}
+
+.userlist-table-container tbody tr:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
+/* Icons for Edit/Delete */
+.userlist-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.edit-icon,
+.delete-icon {
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+}
+
+.edit-icon {
+  color: #ff9800;
+  width: 50px;
+  height: 30px;
+}
+
+.delete-icon {
+  color: #f44336;
+  width: 50px;
+  height: 30px;
+}
+
+/* Ensure sortable header style */
+.sortable-header {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Sort icon styling */
+.sort-icon {
+  font-size: 16px;
+  margin-left: 5px;
+}
+
+/* Entries Selection */
+.entries-label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.entries-select {
+  margin: 0 8px;
+  padding: 4px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+/* Search Box */
+.search-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 14px;
+  color: gray;
+}
+
+.search-container input {
+  padding-left: 30px;
+  width: 200px;
+}
+
+/* Table */
+.userlist-table-container {
+  margin-top: 10px;
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  margin: 0 3px;
+  border: none;
+  background: #fff;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.pagination button:hover {
+  background: #eee;
+}
+
+.pagination .active {
+  background-color: #d32f2f;
+  color: white;
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .userlist-content {
+    width: 100%;
   }
 
-  .filter-container div {
-    display: flex;
-    align-items: center;
-  }
-  
-  .filter-container select,
-  .filter-container input {
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    outline: none;
-    min-width: 160px;
-  }
-  
-  .filter-container input {
-    padding-left: 30px;
-    width: 250px;
-  }
-  
-  /* Fix Table Positioning */
-.userlist-table-container {
-  background: white;
-  border-radius: 4px;
-  overflow-x: auto;
-  padding: 20px;
-  margin-top: 10px; /* Lower table position */
-}
-  
-  /* Table Structure */
-  .userlist-table-container table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .userlist-table-container th,
-  .userlist-table-container td {
-    padding: 12px;
-    text-align: center;
-    border: none;
-  }
-  
-  .userlist-table-container th {
-    background-color: #d32f2f;
-    color: white;
-    font-weight: bold;
-  }
-  
-  .userlist-table-container tbody tr:nth-child(even) {
-    background-color: #f8f8f8;
-  }
-  
-  /* Icons for Edit/Delete */
-  .userlist-actions {
-    display: flex;
-    justify-content: center;
+  .filter-container {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 10px;
   }
-  
-  .edit-icon,
-  .delete-icon {
-    cursor: pointer;
-    font-size: 16px;
-    padding: 5px;
-  }
-  
-  .edit-icon {
-    color: #ff9800;
-    width: 50px;
-    height: 30px;
-  }
-  
-  .delete-icon {
-    color: #f44336;
-    width: 50px;
-    height: 30px;
-  }
-  
-  /* Ensure sortable header style */
-.sortable-header {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-  }
-  
-  /* Sort icon styling */
-  .sort-icon {
-    font-size: 16px;
-    margin-left: 5px;
-  }
-  
-  /* Entries Selection */
-.entries-label {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-  }
-  
-  .entries-select {
-    margin: 0 8px;
-    padding: 4px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: white;
-    cursor: pointer;
-  }
-  
-  /* Search Box */
-  .search-container {
-    display: flex;
-    align-items: center;
-    position: relative;
-  }
-  
-  .search-icon {
-    position: absolute;
-    left: 10px;
-    font-size: 14px;
-    color: gray;
-  }
-  
-  .search-container input {
-    padding-left: 30px;
-    width: 200px;
-  }
-  
-  /* Table */
-  .userlist-table-container {
-    margin-top: 10px;
-    background: white;
-    padding: 10px;
-    border-radius: 5px;
-  }
-  
-  /* Pagination */
+
   .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 10px;
+    justify-content: center;
   }
-  
-  .pagination button {
-    padding: 6px 12px;
-    margin: 0 3px;
-    border: none;
-    background: #fff;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-  }
-  
-  .pagination button:hover {
-    background: #eee;
-  }
-  
-  .pagination .active {
-    background-color: #d32f2f;
-    color: white;
-  }
-  
-  
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .userlist-content {
-      width: 100%;
-    }
-  
-    .filter-container {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
-  
-    .pagination {
-      justify-content: center;
-    }
-  }
-  
+}

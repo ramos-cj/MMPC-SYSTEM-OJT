@@ -1,20 +1,188 @@
-import { useState } from "react";
-import { Head } from "@inertiajs/react";
+import React, { useState } from "react";
+import { router } from "@inertiajs/react";
 import SidebarInventory from "@/components/sidebar-inventory";
-import { FaUsers, FaLaptop, FaTabletAlt, FaPhone, FaCogs, FaFileImport, FaTools, FaArrowRight } from "react-icons/fa";
-import "@/styles/inventoryDashboard.css";
+import "@/styles/DeviceManagement.css";
 
-export default function InventoryDashboard() {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+const InventoryDeviceManagement: React.FC = () => {
+    const [formData, setFormData] = useState({
+        tag_no: "",
+        pi_guard: "",
+        general_name: "",
+        activation_updates: "",
+        brand_name: "",
+        accessories: "",
+        classification: "",
+        estimated_acquisition_year: "",
+        model: "",
+        location: "",
+        serial_number: "",
+        qr_code: "",
+        property_tag: "",
+        with_warranty: "",
+        computer_name: "",
+        remarks: "",
+        condition: "",
+        image_file: null as File | null,
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        setFormData((prev) => ({
+            ...prev,
+            image_file: file,
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const data = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+            if (value !== null) data.append(key, value as string | Blob);
+        });
+
+        router.post("/inventory-device-management/save", data, {
+            onSuccess: () => alert("Device saved successfully!"),
+            onError: (errors) => console.log(errors),
+        });
+    };
 
     return (
-        <>
-            <Head title="Inventory Dashboard" />
-            <div className="dashboard-wrapper">
-                <SidebarInventory />
-                
-                
+        <div className="device-management-container">
+            <SidebarInventory />
+            <div className="device-management-content">
+                <h2>DEVICE MANAGEMENT</h2>
+                <form onSubmit={handleSubmit} className="device-form">
+                    <div className="form-grid">
+                        <div className="form-group">
+                            <label>Tag No.</label>
+                            <input type="text" name="tag_no" value={formData.tag_no} onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group">
+                            <label>With IP-Guard</label>
+                            <select name="pi_guard" value={formData.pi_guard} onChange={handleChange}>
+                                <option value="">Choose PI-Guard</option>
+                                <option value="Unauthorized">Unauthorized</option>
+                                <option value="Unclassified">Unclassified</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label>General Name</label>
+                            <input type="text" name="general_name" value={formData.general_name} onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Activation Updates</label>
+                            <select name="activation_updates" value={formData.activation_updates} onChange={handleChange}>
+                                <option value="">Choose Activation Updates</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label>Brand Name</label>
+                            <input type="text" name="brand_name" value={formData.brand_name} onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Accessories</label>
+                            <input type="text" name="accessories" value={formData.accessories} onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Classification</label>
+                            <select name="classification" value={formData.classification} onChange={handleChange}>
+                                <option value="">Choose Classification</option>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Tablet">Tablet</option>
+                                <option value="Phone">Phone</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label>Estimated Acquisition Year</label>
+                            <input type="text" name="estimated_acquisition_year" value={formData.estimated_acquisition_year} onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Model</label>
+                            <input type="text" name="model" value={formData.model} onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Location</label>
+                            <input type="text" name="location" value={formData.location} onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Serial Number</label>
+                            <input type="text" name="serial_number" value={formData.serial_number} onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group">
+                            <label>With QR Code</label>
+                            <select name="qr_code" value={formData.qr_code} onChange={handleChange}>
+                                <option value="">Have QR Code?</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label>Property Tag</label>
+                            <input type="text" name="property_tag" value={formData.property_tag} onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group">
+                            <label>With Warranty</label>
+                            <select name="with_warranty" value={formData.with_warranty} onChange={handleChange}>
+                                <option value="">Have Warranty?</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label>Computer Name</label>
+                            <input type="text" name="computer_name" value={formData.computer_name} onChange={handleChange} />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Remarks</label>
+                            <textarea name="remarks" value={formData.remarks} onChange={handleChange}></textarea>
+                        </div>
+
+                        <div className="form-group">
+                            <label>Condition</label>
+                            <select name="condition" value={formData.condition} onChange={handleChange}>
+                                <option value="">Select Condition</option>
+                                <option value="Good">Good Condition</option>
+                                <option value="Bad">Bad Condition</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label>Image File Name</label>
+                            <input type="file" name="image_file" onChange={handleFileChange} />
+                        </div>
+                    </div>
+
+                    <button type="submit" className="save-btn">Save Device</button>
+                </form>
             </div>
-        </>
+        </div>
     );
-}
+};
+
+export default InventoryDeviceManagement;

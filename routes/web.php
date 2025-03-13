@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\InventoryAuthController;
 use App\Http\Controllers\Auth\ExitClearanceAuthController;
+use App\Http\Controllers\InventoryDeviceManagementController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -39,6 +40,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory-devicemanagement', function () {
         return Inertia::render('inventory-page/InventoryDeviceManagement');
     })->name('inventory-devicemanagement');
+
+    Route::post('/inventory-device-management/save', [InventoryDeviceManagementController::class, 'store']);
 
     Route::get('/inventory-deviceassignment', function () {
         return Inertia::render('inventory-page/InventoryDeviceAssignment');
