@@ -1,43 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrash, FaSearch } from "react-icons/fa";
 import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
 import SidebarInventory from "@/components/sidebar-inventory";
 import "@/styles/userlist.css";
 
+// Define the structure of Employee data
+interface Employee {
+  id: number;
+  employee_number: string;
+  first_name: string;
+  middle_initial?: string;
+  last_name: string;
+  division_department: string;
+  division_code: string;
+  department_code: string;
+}
+
 const InventoryUserList: React.FC = () => {
-  const [users, setUsers] = useState([
-    { id: 1, empNumber: "32012345", firstName: "Marshall", middleInitial: "D", lastName: "Teach", divisionCode: "210321267", deptCode: "210321267" },
-    { id: 2, empNumber: "32012346", firstName: "Mel Chor", middleInitial: "D", lastName: "Garp", divisionCode: "210321268", deptCode: "210321268" },
-    { id: 3, empNumber: "32012347", firstName: "Shanks", middleInitial: "D", lastName: "Red", divisionCode: "210321269", deptCode: "210321269" },
-    // Add more users for pagination testing
-  ]);
-
+  const [users, setUsers] = useState<Employee[]>([]);
+  const [divisions, setDivisions] = useState<string[]>([]);
+  const [departments, setDepartments] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(15);
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  // Sort user list based on User ID
+  // Fetch employees and divisions/departments from database
+  useEffect(() => {
+    fetch("/inventory-user-management/list")
+      .then((response) => response.json())
+      .then((data: Employee[]) => {
+        setUsers(data);
+
+        // Extract unique Division and Department values from database
+        const uniqueDivisions = [...new Set(data.map((user) => user.division_department))];
+        const uniqueDepartments = [...new Set(data.map((user) => user.department_code))];
+
+        setDivisions(uniqueDivisions);
+        setDepartments(uniqueDepartments);
+      })
+      .catch((error) => console.error("Error fetching user data:", error));
+  }, []);
+
+  // Sorting function for division/department
   const sortedUsers = [...users].sort((a, b) => {
-    if (sortOrder === "asc") return a.id - b.id;
-    if (sortOrder === "desc") return b.id - a.id;
-    return 0;
+    const fieldToSort = selectedDivision ? "division_department" : "department_code";
+    return sortOrder === "asc"
+      ? String(a[fieldToSort as keyof Employee]).localeCompare(String(b[fieldToSort as keyof Employee]))
+      : String(b[fieldToSort as keyof Employee]).localeCompare(String(a[fieldToSort as keyof Employee]));
   });
 
-  // Filter logic
-  const filteredUsers = sortedUsers.filter((user) =>
-    user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.empNumber.includes(searchTerm)
+  // Filtering based on user selection
+  const filteredUsers = sortedUsers.filter(
+    (user) =>
+      (user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.employee_number.includes(searchTerm)) &&
+      (selectedDivision ? user.division_department === selectedDivision : true) &&
+      (selectedDepartment ? user.department_code === selectedDepartment : true)
   );
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredUsers.length / entriesPerPage);
-  const paginatedUsers = filteredUsers.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
-
-  // Toggle sort order
+  // Sorting User ID
   const handleSort = () => {
     setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
   };
@@ -46,9 +70,9 @@ const InventoryUserList: React.FC = () => {
     <div className="inventory-userlist-container">
       <SidebarInventory />
       <div className="userlist-content">
-        <h2>USER LIST (253 employees)</h2>
+        <h2>USER LIST ({users.length} employees)</h2>
 
-        {/* Filters & Entries Selector */}
+        {/* Filters */}
         <div className="filter-container">
           <label className="entries-label">
             Show
@@ -62,27 +86,17 @@ const InventoryUserList: React.FC = () => {
             </select>
             entries
           </label>
-
           <div className="search-container">
             <FaSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
 
-          <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)}>
-            <option value="">Select Department</option>
-            <option value="210321267">Department 1</option>
-            <option value="210321268">Department 2</option>
-          </select>
-
+          {/* Division Dropdown */}
           <select value={selectedDivision} onChange={(e) => setSelectedDivision(e.target.value)}>
-            <option value="">Select Division</option>
-            <option value="Division 1">Division 1</option>
-            <option value="Division 2">Division 2</option>
+            <option value="">Filter by Division</option>
+            {divisions.map((div) => (
+              <option key={div} value={div}>{div}</option>
+            ))}
           </select>
         </div>
 
@@ -95,29 +109,29 @@ const InventoryUserList: React.FC = () => {
                   User ID{" "}
                   {sortOrder === "asc" ? (
                     <MdArrowDropUp className="sort-icon" />
-                  ) : sortOrder === "desc" ? (
+                  ) : (
                     <MdArrowDropDown className="sort-icon" />
-                  ) : null}
+                  )}
                 </th>
                 <th>Employee Number</th>
                 <th>First Name</th>
                 <th>M.I</th>
-                <th>Surname</th>
-                <th>Division Code</th>
-                <th>Department Code</th>
+                <th>Last Name</th>
+                <th>Division</th>
+                <th>Department</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {paginatedUsers.map((user) => (
+              {filteredUsers.map((user, index) => (
                 <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.empNumber}</td>
-                  <td>{user.firstName}</td>
-                  <td>{user.middleInitial}</td>
-                  <td>{user.lastName}</td>
-                  <td>{user.divisionCode}</td>
-                  <td>{user.deptCode}</td>
+                  <td>{index + 1}</td> {/* Auto-incrementing user ID */}
+                  <td>{user.employee_number}</td>
+                  <td>{user.first_name}</td>
+                  <td>{user.middle_initial ?? "-"}</td>
+                  <td>{user.last_name}</td>
+                  <td>{user.division_department}</td>
+                  <td>{user.department_code}</td>
                   <td className="userlist-actions">
                     <FaEdit className="edit-icon" />
                     <FaTrash className="delete-icon" />
@@ -126,21 +140,6 @@ const InventoryUserList: React.FC = () => {
               ))}
             </tbody>
           </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="pagination">
-          <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Previous</button>
-          {[...Array(totalPages)].map((_, index) => (
-            <button
-              key={index}
-              className={currentPage === index + 1 ? "active" : ""}
-              onClick={() => setCurrentPage(index + 1)}
-            >
-              {index + 1}
-            </button>
-          ))}
-          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
         </div>
       </div>
     </div>

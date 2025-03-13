@@ -1,27 +1,55 @@
 .dashboard-wrapper {
     display: flex;
-    height: 100vh;
-    transition: all 0.3s ease-in-out;
-
+    height: 100vh; /* Make sure it takes full screen height */
 }
 
-/* Dashboard Content */
-.dashboard-content {
+/* Sidebar should remain fixed while the content scrolls */
+.dashboard-main-content {
+    flex: 1;
+    top: 90px;
+    margin-left: 15px;
+    margin-top: 9px;
+    margin-right: 15px;
     padding: 20px;
     background-color: #f4f4f4;
-    transition: all 0.3s ease-in-out;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    overflow-y: auto; /* Enable vertical scrolling */
+    height: calc(100vh - 100px); /* Adjust height dynamically to viewport */
+}
+
+/* Ensure proper spacing for the scrollbar */
+.dashboard-main-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dashboard-main-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.dashboard-main-content::-webkit-scrollbar-thumb {
+    background: #d32f2f;
+    border-radius: 4px;
 }
 
 
-/* Stats Cards */
+h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.last-update {
+    font-size: 14px;
+    color: gray;
+}
+
 .stats-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 10px;
-    transition: all 0.3s ease-in-out;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
     margin-top: 20px;
-    justify-content: center;
-    height: 45%;
 }
 
 .stat-card {
@@ -37,17 +65,27 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     min-height: 120px;
     width: 100%;
-
     transition: all 0.3s ease-in-out;
 }
 
-/* Icons */
-.stat-card svg {
-    font-size: 40px;
+.stat-card .icon svg{
+    width: 50px;
+    height: 50px;
+}
+
+.stat-card.purple {
+    background: #8e44ad;
+}
+
+.stat-card.dark-red {
+    background: #a93226;
+}
+
+.stat-card .stat-icon {
+    font-size: 30px;
     margin-bottom: 8px;
 }
 
-/* Number styling */
 .stat-card h3 {
     font-size: 35px;
     margin: 0;
@@ -55,14 +93,12 @@
     margin-bottom: 3%;
 }
 
-/* Label styling */
 .stat-card p {
     font-size: 14px;
     font-weight: normal;
     margin-bottom: 13%;
 }
 
-/* More Info Button */
 .stat-card .more-info {
     position: absolute;
     bottom: 10px;
@@ -76,13 +112,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
     width: 80%;
     transition: background 0.3s ease-in-out;
+    cursor: pointer;
 }
 
 .stat-card .more-info:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(230, 10, 10, 0.5);
 }
 
 .stat-card .more-info svg {
@@ -143,27 +179,6 @@
     width: 90%; /* Adjust based on sidebar width */
 }
 
-/* Prevent content overflow */
-.dashboard-main-content {
-    background-color: #f4f4f4;
-    padding: 20px;
-    border-radius: 4px;
-    text-align: center;
-    width: 100%;
-    max-width: 100%;
-    position: relative;
-    overflow-x: auto; /* Allow horizontal scrolling if needed */
-    top: 90px;
-    margin-left: 15px;
-    margin-top: 9px;
-    margin-right: 15px;
-}
-
-/* Adjust when sidebar is collapsed */
-.menu-container.collapsed + .dashboard-wrapper .dashboard-main-content {
-    margin-left: 80px; /* Adjust margin when sidebar is collapsed */
-    width:1000px; /* Expand content when sidebar is collapsed */
-}
 
 /* Active Sidebar Item */
 .sidebar ul .active {

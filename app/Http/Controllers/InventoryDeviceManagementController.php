@@ -48,8 +48,9 @@ class InventoryDeviceManagementController extends Controller
         $device->property_tag = $request->property_tag;
         $device->with_warranty = $request->with_warranty;
         $device->computer_name = $request->computer_name;
+        $device->condition = $request->condition;
         $device->remarks = $request->remarks;
-        $device->remarks = $request->condition;
+
 
         // Handle Image Upload
         if ($request->hasFile('image_file')) {

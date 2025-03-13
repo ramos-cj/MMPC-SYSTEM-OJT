@@ -1,89 +1,99 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
 import SidebarInventory from "@/components/sidebar-inventory";
 import { FaUsers, FaLaptop, FaTabletAlt, FaPhone, FaCogs, FaFileImport, FaTools, FaArrowRight } from "react-icons/fa";
 import "@/styles/inventoryDashboard.css";
 
-export default function InventoryDashboard() {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+const InventoryDashboard: React.FC = () => {
+    const [stats, setStats] = useState({
+        totalEmployees: 0,
+        totalLaptops: 0,
+        totalTablets: 0,
+        totalPhones: 0,
+        totalAccessories: 0,
+        totalGoodCondition: 0,
+        totalBadCondition: 0,
+        totalImportedFiles: 0,
+        latestUpdate: "",
+        assetSummary: [] as { classification: string; total: number; warrantyExpired: number }[],
+    });
+
+    useEffect(() => {
+        fetch("/inventory-dashboard/stats")
+            .then((response) => response.json())
+            .then((data) => setStats(data))
+            .catch((error) => console.error("Error fetching dashboard stats:", error));
+    }, []);
+
+    // Format Date
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return "No recent updates";
+        const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
+        return new Date(dateString).toLocaleDateString("en-US", options);
+    };
 
     return (
         <>
             <Head title="Inventory Dashboard" />
             <div className="dashboard-wrapper">
                 <SidebarInventory />
-                
-                <div className={`dashboard-main-content ${isCollapsed ? "expanded" : ""}`}>
+
+                <div className="dashboard-main-content">
                     <h2>Admin Dashboard</h2>
-                    <p className="last-update">Last Update (As of March 5, 2025)</p>
-                    
+                    <p className="last-update">Last Update (As of {formatDate(stats.latestUpdate)})</p>
+
                     <div className="stats-container">
                         <div className="stat-card">
-                            <FaUsers />
-                            <h3>235</h3>
-                            <p>Total Employee</p>
-                            <div className="more-info">
-                                More Info <FaArrowRight />
-                            </div>
+                            <div className="icon"><FaUsers /></div>
+                            <h3>{stats.totalEmployees}</h3>
+                            <p>Total Employees</p>
+                            <div className="more-info">More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <FaLaptop />
-                            <h3>216</h3>
-                            <p>Laptop</p>
-                            <div className="more-info">
-                                More Info <FaArrowRight />
-                            </div>
+                            <div className="icon"><FaLaptop /></div>
+                            <h3>{stats.totalLaptops}</h3>
+                            <p>Laptops</p>
+                            <div className="more-info">More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <FaTabletAlt />
-                            <h3>12</h3>
-                            <p>Tablet</p>
-                            <div className="more-info">
-                                More Info <FaArrowRight />
-                            </div>
+                            <div className="icon"><FaTabletAlt /></div>
+                            <h3>{stats.totalTablets}</h3>
+                            <p>Tablets</p>
+                            <div className="more-info">More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <FaPhone />
-                            <h3>5</h3>
-                            <p>Phone</p>
-                            <div className="more-info">
-                                More Info <FaArrowRight />
-                            </div>
+                            <div className="icon"> <FaPhone /> </div>
+                            <h3>{stats.totalPhones}</h3>
+                            <p>Phones</p>
+                            <div className="more-info">More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <FaCogs />
-                            <h3>208</h3>
+                            <div className="icon"> <FaCogs /> </div>
+                            <h3>{stats.totalAccessories}</h3>
                             <p>Accessories</p>
-                            <div className="more-info">
-                                More Info <FaArrowRight />
-                            </div>
+                            <div className="more-info">More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <FaCogs />
-                            <h3>208</h3>
+                            <div className="icon"> <FaCogs /> </div>
+                            <h3>{stats.totalGoodCondition}</h3>
                             <p>Good Condition</p>
-                            <div className="more-info">
-                                More Info <FaArrowRight />
-                            </div>
+                            <div className="more-info">More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <FaTools />
-                            <h3>8</h3>
-                            <p>Repair</p>
-                            <div className="more-info">
-                                More Info <FaArrowRight />
-                            </div>
+                            <div className="icon"> <FaTools /> </div>
+                            <h3>{stats.totalBadCondition}</h3>
+                            <p>Needs Repair</p>
+                            <div className="more-info">More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <FaFileImport />
-                            <h3>8</h3>
+                            <div className="icon"> <FaFileImport /> </div>
+                            <h3>{stats.totalImportedFiles}</h3>
                             <p>Imported Files</p>
-                            <div className="more-info">
-                                More Info <FaArrowRight />
-                            </div>
+                            <div className="more-info">More Info <FaArrowRight /></div>
                         </div>
                     </div>
 
+                    {/* Warranty and Inventory Summary Table */}
                     <div className="inventory-table">
                         <h3>Warranty and Inventory Summary</h3>
                         <table>
@@ -95,11 +105,13 @@ export default function InventoryDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Laptop</td>
-                                    <td>8</td>
-                                    <td>3</td>
-                                </tr>
+                                {stats.assetSummary.map((asset, index) => (
+                                    <tr key={index}>
+                                        <td>{asset.classification}</td>
+                                        <td>{asset.total}</td>
+                                        <td>{asset.warrantyExpired}</td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
@@ -107,4 +119,6 @@ export default function InventoryDashboard() {
             </div>
         </>
     );
-}
+};
+
+export default InventoryDashboard;

@@ -69,13 +69,13 @@ const InventoryDeviceManagement: React.FC = () => {
                     <div className="form-grid">
                         <div className="form-group">
                             <label>Tag No.</label>
-                            <input type="text" name="tag_no" value={formData.tag_no} onChange={handleChange} />
+                            <input type="text" name="tag_no" placeholder="Enter Tag Number" value={formData.tag_no} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
                             <label>With IP-Guard</label>
                             <select name="pi_guard" value={formData.pi_guard} onChange={handleChange}>
-                                <option value="">Choose PI-Guard</option>
+                                <option value="">Choose IP-Guard</option>
                                 <option value="Unauthorized">Unauthorized</option>
                                 <option value="Unclassified">Unclassified</option>
                             </select>
@@ -83,7 +83,7 @@ const InventoryDeviceManagement: React.FC = () => {
 
                         <div className="form-group">
                             <label>General Name</label>
-                            <input type="text" name="general_name" value={formData.general_name} onChange={handleChange} />
+                            <input type="text" name="general_name" placeholder="Enter General Name" value={formData.general_name} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
@@ -97,12 +97,12 @@ const InventoryDeviceManagement: React.FC = () => {
 
                         <div className="form-group">
                             <label>Brand Name</label>
-                            <input type="text" name="brand_name" value={formData.brand_name} onChange={handleChange} />
+                            <input type="text" name="brand_name" placeholder="Enter Brand Name" value={formData.brand_name} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
                             <label>Accessories</label>
-                            <input type="text" name="accessories" value={formData.accessories} onChange={handleChange} />
+                            <input type="text" name="accessories" placeholder="Enter Accessories Included" value={formData.accessories} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
@@ -117,22 +117,22 @@ const InventoryDeviceManagement: React.FC = () => {
 
                         <div className="form-group">
                             <label>Estimated Acquisition Year</label>
-                            <input type="text" name="estimated_acquisition_year" value={formData.estimated_acquisition_year} onChange={handleChange} />
+                            <input type="text" name="estimated_acquisition_year" placeholder="Enter Estimated Acquisition Year" value={formData.estimated_acquisition_year} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
                             <label>Model</label>
-                            <input type="text" name="model" value={formData.model} onChange={handleChange} />
+                            <input type="text" name="model" placeholder="Enter Model" value={formData.model} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
                             <label>Location</label>
-                            <input type="text" name="location" value={formData.location} onChange={handleChange} />
+                            <input type="text" name="location" placeholder="Enter Location"value={formData.location} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
                             <label>Serial Number</label>
-                            <input type="text" name="serial_number" value={formData.serial_number} onChange={handleChange} />
+                            <input type="text" name="serial_number" placeholder="Enter Serial Number"value={formData.serial_number} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
@@ -146,7 +146,7 @@ const InventoryDeviceManagement: React.FC = () => {
 
                         <div className="form-group">
                             <label>Property Tag</label>
-                            <input type="text" name="property_tag" value={formData.property_tag} onChange={handleChange} />
+                            <input type="text" name="property_tag" placeholder="Enter Property Tag" value={formData.property_tag} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
@@ -160,12 +160,12 @@ const InventoryDeviceManagement: React.FC = () => {
 
                         <div className="form-group">
                             <label>Computer Name</label>
-                            <input type="text" name="computer_name" value={formData.computer_name} onChange={handleChange} />
+                            <input type="text" name="computer_name" placeholder="Enter Computer Name" value={formData.computer_name} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
                             <label>Remarks</label>
-                            <textarea name="remarks" value={formData.remarks} onChange={handleChange}></textarea>
+                            <textarea name="remarks" placeholder="Enter Remarks"value={formData.remarks} onChange={handleChange}></textarea>
                         </div>
 
                         <div className="form-group">

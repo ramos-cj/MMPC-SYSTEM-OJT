@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Auth\InventoryAuthController;
 use App\Http\Controllers\Auth\ExitClearanceAuthController;
+use App\Http\Controllers\InventoryDashboardController;
 use App\Http\Controllers\InventoryDeviceManagementController;
+use App\Http\Controllers\InventoryUserManagementController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -25,6 +27,9 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('dashboard/InventoryDashboard');
     })->name('inventory-dashboard');
 
+    Route::get('/inventory-dashboard/stats', [InventoryDashboardController::class, 'getStats']);
+    
+
     Route::get('/inventory-userlist', function () {
         return Inertia::render('inventory-page/InventoryUserList');
     })->name('inventory-userlist');
@@ -36,6 +41,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory-usermanagement', function () {
         return Inertia::render('inventory-page/InventoryUserManagement');
     })->name('inventory-usermanagement');
+
+
+    Route::get('/inventory-user-management/list', [InventoryUserManagementController::class, 'list']);
+    Route::post('/inventory-user-management/save', [InventoryUserManagementController::class, 'store']);
 
     Route::get('/inventory-devicemanagement', function () {
         return Inertia::render('inventory-page/InventoryDeviceManagement');
