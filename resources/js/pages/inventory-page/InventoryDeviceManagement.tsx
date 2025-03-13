@@ -25,6 +25,8 @@ const InventoryDeviceManagement: React.FC = () => {
         image_file: null as File | null,
     });
 
+    const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -51,7 +53,10 @@ const InventoryDeviceManagement: React.FC = () => {
 
         router.post("/inventory-device-management/save", data, {
             onSuccess: () => alert("Device saved successfully!"),
-            onError: (errors) => console.log(errors),
+            onError: (errors) => {
+                const errorMsg = Object.values(errors).join("\n"); // Convert errors into a string
+                setErrorMessage(errorMsg); // Show error in the modal
+            },
         });
     };
 
@@ -181,6 +186,17 @@ const InventoryDeviceManagement: React.FC = () => {
                     <button type="submit" className="save-btn">Save Device</button>
                 </form>
             </div>
+
+            {/* Error Modal */}
+            {errorMessage && (
+                <div className="error-modal-overlay">
+                    <div className="error-modal">
+                        <h3>Error</h3>
+                        <p>{errorMessage}</p>
+                        <button onClick={() => setErrorMessage(null)}>OK</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
