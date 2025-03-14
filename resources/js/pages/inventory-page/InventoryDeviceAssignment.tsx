@@ -146,16 +146,23 @@ const InventoryDeviceAssignment: React.FC = () => {
     
             const data = await response.json();
             alert(data.message);
-            setAssignedDevices([...assignedDevices, data.newAssignment]);
+    
+            // ✅ Reload assigned devices list instead of redirecting
+            fetch("/assigned-devices")
+                .then((res) => res.json())
+                .then((updatedData) => setAssignedDevices(updatedData));
+    
+            // Reset input fields
             setSelectedEmployee("");
             setSelectedClassification("");
             setSelectedBrand("");
             setSelectedModel("");
+    
         } catch (err) {
             console.error("Error:", err);
             alert("Error assigning device. Please check the console for details.");
         }
-    };   
+    };    
     
     const openTransferModal = (device: Device) => {
         console.log("Opening transfer modal for:", device); // Debugging log
