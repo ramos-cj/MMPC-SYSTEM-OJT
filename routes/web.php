@@ -57,11 +57,13 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('inventory-page/InventoryDeviceAssignment');
     })->name('inventory-deviceassignment');
 
-    Route::get('/inventory-device-assignment/available-devices', [InventoryDeviceAssignmentController::class, 'getAvailableDevices']);
-    Route::get('/inventory-device-assignment/assigned-devices', [InventoryDeviceAssignmentController::class, 'getAssignedDevices']);
-    Route::post('/inventory-device-assignment/assign', [InventoryDeviceAssignmentController::class, 'assignDevice']);
-    Route::post('/inventory-device-assignment/remove', [InventoryDeviceAssignmentController::class, 'removeDevice']);
-    Route::post('/inventory-device-assignment/transfer', [InventoryDeviceAssignmentController::class, 'transferDevice']);
+    Route::get('/employees', [InventoryDeviceAssignmentController::class, 'getEmployees']);
+    Route::get('/available-devices', [InventoryDeviceAssignmentController::class, 'getAvailableDevices']);
+    Route::get('/assigned-devices', [InventoryDeviceAssignmentController::class, 'getAssignedDevices']);
+    Route::post('/assign-device', [InventoryDeviceAssignmentController::class, 'assignDevice']);
+    Route::post('/transfer-device', [InventoryDeviceAssignmentController::class, 'transferDevice']);
+    Route::delete('/delete-assignment/{id}', [InventoryDeviceAssignmentController::class, 'deleteAssignment']);
+
 
     Route::get('/inventory-repairmanagement', function () {
         return Inertia::render('inventory-page/InventoryRepairManagement');
@@ -73,7 +75,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/logout', function () {
         Auth::logout();
-        return redirect('/'); // Redirect to welcome page after logout
+        return redirect('/');
     })->name('logout');
 });
 

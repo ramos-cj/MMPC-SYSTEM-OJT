@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect} from "react";
 import { Head } from "@inertiajs/react";
 import SidebarInventory from "@/components/sidebar-inventory";
 import "@/styles/DeviceAssignment.css";
-import { FaTrash, FaExchangeAlt } from "react-icons/fa";
+import mmpcLogo from '@/assets/mmpc-logo1.png';
+import { FaTrash, FaExchangeAlt, FaTimes, } from "react-icons/fa";
+
+interface Employee {
+    id: number;
+    first_name: string;
+    last_name: string;
+    employee_number: string;
+}
 
 interface Device {
     id: number;
@@ -12,151 +20,239 @@ interface Device {
     serial_number: string;
     condition: string;
     remarks: string;
-    assigned_to: string | null;
+    employee_id?: number | null;
+    employee_name?: string;
+    employee_number?: string;
+    previous_assignee?: string; // ✅ Added this property
 }
 
-interface AssignedDevice {
-    user_id: number;
-    employee_number: string;
-    full_name: string;
-    classification: string;
-    brand_name: string;
-    model: string;
-    serial_number: string;
-}
 
 const InventoryDeviceAssignment: React.FC = () => {
+    const [employees, setEmployees] = useState<Employee[]>([]);
     const [devices, setDevices] = useState<Device[]>([]);
-    const [assignedDevices, setAssignedDevices] = useState<AssignedDevice[]>([]);
-    const [employeeName, setEmployeeName] = useState("");
-    const [selectedClassification, setSelectedClassification] = useState("");
-    const [availableBrands, setAvailableBrands] = useState<string[]>([]);
-    const [selectedBrand, setSelectedBrand] = useState("");
-    const [availableModels, setAvailableModels] = useState<string[]>([]);
-    const [selectedModel, setSelectedModel] = useState("");
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [brands, setBrands] = useState<string[]>([]);
+    const [models, setModels] = useState<string[]>([]);
+    const [assignedDevices, setAssignedDevices] = useState<Device[]>([]);
+    const [classifications, setClassifications] = useState<string[]>([]);
+
+
+    const [selectedEmployee, setSelectedEmployee] = useState<string>("");
+    const [selectedClassification, setSelectedClassification] = useState<string>("");
+    const [selectedBrand, setSelectedBrand] = useState<string>("");
+    const [selectedModel, setSelectedModel] = useState<string>("");
     const [showTransferModal, setShowTransferModal] = useState(false);
-    const [deviceToModify, setDeviceToModify] = useState<AssignedDevice | null>(null);
-    const [newAssignee, setNewAssignee] = useState("");
+    const [transferData, setTransferData] = useState({
+    assignment_id: '',
+    current_assignee: '',
+    current_employee_number: '',
+    new_assignee: '',
+    transferred_date: '',
+    return_date: '',
+    classification: '',
+    brand: '',
+    model: '',
+    serial_number: ''
+});
 
-    // Fetch available devices and assigned devices
+
+    // Fetch employees, available devices, and assigned devices
     useEffect(() => {
-        fetch("/inventory-device-assignment/available-devices")
+        fetch("/employees")
             .then((res) => res.json())
-            .then((data: Device[]) => {
-                const filteredDevices = data.filter((device: Device) =>
-                    (device.remarks === "Available" || device.remarks === "Free") && !device.assigned_to
-                );
-                setDevices(filteredDevices);
-            })
-            .catch((error) => console.error("Error fetching devices:", error));
+            .then((data) => setEmployees(data));
 
-        fetch("/inventory-device-assignment/assigned-devices")
+        fetch("/assigned-devices")
             .then((res) => res.json())
-            .then((data: AssignedDevice[]) => setAssignedDevices(data))
-            .catch((error) => console.error("Error fetching assigned devices:", error));
+            .then((data) => setAssignedDevices(data));
     }, []);
 
-    // Filter available brands based on selected classification
-    useEffect(() => {
-        if (selectedClassification) {
-            const filteredBrands = [...new Set(devices
-                .filter(device => device.classification === selectedClassification)
-                .map(device => device.brand_name))];
-            setAvailableBrands(filteredBrands);
-            setSelectedBrand("");
-            setAvailableModels([]);
-        }
-    }, [selectedClassification, devices]);
+    // Fetch brands based on classification
 
-    // Filter available models based on selected brand
     useEffect(() => {
-        if (selectedBrand) {
-            const filteredModels = [...new Set(devices
-                .filter(device => device.classification === selectedClassification && device.brand_name === selectedBrand)
-                .map(device => device.model))];
-            setAvailableModels(filteredModels);
-            setSelectedModel("");
+        fetch("/available-devices")
+            .then((res) => res.json())
+            .then((data: Device[]) => {  
+                console.log("Fetched Available Devices:", data); // ✅ Debug API response
+                setDevices(data); 
+    
+                const extractedClassifications = [...new Set(data.map((device) => device.classification))];
+                console.log("Extracted Classifications:", extractedClassifications); // ✅ Debug classifications
+                setClassifications(extractedClassifications);
+            })
+            .catch((err) => console.error("Error fetching classifications:", err));
+    }, []);    
+    
+    useEffect(() => {
+        if (selectedClassification && devices.length > 0) {
+            console.log("Filtering brands for classification:", selectedClassification);
+            const availableBrands = devices
+                .filter((device) => device.classification === selectedClassification)
+                .map((device) => device.brand_name);
+            
+            const uniqueBrands = [...new Set(availableBrands)];
+            console.log("Filtered Brands:", uniqueBrands); // ✅ Debugging
+            setBrands(uniqueBrands);
+            setSelectedBrand("");  // Reset brand dropdown
+            setSelectedModel("");  // Reset model dropdown
         }
-    }, [selectedBrand, devices]);
+    }, [selectedClassification, devices]);    
+    
 
-    // Assign a device to a user
-    const handleAssignDevice = () => {
-        if (!employeeName || !selectedClassification || !selectedBrand || !selectedModel) {
-            alert("Please fill in all fields.");
+    // Fetch models based on selected brand and classification
+    useEffect(() => {
+        if (selectedBrand && devices.length > 0) {
+            console.log("Filtering models for brand:", selectedBrand);
+            const availableModels = devices
+                .filter((device) => 
+                    device.classification === selectedClassification && 
+                    device.brand_name === selectedBrand
+                )
+                .map((device) => device.model);
+            
+            const uniqueModels = [...new Set(availableModels)];
+            console.log("Filtered Models:", uniqueModels); // ✅ Debugging
+            setModels(uniqueModels);
+            setSelectedModel("");  // Reset model dropdown
+        }
+    }, [selectedBrand, devices]);    
+
+    const handleAssignDevice = async () => {
+        if (!selectedEmployee || !selectedClassification || !selectedBrand || !selectedModel) {
+            alert("Please select all fields before assigning a device.");
             return;
         }
-
-        fetch("/inventory-device-assignment/assign", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content || "",
-            },
-            body: JSON.stringify({
-                employee_name: employeeName,
-                classification: selectedClassification,
-                brand_name: selectedBrand,
-                model: selectedModel
-            }),
-            credentials: "include",
-        })
-        
-        .then((res) => res.json())
-        .then((newAssignment) => {
-            setAssignedDevices((prev) => [...prev, newAssignment]);
-            setDevices((prev) => prev.filter(device => device.serial_number !== newAssignment.serial_number));
-            setEmployeeName("");
+    
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+    
+            const response = await fetch("/assign-device", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken || "", // Include CSRF token
+                },
+                body: JSON.stringify({
+                    employee: selectedEmployee,
+                    classification: selectedClassification,
+                    brand: selectedBrand,
+                    model: selectedModel,
+                }),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to assign device.");
+            }
+    
+            const data = await response.json();
+            alert(data.message);
+            setAssignedDevices([...assignedDevices, data.newAssignment]);
+            setSelectedEmployee("");
             setSelectedClassification("");
             setSelectedBrand("");
             setSelectedModel("");
-        })
-        .catch((error) => console.error("Error assigning device:", error));
-    };
-
-    // Open delete modal
-    const handleRemoveDevice = (device: AssignedDevice) => {
-        setDeviceToModify(device);
-        setShowDeleteModal(true);
-    };
-
-    // Remove device from user
-    const confirmRemoveDevice = () => {
-        if (!deviceToModify) return;
-
-        fetch("/inventory-device-assignment/remove", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ serial_number: deviceToModify.serial_number })
-        })
-        .then(() => {
-            setAssignedDevices((prev) => prev.filter(d => d.serial_number !== deviceToModify.serial_number));
-            setShowDeleteModal(false);
-        })
-        .catch((error) => console.error("Error removing device:", error));
-    };
-
-    // Open transfer modal
-    const handleTransferDevice = (device: AssignedDevice) => {
-        setDeviceToModify(device);
+        } catch (err) {
+            console.error("Error:", err);
+            alert("Error assigning device. Please check the console for details.");
+        }
+    };   
+    
+    const openTransferModal = (device: Device) => {
+        console.log("Opening transfer modal for:", device); // Debugging log
+    
+        setTransferData({
+            assignment_id: String(device.id), // Convert number to string
+            current_assignee: device.employee_name || "", 
+            current_employee_number: device.employee_number || "", 
+            new_assignee: '',
+            transferred_date: '',
+            return_date: '',
+            classification: device.classification || "", 
+            brand: device.brand_name || "", 
+            model: device.model || "", 
+            serial_number: device.serial_number || "" 
+        });
+    
         setShowTransferModal(true);
     };
-
-    // Transfer device to another employee
-    const confirmTransferDevice = () => {
-        if (!deviceToModify || !newAssignee) return;
-
-        fetch("/inventory-device-assignment/transfer", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ serial_number: deviceToModify.serial_number, new_assignee: newAssignee })
-        })
-        .then(() => {
+    
+    
+    
+    const handleTransferDevice = async () => {
+        if (!transferData.new_assignee || !transferData.transferred_date) {
+            alert("Please fill in all fields.");
+            return;
+        }
+    
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+    
+            const response = await fetch("/transfer-device", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken || "", // Include CSRF token
+                },
+                body: JSON.stringify(transferData),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to transfer device.");
+            }
+    
+            const data = await response.json();
+            alert(data.message);
             setShowTransferModal(false);
-            setNewAssignee("");
-        })
-        .catch((error) => console.error("Error transferring device:", error));
+            window.location.reload();
+        } catch (err) {
+            console.error("Error:", err);
+            alert("Error transferring device. Please check console for details.");
+        }
     };
+    
+    const deleteAssignment = async (id: number) => {
+        if (!window.confirm("Are you sure you want to delete this assignment?")) return;
+    
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+    
+            const response = await fetch(`/delete-assignment/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken || "", // Ensure CSRF token is included
+                },
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to delete assignment.");
+            }
+    
+            alert("Assignment deleted successfully!");
+            window.location.reload(); // Refresh the page to reflect changes
+        } catch (err) {
+            console.error("Error:", err);
+            alert("Error deleting assignment.");
+        }
+    };    
+
+    const closeModal = () => {
+        setShowTransferModal(false); // Hide the transfer modal
+        setTransferData({
+            assignment_id: '',
+            current_assignee: '',
+            current_employee_number: '',
+            new_assignee: '',
+            transferred_date: '',
+            return_date: '',
+            classification: '',
+            brand: '',
+            model: '',
+            serial_number: ''
+        }); // Reset the form data
+    };    
 
     return (
         <>
@@ -165,63 +261,177 @@ const InventoryDeviceAssignment: React.FC = () => {
                 <SidebarInventory />
                 <div className="assign-content-container">
                     <h2 className="title">DEVICE ASSIGNMENT</h2>
-
-                    {/* Device Assignment Form */}
-                    <div className="form-container">
-                        <input type="text" placeholder="Enter Full Name" className="input-field" value={employeeName} onChange={(e) => setEmployeeName(e.target.value)} />
-                        <select className="dropdown" value={selectedClassification} onChange={(e) => setSelectedClassification(e.target.value)}>
-                            <option value="">Choose Device</option>
-                            {devices.map(d => d.classification).filter((v, i, a) => a.indexOf(v) === i).map(classification => (
-                                <option key={classification} value={classification}>{classification}</option>
-                            ))}
-                        </select>
-                        <select className="dropdown" value={selectedBrand} onChange={(e) => setSelectedBrand(e.target.value)}>
-                            <option value="">Choose Brand</option>
-                            {availableBrands.map(brand => <option key={brand} value={brand}>{brand}</option>)}
-                        </select>
-                        <select className="dropdown" value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
-                            <option value="">Choose Model</option>
-                            {availableModels.map(model => <option key={model} value={model}>{model}</option>)}
-                        </select>
-                        <button className="assign-button" onClick={handleAssignDevice}>Assign Device</button>
-                    </div>
-
-                    {/* Assigned Devices Table */}
-                    <div className="table-container">
-                        <table className="device-table">
-                            <thead>
-                                <tr>
-                                    <th>User ID</th>
-                                    <th>Employee No.</th>
-                                    <th>Full Name</th>
-                                    <th>Classification</th>
-                                    <th>Brand</th>
-                                    <th>Model</th>
-                                    <th>Serial Number</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {assignedDevices.map((device) => (
-                                    <tr key={device.serial_number}>
-                                        <td>{device.user_id}</td>
-                                        <td>{device.employee_number}</td>
-                                        <td>{device.full_name}</td>
-                                        <td>{device.classification}</td>
-                                        <td>{device.brand_name}</td>
-                                        <td>{device.model}</td>
-                                        <td>{device.serial_number}</td>
-                                        <td>
-                                            <FaTrash className="delete-icon" onClick={() => handleRemoveDevice(device)} />
-                                            <FaExchangeAlt className="transfer-icon" onClick={() => handleTransferDevice(device)} />
-                                        </td>
-                                    </tr>
+                    <div className="main-container">
+                        {/* Device Assignment Form */}
+                        <div className="form-container">
+                        <div className="form-group">
+                        <label>Employee Name</label>
+                            <input
+                                type="text"
+                                placeholder="Enter Employee Name"
+                                className="input-field"
+                                list="employeeList"
+                                value={selectedEmployee}
+                                onChange={(e) => setSelectedEmployee(e.target.value)}
+                            />
+                            <datalist id="employeeList">
+                                {employees.map((emp) => (
+                                    <option key={emp.id} value={`${emp.first_name} ${emp.last_name}`} />
                                 ))}
-                            </tbody>
-                        </table>
+                            </datalist>
+                            </div>
+
+                            <div className="form-group">
+                            <label>Device Classification</label>
+                            <select
+                                className="dropdown"
+                                    value={selectedClassification}
+                                        onChange={(e) => setSelectedClassification(e.target.value || "")} // Ensuring string type
+> 
+                                    <option value="">Choose Device Classification</option>  
+                                        {classifications.map((classType) => (
+                                    <option key={classType} value={classType}>
+                                        {classType}
+                                    </option>
+                                    ))}
+                                </select>
+                            </div>
+
+
+                            <div className="form-group">
+                            <label>Device Brand</label>
+                            <select
+                                className="dropdown"
+                                value={selectedBrand}
+                                onChange={(e) => setSelectedBrand(e.target.value)}
+                                disabled={!selectedClassification}
+                            >   
+                                <option value="">Select Brand</option>
+                                {brands.map((brand) => (
+                                    <option key={brand} value={brand}>
+                                        {brand}
+                                    </option>
+                                ))}
+                            </select>
+                            </div>
+
+                            <div className="form-group">
+                            <label>Device Model</label>
+                            <select
+                                className="dropdown"
+                                value={selectedModel}
+                                onChange={(e) => setSelectedModel(e.target.value)}
+                                disabled={!selectedBrand}
+                            > 
+                                <option value="">Select Model</option>
+                                {models.map((model) => (
+                                    <option key={model} value={model}>
+                                        {model}
+                                    </option>
+                                ))}
+                            </select>
+                            </div> 
+
+                            <button className="assign-button" onClick={handleAssignDevice}>
+                                Assign Device
+                            </button>
+                        </div>
+
+                        {/* Assigned Devices Table */}
+                        <div className="table-container">
+                        <table className="device-table">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Employee No.</th>
+            <th>Current Assigned</th>
+            <th>Previous Assignee</th>
+            <th>Classification</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Serial Number</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {assignedDevices.map((device) => (
+            <tr key={device.id}>
+                <td>{device.id}</td>
+                <td>{device.employee_number}</td>
+                <td>{device.employee_name}</td>
+                <td>{device.previous_assignee}</td>
+                <td>{device.classification}</td>
+                <td>{device.brand_name}</td>
+                <td>{device.model}</td>
+                <td>{device.serial_number}</td>
+                <td>
+                    <button className="action-btn transfer-btn" onClick={() => openTransferModal(device)}>
+                        <FaExchangeAlt />
+                    </button>
+                    <button className="action-btn remove-btn" onClick={() => deleteAssignment(device.id)}>
+                        <FaTrash />
+                    </button>
+                </td>
+            </tr>
+        ))}
+    </tbody>
+</table>
+                        </div>
                     </div>
                 </div>
+
+                
+                {showTransferModal && (
+    <div className="modal-overlay">
+    <div className="modal-content">
+      {/* Header */}
+      <div className="modal-header">
+        <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+        <h2>Transfer Device</h2>
+        <FaTimes className="close-icon" onClick={closeModal} />
+      </div>
+
+                 {/* Transfer Form */}
+            <div className="modal-form">
+                {/* Left Column */}
+                <label>Current Assignee</label>
+                <label>Date Returned</label>
+
+                <input type="text" value={transferData.current_assignee} readOnly />
+                <input type="date" onChange={(e) => setTransferData({...transferData, return_date: e.target.value})} />
+
+                <div className="transfer-wrapper">
+                    <span>———</span>
+                    <span>Transfer to</span>
+                    <span>———</span>
+                </div>
+
+                {/* Right Column */}
+                <label>New Assignee</label>
+                <label>Date Transferred</label>
+
+                <input type="text" placeholder="Enter Name" 
+                    onChange={(e) => setTransferData({...transferData, new_assignee: e.target.value})} />
+                <input type="date" onChange={(e) => setTransferData({...transferData, transferred_date: e.target.value})} />
+
+                <label className="full-width">Device Information</label>
+
+                <div className="device-info">
+                    <input type="text" value={transferData.classification} readOnly />
+                    <input type="text" value={transferData.brand} readOnly />
+                    <input type="text" value={transferData.model} readOnly />
+                    <input type="text" value={transferData.serial_number} readOnly />
+                </div>
             </div>
+
+            <button className="transfer-button" onClick={handleTransferDevice}>
+                Transfer Device
+            </button>
+        </div>
+    </div>
+)}
+            </div>
+            
         </>
     );
 };
