@@ -4,6 +4,7 @@ import SidebarInventory from "@/components/sidebar-inventory";
 import "@/styles/DeviceAssignment.css";
 import mmpcLogo from '@/assets/mmpc-logo1.png';
 import { FaTrash, FaExchangeAlt, FaTimes, } from "react-icons/fa";
+import "@/styles/userlist.css";
 
 interface Employee {
     id: number;
@@ -348,23 +349,22 @@ const InventoryDeviceAssignment: React.FC = () => {
                             </button>
                         </div>
 
-                        {/* Assigned Devices Table */}
-                        <div className="table-container">
-                        <table className="device-table">
-    <thead>
-        <tr>
-            <th>User ID</th>
-            <th>Employee No.</th>
-            <th>Current Assigned</th>
-            <th>Previous Assignee</th>
-            <th>Classification</th>
-            <th>Brand</th>
-            <th>Model</th>
-            <th>Serial Number</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
+                       <div className="userlist-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Employee No.</th>
+                                <th>Current Assigned</th>
+                                <th>Previous Assignee</th>
+                                <th>Classification</th>
+                                <th>Brand</th>
+                                <th>Model</th>
+                                <th>Serial Number</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
         {assignedDevices.map((device) => (
             <tr key={device.id}>
                 <td>{device.id}</td>
