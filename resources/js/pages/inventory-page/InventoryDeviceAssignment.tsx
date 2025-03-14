@@ -123,13 +123,14 @@ const InventoryDeviceAssignment: React.FC = () => {
         }
     
         try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content"); // ✅ Get CSRF token
     
             const response = await fetch("/assign-device", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrfToken || "", // Include CSRF token
+                    "X-CSRF-TOKEN": csrfToken || "", // ✅ Ensure CSRF token is included
+                    "X-Requested-With": "XMLHttpRequest", // ✅ Required for Laravel AJAX validation
                 },
                 body: JSON.stringify({
                     employee: selectedEmployee,
@@ -137,22 +138,24 @@ const InventoryDeviceAssignment: React.FC = () => {
                     brand: selectedBrand,
                     model: selectedModel,
                 }),
+                credentials: "include", // ✅ Include cookies for session authentication
             });
     
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to assign device.");
+                const errorData = await response.text(); // Get raw response text
+                console.error("Server Response:", errorData); // ✅ Log full response
+                throw new Error("Failed to assign device.");
             }
     
             const data = await response.json();
             alert(data.message);
     
-            // ✅ Reload assigned devices list instead of redirecting
+            // ✅ Reload assigned devices list after successful assignment
             fetch("/assigned-devices")
                 .then((res) => res.json())
                 .then((updatedData) => setAssignedDevices(updatedData));
     
-            // Reset input fields
+            // ✅ Reset form inputs
             setSelectedEmployee("");
             setSelectedClassification("");
             setSelectedBrand("");
@@ -162,7 +165,8 @@ const InventoryDeviceAssignment: React.FC = () => {
             console.error("Error:", err);
             alert("Error assigning device. Please check the console for details.");
         }
-    };    
+    };
+    
     
     const openTransferModal = (device: Device) => {
         console.log("Opening transfer modal for:", device); // Debugging log

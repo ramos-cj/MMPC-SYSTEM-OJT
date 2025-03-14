@@ -6,6 +6,7 @@
 
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
             (function() {

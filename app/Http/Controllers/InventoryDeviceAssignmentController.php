@@ -47,9 +47,13 @@ class InventoryDeviceAssignmentController extends Controller
     return response()->json($assignments);
 }
 
-    // Assign a Device to an Employee
-    public function assignDevice(Request $request)
+public function assignDevice(Request $request)
 {
+    // ✅ Check if it's an AJAX request
+    if (!$request->ajax()) {
+        return response()->json(['error' => 'Invalid request'], 400);
+    }
+
     $employee = Employee::whereRaw("CONCAT(first_name, ' ', last_name) = ?", [$request->employee])->first();
 
     if (!$employee) {
@@ -67,7 +71,7 @@ class InventoryDeviceAssignmentController extends Controller
         return response()->json(['error' => 'Device not available'], 400);
     }
 
-    // Create a new assignment record
+    // ✅ Create assignment record
     $assignment = DeviceAssignment::create([
         'employee_id' => $employee->id,
         'device_id' => $device->id,
@@ -77,31 +81,12 @@ class InventoryDeviceAssignmentController extends Controller
         'serial_number' => $device->serial_number
     ]);
 
-    // Mark the device as assigned
+    // ✅ Mark device as assigned
     $device->remarks = 'Assigned';
     $device->save();
 
-    // ✅ Return the updated assigned devices list
-    $assignments = DeviceAssignment::with(['employee', 'device'])->get()->map(function ($assignment) {
-        return [
-            'id' => $assignment->id,
-            'employee_id' => $assignment->employee->id ?? null,
-            'employee_name' => $assignment->employee ? $assignment->employee->first_name . ' ' . $assignment->employee->last_name : 'N/A',
-            'employee_number' => $assignment->employee->employee_number ?? 'N/A',
-            'previous_assignee' => $assignment->previous_assignee ? $assignment->previous_assignee : "",
-            'classification' => $assignment->classification,
-            'brand_name' => $assignment->brand_name,
-            'model' => $assignment->model,
-            'serial_number' => $assignment->serial_number
-        ];
-    });
-
-    return response()->json([
-        'message' => 'Device assigned successfully!',
-        'assignedDevices' => $assignments
-    ]);
+    return response()->json(['message' => 'Device assigned successfully!', 'assignedDevice' => $assignment]);
 }
-
 
     public function transferDevice(Request $request)
 {
