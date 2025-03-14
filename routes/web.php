@@ -30,7 +30,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/inventory-dashboard/stats', [InventoryDashboardController::class, 'getStats']);
     
-
+    
     Route::get('/inventory-userlist', function () {
         return Inertia::render('inventory-page/InventoryUserList');
     })->name('inventory-userlist');
@@ -38,6 +38,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory-devicelist', function () {
         return Inertia::render('inventory-page/InventoryDeviceList');
     })->name('inventory-devicelist');
+
+    Route::get('/devices', [InventoryDeviceManagementController::class, 'getDevices']);
+
 
     Route::get('/inventory-usermanagement', function () {
         return Inertia::render('inventory-page/InventoryUserManagement');

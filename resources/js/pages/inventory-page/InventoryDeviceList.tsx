@@ -1,38 +1,86 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
+import mmpcLogo from '@/assets/mmpc-logo1.png'; // Ensure the path is correct
 import SidebarInventory from "@/components/sidebar-inventory";
-import { FaSearch, FaEdit, FaTrash } from "react-icons/fa";
+import { FaSearch, FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 import "@/styles/DeviceList.css";
 import "@/styles/userlist.css";
 
+// Define the Device structure
+interface Device {
+    id: number;
+    tag_no: string;
+    general_name: string;
+    classification: string;
+    model: string;
+    condition: string;
+    remarks: string;
+    brand_name: string;
+    location: string;
+    serial_number: string;
+    estimated_acquisition_year: string;
+    accessories?: string;
+    with_warranty: string;
+    computer_name?: string;
+    qr_code: string;
+    image_file?: string; // Image filename stored in the database
+}
+
 export default function InventoryDeviceList() {
+    const [devices, setDevices] = useState<Device[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedClassification, setSelectedClassification] = useState("");
     const [selectedBrand, setSelectedBrand] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(15);
     const [currentPage, setCurrentPage] = useState(1);
-    
-    // Sample device data
-    const devices = [
-        { id: 1, tag: "TAG001", name: "Laptop", classification: "Electronics", model: "Dell XPS", condition: "Good", remarks: "None" },
-        { id: 2, tag: "TAG002", name: "Tablet", classification: "Electronics", model: "iPad Pro", condition: "Fair", remarks: "Battery Issue" },
-        // More sample data here...
-    ];
+    const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+
+    // Dynamic Filter Options
+    const [classifications, setClassifications] = useState<string[]>([]);
+    const [brands, setBrands] = useState<string[]>([]);
+
+    // Fetch devices from API
+    useEffect(() => {
+        fetch("/devices")
+            .then((res) => res.json())
+            .then((data: Device[]) => {
+                setDevices(data);
+
+                // Extract unique classifications and brands for filters
+                const uniqueClassifications = [...new Set(data.map(device => device.classification))];
+                const uniqueBrands = [...new Set(data.map(device => device.brand_name))];
+
+                setClassifications(uniqueClassifications);
+                setBrands(uniqueBrands);
+            })
+            .catch(err => console.error("Error fetching devices:", err));
+    }, []);
 
     // Filtering logic
     const filteredDevices = devices.filter(device =>
-        (device.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        device.model.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (device.general_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        device.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        device.tag_no.includes(searchTerm)) &&
         (selectedClassification === "" || device.classification === selectedClassification) &&
-        (selectedBrand === "" || device.model.includes(selectedBrand))
+        (selectedBrand === "" || device.brand_name === selectedBrand)
     );
-    
+
     // Pagination logic
     const indexOfLastEntry = currentPage * entriesPerPage;
     const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
     const currentDevices = filteredDevices.slice(indexOfFirstEntry, indexOfLastEntry);
     const totalPages = Math.ceil(filteredDevices.length / entriesPerPage);
-    
+
+    // Open modal with selected device details
+    const handleDeviceClick = (device: Device) => {
+        setSelectedDevice(device);
+    };
+
+    // Close modal
+    const closeModal = () => {
+        setSelectedDevice(null);
+    };
+
     return (
         <>
             <Head title="Inventory Device List" />
@@ -46,11 +94,11 @@ export default function InventoryDeviceList() {
                         <label className="entries-label">
                             Show 
                             <select value={entriesPerPage} onChange={(e) => setEntriesPerPage(Number(e.target.value))} className="entries-select">
-                                {[15, 30, 45, 60, 75, 100 ].map(num => (
+                                {[15, 30, 45, 60, 75, 100].map(num => (
                                     <option key={num} value={num}>{num} </option>
                                 ))}
                             </select>
-                               entries
+                            entries
                         </label>
                         <div className="search-container">
                             <FaSearch className="search-icon" />
@@ -59,16 +107,22 @@ export default function InventoryDeviceList() {
 
                         {/* Classification Dropdown */}
                         <select value={selectedClassification} onChange={(e) => setSelectedClassification(e.target.value)}>
-                            <option value="select-classification">Select Classification</option>
-                            <option value="Electronics">Electronics</option>
-                            <option value="Furniture">Furniture</option>
+                            <option value="">Select Classification</option>
+                            {classifications.map(classification => (
+                                <option key={classification} value={classification}>
+                                    {classification}
+                                </option>
+                            ))}
                         </select>
 
                         {/* Brand Dropdown */}
                         <select value={selectedBrand} onChange={(e) => setSelectedBrand(e.target.value)}>
                             <option value="">Select Brand</option>
-                            <option value="Dell">Dell</option>
-                            <option value="Apple">Apple</option>
+                            {brands.map(brand => (
+                                <option key={brand} value={brand}>
+                                    {brand}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
@@ -81,6 +135,7 @@ export default function InventoryDeviceList() {
                                     <th>Tag No.</th>
                                     <th>General Name</th>
                                     <th>Classification</th>
+                                    <th>Brand</th>
                                     <th>Model</th>
                                     <th>Condition</th>
                                     <th>Remarks</th>
@@ -91,9 +146,10 @@ export default function InventoryDeviceList() {
                                 {currentDevices.map((device) => (
                                     <tr key={device.id}>
                                         <td>{device.id}</td>
-                                        <td>{device.tag}</td>
-                                        <td>{device.name}</td>
+                                        <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.tag_no}</td>
+                                        <td>{device.general_name}</td>
                                         <td>{device.classification}</td>
+                                        <td>{device.brand_name}</td>
                                         <td>{device.model}</td>
                                         <td>{device.condition}</td>
                                         <td>{device.remarks}</td>
@@ -119,6 +175,39 @@ export default function InventoryDeviceList() {
                     </div>
                 </div>
             </div>
+
+            {/* Device Info Modal */}
+            {selectedDevice && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        {/* Header */}
+            <div className="modal-header">
+              <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+              <h2>Device's Information</h2>
+              <FaTimes className="close-icon" onClick={closeModal} />
+            </div>
+
+                        {/* Image Display */}
+                        {selectedDevice.image_file && (
+                            <img src={`/storage/device_images/${selectedDevice.image_file}`} alt="Device Image" className="device-image" />
+                        )}
+
+                        {/* Device Details */}
+                        <div className="device-details">
+                            <p><strong>Tag No:</strong> {selectedDevice.tag_no}</p>
+                            <p><strong>General Name:</strong> {selectedDevice.general_name}</p>
+                            <p><strong>Classification:</strong> {selectedDevice.classification}</p>
+                            <p><strong>Brand:</strong> {selectedDevice.brand_name}</p>
+                            <p><strong>Model:</strong> {selectedDevice.model}</p>
+                            <p><strong>Location:</strong> {selectedDevice.location}</p>
+                            <p><strong>Serial Number:</strong> {selectedDevice.serial_number}</p>
+                            <p><strong>Estimated Acquisition Year:</strong> {selectedDevice.estimated_acquisition_year}</p>
+                            <p><strong>Condition:</strong> {selectedDevice.condition}</p>
+                            <p><strong>Remarks:</strong> {selectedDevice.remarks}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

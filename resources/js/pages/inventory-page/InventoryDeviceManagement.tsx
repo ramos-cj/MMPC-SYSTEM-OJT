@@ -41,24 +41,26 @@ const InventoryDeviceManagement: React.FC = () => {
             ...prev,
             image_file: file,
         }));
-    };
+    };    
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+    
         const data = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
             if (value !== null) data.append(key, value as string | Blob);
         });
-
+    
         router.post("/inventory-device-management/save", data, {
+            forceFormData: true,  // Ensure InertiaJS correctly handles FormData
             onSuccess: () => alert("Device saved successfully!"),
             onError: (errors) => {
-                const errorMsg = Object.values(errors).join("\n"); // Convert errors into a string
-                setErrorMessage(errorMsg); // Show error in the modal
+                const errorMsg = Object.values(errors).join("\n");
+                setErrorMessage(errorMsg);
             },
         });
     };
+    
 
     return (
         <div className="device-management-container">
