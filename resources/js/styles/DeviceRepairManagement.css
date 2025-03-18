@@ -1,212 +1,146 @@
-.dashboard-wrapper {
+/* Layout container for Repair Management */
+.repair-management-container {
     display: flex;
-    height: 100vh; /* Make sure it takes full screen height */
-}
-
-/* Sidebar should remain fixed while the content scrolls */
-.dashboard-main-content {
-    flex: 1;
-    top: 90px;
-    margin-left: 15px;
-    margin-top: 9px;
-    margin-right: 15px;
+    height: 100vh;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+  }
+  
+  /* Main Content Area */
+  .repair-content {
+    border-radius: 4px;
+    flex-grow: 1;
     padding: 20px;
-    background-color: #f4f4f4;
-    border-radius: 4px;
-    width: 100%;
-    max-width: 100%;
-    position: relative;
-    overflow-y: auto; /* Enable vertical scrolling */
-    height: calc(100vh - 100px); /* Adjust height dynamically to viewport */
-}
-
-/* Ensure proper spacing for the scrollbar */
-.dashboard-main-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.dashboard-main-content::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.dashboard-main-content::-webkit-scrollbar-thumb {
-    background: #d32f2f;
-    border-radius: 4px;
-}
-
-
-h2 {
+    background-color: #f8f8f8;
+    transition: all 0.3s ease-in-out;
+    overflow-x: auto;
+    margin: 97px 15px 0 15px;
+  }
+  
+  /* Title Header */
+  .repair-content h2 {
     font-size: 24px;
-    margin-bottom: 10px;
-}
-
-.last-update {
-    font-size: 14px;
-    color: gray;
-}
-
-.stats-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid red;
+    text-align: left;
+  }
+  
+  /* Filters */
+  .repair-filter-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
     gap: 15px;
-    margin-top: 20px;
-}
-
-.stat-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px;
-    border-radius: 12px;
-    color: white;
-    text-align: center;
-    position: relative;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    min-height: 120px;
-    width: 100%;
-    transition: all 0.3s ease-in-out;
-}
-
-.stat-card .icon svg{
-    width: 50px;
-    height: 50px;
-}
-
-.stat-card.purple {
-    background: #8e44ad;
-}
-
-.stat-card.dark-red {
-    background: #a93226;
-}
-
-.stat-card .stat-icon {
-    font-size: 30px;
-    margin-bottom: 8px;
-}
-
-.stat-card h3 {
-    font-size: 35px;
-    margin: 0;
-    font-weight: bold;
-    margin-bottom: 3%;
-}
-
-.stat-card p {
-    font-size: 14px;
-    font-weight: normal;
-    margin-bottom: 13%;
-}
-
-.stat-card .more-info {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(243, 191, 191, 0.3);
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 80%;
-    transition: background 0.3s ease-in-out;
-    cursor: pointer;
-}
-
-.stat-card .more-info:hover {
-    background: rgba(230, 10, 10, 0.5);
-}
-
-.stat-card .more-info svg {
-    font-size: 12px;
-    margin-left: 5px;
-}
-
-/* Specific Colors */
-.stat-card:nth-child(1) { background: #A91D3A; } /* Total Employees */
-.stat-card:nth-child(2) { background: #771F6C; } /* Laptop */
-.stat-card:nth-child(3) { background: #C05F5F; } /* Tablet */
-.stat-card:nth-child(4) { background: #C63D3D; } /* Phone */
-.stat-card:nth-child(5) { background: white; color: #B03030; border: 2px solid #B03030; } /* Accessories */
-.stat-card:nth-child(6) { background: white; color: #7D1E6A; border: 2px solid #7D1E6A; } /* Good Condition */
-.stat-card:nth-child(7) { background: white; color: #AE2012; border: 2px solid #AE2012; } /* Repair */
-.stat-card:nth-child(8) { background: white; color: #C70039; border: 2px solid #C70039; } /* Imported Files */
-
-/* Responsive: Adjust to 2 columns on smaller screens */
-@media (max-width: 768px) {
-    .stats-container {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    }
-}
-
-
-
-/* Inventory Table */
-.inventory-table {
-    margin-top: 20px;
+    padding: 10px;
     background: white;
-    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  
+  .repair-filter-container select,
+  .repair-filter-container input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    transition: all 0.3s ease-in-out;
-}
-
-.inventory-table table {
+    outline: none;
+    min-width: 160px;
+  }
+  
+  /* Table Container */
+  .repair-table-container {
+    background: white;
+    border-radius: 4px;
+    overflow-x: auto;
+    padding: 20px;
+    margin-top: 10px;
+  }
+  
+  .repair-table-container table {
     width: 100%;
     border-collapse: collapse;
-    border: none; /* Remove table border */
-}
-
-.inventory-table th,
-.inventory-table td {
-    padding: 10px;
+  }
+  
+  .repair-table-container th,
+  .repair-table-container td {
+    padding: 12px;
     text-align: center;
-    border: none; /* Remove cell borders */
-}
-
-.inventory-table th {
+    border: none;
+  }
+  
+  .repair-table-container th {
     background-color: #d32f2f;
     color: white;
-}
-
-
-/* Responsive Adjustment for Sidebar */
-.stats-container.expanded,
-.inventory-table.expanded {
-    width: 90%; /* Adjust based on sidebar width */
-}
-
-
-/* Active Sidebar Item */
-.sidebar ul .active {
-    background-color: #d32f2f; /* Red highlight */
+    font-weight: bold;
+  }
+  
+  .repair-table-container tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+  }
+  
+  /* Action Icons */
+  .repair-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .edit-icon {
+    color: #ff9800;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .delete-icon {
+    color: #f44336;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  /* Pagination */
+  .repair-pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+  
+  .repair-pagination button {
+    padding: 6px 12px;
+    margin: 0 3px;
+    border: none;
+    background: #fff;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .repair-pagination button:hover {
+    background: #eee;
+  }
+  
+  .repair-pagination .active {
+    background-color: #d32f2f;
     color: white;
-    font-weight: bold;
-}
-
-/* Ensure icons also turn white when active */
-.sidebar ul .active svg {
-    color: white;
-}
-
-/* Dashboard Header Styling */
-.dashboard-main-content h3 {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid  red; /* Adds a line below the title */
-    text-align: left; /* Ensures text is aligned to the left */
-}
-/* Dashboard Header Styling */
-.dashboard-main-content h2 {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid  red; /* Adds a line below the title */
-    text-align: left; /* Ensures text is aligned to the left */
-}
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .repair-content {
+      width: 100%;
+    }
+  
+    .repair-filter-container {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  
+    .repair-pagination {
+      justify-content: center;
+    }
+  }
+  

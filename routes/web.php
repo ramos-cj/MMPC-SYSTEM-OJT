@@ -28,6 +28,22 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('dashboard/InventoryDashboard');
     })->name('inventory-dashboard');
 
+    Route::get('/inventory-userlist', function () {
+        return Inertia::render('inventory-page/InventoryUserList');
+    })->name('inventory-userlist');
+    
+    Route::get('/inventory-devicelist', function () {
+        return Inertia::render('inventory-page/InventoryDeviceList');
+    })->name('inventory-devicelist');
+    
+    Route::get('/inventory-repairmanagement', function () {
+        return Inertia::render('inventory-page/InventoryRepairManagement');
+    })->name('inventory-repairmanagement');
+    
+    Route::get('/inventory-importfiles', function () {
+        return Inertia::render('inventory-page/InventoryImportFiles');
+    })->name('inventory-importfiles');
+
     Route::get('/inventory-dashboard/stats', [InventoryDashboardController::class, 'getStats']);
     
     

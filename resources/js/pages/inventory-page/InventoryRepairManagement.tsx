@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import SidebarInventory from "@/components/sidebar-inventory";
 import { FaSearch, FaTools } from "react-icons/fa";
-import "@/styles/UserList.css";
-import "@/styles/DeviceRepairManagement.css";
+import "@/styles/userlist.css";
+import "@/styles/RepairManagement.css";
 
 interface RepairItem {
   id: number;
