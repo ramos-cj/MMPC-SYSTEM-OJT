@@ -10,7 +10,6 @@ const InventoryDeviceManagement: React.FC = () => {
         general_name: "",
         activation_updates: "",
         brand_name: "",
-        accessories: "",
         classification: "",
         estimated_acquisition_year: "",
         model: "",
@@ -23,6 +22,7 @@ const InventoryDeviceManagement: React.FC = () => {
         remarks: "",
         condition: "",
         image_file: null as File | null,
+        need_to_be_repair: "",
     });
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null); // State for error message
@@ -103,11 +103,6 @@ const InventoryDeviceManagement: React.FC = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Accessories</label>
-                            <input type="text" name="accessories" placeholder="Enter Accessories Included" value={formData.accessories} onChange={handleChange} />
-                        </div>
-
-                        <div className="form-group">
                             <label>Classification</label>
                             <select name="classification" value={formData.classification} onChange={handleChange}>
                                 <option value="">Choose Classification</option>
@@ -166,11 +161,6 @@ const InventoryDeviceManagement: React.FC = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Remarks</label>
-                            <textarea name="remarks" placeholder="Enter Remarks"value={formData.remarks} onChange={handleChange}></textarea>
-                        </div>
-
-                        <div className="form-group">
                             <label>Condition</label>
                             <select name="condition" value={formData.condition} onChange={handleChange}>
                                 <option value="">Select Condition</option>
@@ -178,6 +168,24 @@ const InventoryDeviceManagement: React.FC = () => {
                                 <option value="Bad">Bad Condition</option>
                             </select>
                         </div>
+
+                        <div className="form-group">
+                            <label>Remarks</label>
+                            <textarea name="remarks" placeholder="Enter Remarks"value={formData.remarks} onChange={handleChange}></textarea>
+                        </div>
+
+                         {/* ✅ Show defect input only if "Bad Condition" is selected */}
+                         {formData.condition === "Bad" && (
+                            <div className="form-group">
+                                <label>Defects/Issues</label>
+                                <textarea
+                                    name="need_to_be_repair"
+                                    placeholder="List the defects/issues..."
+                                    value={formData.need_to_be_repair}
+                                    onChange={handleChange}
+                                ></textarea>
+                            </div>
+                        )}
 
                         <div className="form-group">
                             <label>Image File Name</label>

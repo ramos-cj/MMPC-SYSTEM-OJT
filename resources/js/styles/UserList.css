@@ -19,6 +19,20 @@
   margin-left: 15px;
   margin-right: 15px;
   margin-top: 97px; /* Add margin to push content down */
+
+}
+
+.userlist-content::-webkit-scrollbar {
+  width: 8px; /* Adjust scrollbar width */
+}
+
+.userlist-content::-webkit-scrollbar-thumb {
+  background-color:#d32f2f; /* Set the scrollbar thumb color to red */
+  border-radius: 4px;
+}
+
+.userlist-content::-webkit-scrollbar-track {
+  background-color: #f0f0f0; /* Optional: Change track background */
 }
 
 /* Title Header */
@@ -63,15 +77,6 @@ text-align: left; /* Ensures text is aligned to the left */
 .filter-container input {
   padding-left: 30px;
   width: 250px;
-}
-
-/* Fix Table Positioning */
-.userlist-table-container {
-background: white;
-border-radius: 4px;
-overflow-x: auto;
-padding: 20px;
-margin-top: 10px; /* Lower table position */
 }
 
 .userlist-table-container .clickable{
@@ -183,7 +188,8 @@ margin-top: 10px; /* Lower table position */
   margin-top: 10px;
   background: white;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 4px;
+  overflow-y: auto;
 }
 
 /* Pagination */
@@ -262,7 +268,7 @@ margin-top: 10px; /* Lower table position */
   align-items: center;
   justify-content: space-between;
   padding-bottom: 10px;
-  border-bottom: 2px solid #ccc;
+  border-bottom: 2px solid #d32f2f;
 }
 
 .modal-header h2{
@@ -338,4 +344,43 @@ margin-top: 10px; /* Lower table position */
 .blurred .userlist-content {
   filter: blur(3px);
   pointer-events: none;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  margin: 0 3px;
+  border: none;
+  background: #fff;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.pagination button:hover {
+  background: #eee;
+}
+
+.pagination .active {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.save-button {
+  grid-column: span 2; /* Make button span both columns */
+    background-color: red;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 30%;
+    margin-top: 10px;
 }

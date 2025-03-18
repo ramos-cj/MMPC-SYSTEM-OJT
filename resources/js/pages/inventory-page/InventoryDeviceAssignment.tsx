@@ -21,6 +21,7 @@ interface Device {
     serial_number: string;
     condition: string;
     remarks: string;
+    accessories?: string; 
     employee_id?: number | null;
     employee_name?: string;
     employee_number?: string;
@@ -41,6 +42,7 @@ const InventoryDeviceAssignment: React.FC = () => {
     const [selectedClassification, setSelectedClassification] = useState<string>("");
     const [selectedBrand, setSelectedBrand] = useState<string>("");
     const [selectedModel, setSelectedModel] = useState<string>("");
+    const [selectedAccessories, setSelectedAccessories] = useState<string>("");  // ✅ Add this
     const [showTransferModal, setShowTransferModal] = useState(false);
     const [transferData, setTransferData] = useState({
     assignment_id: '',
@@ -52,7 +54,8 @@ const InventoryDeviceAssignment: React.FC = () => {
     classification: '',
     brand: '',
     model: '',
-    serial_number: ''
+    serial_number: '',
+    accessories: '',
 });
 
 
@@ -138,6 +141,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                     classification: selectedClassification,
                     brand: selectedBrand,
                     model: selectedModel,
+                    accessories: selectedAccessories,
                 }),
                 credentials: "include", // ✅ Include cookies for session authentication
             });
@@ -161,6 +165,7 @@ const InventoryDeviceAssignment: React.FC = () => {
             setSelectedClassification("");
             setSelectedBrand("");
             setSelectedModel("");
+            setSelectedAccessories(""); 
     
         } catch (err) {
             console.error("Error:", err);
@@ -182,7 +187,8 @@ const InventoryDeviceAssignment: React.FC = () => {
             classification: device.classification || "", 
             brand: device.brand_name || "", 
             model: device.model || "", 
-            serial_number: device.serial_number || "" 
+            serial_number: device.serial_number || "", 
+            accessories: device.accessories || "", 
         });
     
         setShowTransferModal(true);
@@ -205,7 +211,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": csrfToken || "", // Include CSRF token
                 },
-                body: JSON.stringify(transferData),
+                body: JSON.stringify(transferData), // ✅ Send accessories in the request
             });
     
             if (!response.ok) {
@@ -262,7 +268,8 @@ const InventoryDeviceAssignment: React.FC = () => {
             classification: '',
             brand: '',
             model: '',
-            serial_number: ''
+            serial_number: '',
+            accessories: ''
         }); // Reset the form data
     };    
 
@@ -275,81 +282,93 @@ const InventoryDeviceAssignment: React.FC = () => {
                     <h2 className="title">DEVICE ASSIGNMENT</h2>
                     <div className="main-container">
                         {/* Device Assignment Form */}
-                        <div className="form-container">
-                        <div className="form-group">
-                        <label>Employee Name</label>
-                            <input
-                                type="text"
-                                placeholder="Enter Employee Name"
-                                className="input-field"
-                                list="employeeList"
-                                value={selectedEmployee}
-                                onChange={(e) => setSelectedEmployee(e.target.value)}
-                            />
-                            <datalist id="employeeList">
-                                {employees.map((emp) => (
-                                    <option key={emp.id} value={`${emp.first_name} ${emp.last_name}`} />
-                                ))}
-                            </datalist>
-                            </div>
+                        {/* Device Assignment Form */}
+<div className="form-container">
+    {/* Employee Name */}
+    <div className="form-group">
+        <label>Employee Name</label>
+        <input
+            type="text"
+            placeholder="Enter Employee Name"
+            className="input-field"
+            list="employeeList"
+            value={selectedEmployee}
+            onChange={(e) => setSelectedEmployee(e.target.value)}
+        />
+        <datalist id="employeeList">
+            {employees.map((emp) => (
+                <option key={emp.id} value={`${emp.first_name} ${emp.last_name}`} />
+            ))}
+        </datalist>
+    </div>
 
-                            <div className="form-group">
-                            <label>Device Classification</label>
-                            <select
-                                className="dropdown"
-                                    value={selectedClassification}
-                                        onChange={(e) => setSelectedClassification(e.target.value || "")} // Ensuring string type
-> 
-                                    <option value="">Choose Device Classification</option>  
-                                        {classifications.map((classType) => (
-                                    <option key={classType} value={classType}>
-                                        {classType}
-                                    </option>
-                                    ))}
-                                </select>
-                            </div>
+    {/* Device Classification */}
+    <div className="form-group">
+        <label>Device Classification</label>
+        <select
+            className="dropdown"
+            value={selectedClassification}
+            onChange={(e) => setSelectedClassification(e.target.value || "")}
+        > 
+            <option value="">Choose Device Classification</option>  
+            {classifications.map((classType) => (
+                <option key={classType} value={classType}>{classType}</option>
+            ))}
+        </select>
+    </div>
+
+    {/* Device Brand */}
+    <div className="form-group">
+        <label>Device Brand</label>
+        <select
+            className="dropdown"
+            value={selectedBrand}
+            onChange={(e) => setSelectedBrand(e.target.value)}
+            disabled={!selectedClassification}
+        >   
+            <option value="">Select Brand</option>
+            {brands.map((brand) => (
+                <option key={brand} value={brand}>{brand}</option>
+            ))}
+        </select>
+    </div>
+
+    {/* Device Model */}
+    <div className="form-group">
+        <label>Device Model</label>
+        <select
+            className="dropdown"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            disabled={!selectedBrand}
+        > 
+            <option value="">Select Model</option>
+            {models.map((model) => (
+                <option key={model} value={model}>{model}</option>
+            ))}
+        </select>
+    </div> 
+
+    {/* Accessories Input Centered */}
+    <div className="accessories-container">
+        <label>Accessories</label>
+        <input
+            type="text"
+            placeholder="Enter Accessories"
+            className="accessories-input"
+            value={selectedAccessories}
+            onChange={(e) => setSelectedAccessories(e.target.value)}
+        />
+    </div>
+
+    {/* Assign Device Button Below */}
+    <button className="assign-button" onClick={handleAssignDevice}>
+        Assign Device
+    </button>
+</div>
 
 
-                            <div className="form-group">
-                            <label>Device Brand</label>
-                            <select
-                                className="dropdown"
-                                value={selectedBrand}
-                                onChange={(e) => setSelectedBrand(e.target.value)}
-                                disabled={!selectedClassification}
-                            >   
-                                <option value="">Select Brand</option>
-                                {brands.map((brand) => (
-                                    <option key={brand} value={brand}>
-                                        {brand}
-                                    </option>
-                                ))}
-                            </select>
-                            </div>
-
-                            <div className="form-group">
-                            <label>Device Model</label>
-                            <select
-                                className="dropdown"
-                                value={selectedModel}
-                                onChange={(e) => setSelectedModel(e.target.value)}
-                                disabled={!selectedBrand}
-                            > 
-                                <option value="">Select Model</option>
-                                {models.map((model) => (
-                                    <option key={model} value={model}>
-                                        {model}
-                                    </option>
-                                ))}
-                            </select>
-                            </div> 
-
-                            <button className="assign-button" onClick={handleAssignDevice}>
-                                Assign Device
-                            </button>
-                        </div>
-
-                       <div className="userlist-table-container">
+                       <div className="assign-table-container">
                     <table>
                         <thead>
                             <tr>
@@ -357,6 +376,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                                 <th>Employee No.</th>
                                 <th>Current Assigned</th>
                                 <th>Previous Assignee</th>
+                                <th>Accessories</th>
                                 <th>Classification</th>
                                 <th>Brand</th>
                                 <th>Model</th>
@@ -371,6 +391,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                 <td>{device.employee_number}</td>
                 <td>{device.employee_name}</td>
                 <td>{device.previous_assignee}</td>
+                <td>{device.accessories || "N/A"}</td>
                 <td>{device.classification}</td>
                 <td>{device.brand_name}</td>
                 <td>{device.model}</td>
@@ -391,39 +412,52 @@ const InventoryDeviceAssignment: React.FC = () => {
                     </div>
                 </div>
 
+
                 
                 {showTransferModal && (
     <div className="modal-overlay">
-    <div className="modal-content">
-      {/* Header */}
-      <div className="modal-header">
-        <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
-        <h2>Transfer Device</h2>
-        <FaTimes className="close-icon" onClick={closeModal} />
-      </div>
+        <div className="modal-content">
+            {/* Header */}
+            <div className="modal-header1">
+                <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+                <h2>Transfer Device</h2>
+                <FaTimes className="close-icon" onClick={closeModal} />
+            </div>
 
-                 {/* Transfer Form */}
+            {/* Transfer Form */}
             <div className="modal-form">
-                {/* Left Column */}
-                <label>Current Assignee</label>
-                <label>Date Returned</label>
-
-                <input type="text" value={transferData.current_assignee} readOnly />
-                <input type="date" onChange={(e) => setTransferData({...transferData, return_date: e.target.value})} />
-
-                <div className="transfer-wrapper">
-                    <span>———</span>
-                    <span>Transfer to</span>
-                    <span>———</span>
+                {/* Current Assignee and Date Returned */}
+                <div className="assignee-container">
+                    <div className="assignee-row">
+                        <label>Current Assignee</label>
+                        <input type="text" value={transferData.current_assignee} readOnly />
+                        <label>Date Returned</label>
+                        <input type="date" onChange={(e) => setTransferData({...transferData, return_date: e.target.value})} />
+                    </div>
                 </div>
 
-                {/* Right Column */}
-                <label>New Assignee</label>
-                <label>Date Transferred</label>
+                <div className="transfer-container">
+                    <span className="transfer-text">transfer to</span>
+                </div>
 
-                <input type="text" placeholder="Enter Name" 
-                    onChange={(e) => setTransferData({...transferData, new_assignee: e.target.value})} />
-                <input type="date" onChange={(e) => setTransferData({...transferData, transferred_date: e.target.value})} />
+                {/* New Assignee and Date Transferred */}
+                <div className="assignee-container">
+                    <div className="assignee-row">
+                        <label>New Assignee</label>
+                        <input type="text" placeholder="Enter Name" 
+                            onChange={(e) => setTransferData({...transferData, new_assignee: e.target.value})} />
+                        <label>Date Transferred</label>
+                        <input type="date" onChange={(e) => setTransferData({...transferData, transferred_date: e.target.value})} />
+                    </div>
+                </div>
+
+                {/* Editable Accessories Field */}
+                <div className="assignee-container">
+                    <label>Accessories</label>
+                    <input type="text" placeholder="Edit Accessories" 
+                        value={transferData.accessories}
+                        onChange={(e) => setTransferData({...transferData, accessories: e.target.value})} />
+                </div>
 
                 <label className="full-width">Device Information</label>
 
@@ -441,6 +475,7 @@ const InventoryDeviceAssignment: React.FC = () => {
         </div>
     </div>
 )}
+
             </div>
             
         </>

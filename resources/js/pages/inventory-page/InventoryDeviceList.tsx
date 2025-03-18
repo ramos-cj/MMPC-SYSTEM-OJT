@@ -23,6 +23,7 @@ interface Device {
     with_warranty: string;
     computer_name?: string;
     qr_code: string;
+    need_to_be_repair: string;
     image_file?: string; // Image filename stored in the database
 }
 
@@ -203,6 +204,7 @@ export default function InventoryDeviceList() {
                             <p><strong>Serial Number:</strong> {selectedDevice.serial_number}</p>
                             <p><strong>Estimated Acquisition Year:</strong> {selectedDevice.estimated_acquisition_year}</p>
                             <p><strong>Condition:</strong> {selectedDevice.condition}</p>
+                            <p><strong>Defects/Issues:</strong> {selectedDevice.need_to_be_repair}</p>
                             <p><strong>Remarks:</strong> {selectedDevice.remarks}</p>
                         </div>
                     </div>

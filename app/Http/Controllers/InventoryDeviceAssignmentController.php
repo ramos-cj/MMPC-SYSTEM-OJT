@@ -40,7 +40,8 @@ class InventoryDeviceAssignmentController extends Controller
             'classification' => $assignment->classification,
             'brand_name' => $assignment->brand_name,
             'model' => $assignment->model,
-            'serial_number' => $assignment->serial_number
+            'serial_number' => $assignment->serial_number,
+            'accessories' => $assignment->accessories
         ];
     });
 
@@ -78,7 +79,8 @@ public function assignDevice(Request $request)
         'classification' => $device->classification,
         'brand_name' => $device->brand_name,
         'model' => $device->model,
-        'serial_number' => $device->serial_number
+        'serial_number' => $device->serial_number,
+        'accessories' => $request->accessories
     ]);
 
     // ✅ Mark device as assigned

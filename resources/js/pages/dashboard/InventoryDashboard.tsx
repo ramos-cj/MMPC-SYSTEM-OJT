@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
+import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
 import SidebarInventory from "@/components/sidebar-inventory";
 import { FaUsers, FaLaptop, FaTabletAlt, FaPhone, FaCogs, FaFileImport, FaTools, FaArrowRight } from "react-icons/fa";
 import "@/styles/inventoryDashboard.css";
 
 const InventoryDashboard: React.FC = () => {
+    const navigate = useNavigate(); // ✅ Initialize navigation function
+
     const [stats, setStats] = useState({
         totalEmployees: 0,
         totalLaptops: 0,
@@ -43,53 +46,60 @@ const InventoryDashboard: React.FC = () => {
                     <p className="last-update">Last Update (As of {formatDate(stats.latestUpdate)})</p>
 
                     <div className="stats-container">
+                        {/* Employees -> User List */}
                         <div className="stat-card">
                             <div className="icon"><FaUsers /></div>
                             <h3>{stats.totalEmployees}</h3>
                             <p>Total Employees</p>
-                            <div className="more-info">More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => navigate('/inventory-userlist')}>More Info <FaArrowRight /></div>
                         </div>
+
+                        {/* Devices -> Device List */}
                         <div className="stat-card">
                             <div className="icon"><FaLaptop /></div>
                             <h3>{stats.totalLaptops}</h3>
                             <p>Laptops</p>
-                            <div className="more-info">More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => navigate('/inventory-devicelist')}>More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
                             <div className="icon"><FaTabletAlt /></div>
                             <h3>{stats.totalTablets}</h3>
                             <p>Tablets</p>
-                            <div className="more-info">More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => navigate('/inventory-devicelist')}>More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <div className="icon"> <FaPhone /> </div>
+                            <div className="icon"><FaPhone /></div>
                             <h3>{stats.totalPhones}</h3>
                             <p>Phones</p>
-                            <div className="more-info">More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => navigate('/inventory-devicelist')}>More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <div className="icon"> <FaCogs /> </div>
+                            <div className="icon"><FaCogs /></div>
                             <h3>{stats.totalAccessories}</h3>
                             <p>Accessories</p>
-                            <div className="more-info">More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => navigate('/inventory-devicelist')}>More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <div className="icon"> <FaCogs /> </div>
+                            <div className="icon"><FaCogs /></div>
                             <h3>{stats.totalGoodCondition}</h3>
                             <p>Good Condition</p>
-                            <div className="more-info">More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => navigate('/inventory-devicelist')}>More Info <FaArrowRight /></div>
                         </div>
+
+                        {/* Needs Repair -> Repair Management */}
                         <div className="stat-card">
-                            <div className="icon"> <FaTools /> </div>
+                            <div className="icon"><FaTools /></div>
                             <h3>{stats.totalBadCondition}</h3>
                             <p>Needs Repair</p>
-                            <div className="more-info">More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => navigate('/inventory-repairmanagement')}>More Info <FaArrowRight /></div>
                         </div>
+
+                        {/* Imported Files -> File Management */}
                         <div className="stat-card">
-                            <div className="icon"> <FaFileImport /> </div>
+                            <div className="icon"><FaFileImport /></div>
                             <h3>{stats.totalImportedFiles}</h3>
                             <p>Imported Files</p>
-                            <div className="more-info">More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => navigate('/inventory-importfiles')}>More Info <FaArrowRight /></div>
                         </div>
                     </div>
 

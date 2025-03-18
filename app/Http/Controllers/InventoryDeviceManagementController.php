@@ -36,6 +36,7 @@ public function store(Request $request)
         'computer_name' => 'nullable|string',
         'remarks' => 'nullable|string',
         'condition' => 'required|string',
+        'need_to_be_repair' => 'nullable|string',
         'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
 
@@ -58,6 +59,7 @@ public function store(Request $request)
     $device->computer_name = $request->computer_name;
     $device->condition = $request->condition;
     $device->remarks = $request->remarks;
+    $device->need_to_be_repair = ($request->condition === "Bad") ? $request->need_to_be_repair : null;
 
     // Handle Image Upload
 if ($request->hasFile('image_file')) {

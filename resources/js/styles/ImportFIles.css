@@ -1,0 +1,116 @@
+/* Import Box */
+.import-box {
+    text-align: center;
+    padding: 30px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    margin: 15px auto;
+    width: 40%;
+    height: 30%;
+}
+
+.file-label {
+    display: block;
+    font-size: 16px;
+    color: #666;
+
+}
+
+.import-btn {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 7%;
+    margin-left: 36%;
+}
+
+.import-btn:hover {
+    background-color: #b71c1c;
+}
+
+/* Filter Section */
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.filter-section label,
+.search-box {
+    font-size: 14px;
+}
+
+.search-box {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+}
+
+/* Table Styling */
+.table-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    background: white;
+    margin-top: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #d32f2f;
+    color: white;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+.import-content{
+    border-radius: 4px;
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #f8f8f8;
+    transition: all 0.3s ease-in-out;
+    overflow-x: auto;
+    overflow-y: auto;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-top: 97px; /* Add margin to push content down */
+  
+}
+/* Title Header */
+.import-content h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid  red; /* Adds a line below the title */
+    text-align: left; /* Ensures text is aligned to the left */
+    }
+/* Adjust layout container to push content down */
+.import-container {
+    display: flex;
+    height: 100vh;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+}  

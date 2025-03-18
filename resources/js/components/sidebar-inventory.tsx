@@ -77,7 +77,7 @@ const SidebarInventory: React.FC = () => {
                         </li>
                         <li className={url === "/inventory-importfiles" ? "active" : ""} onClick={() => handleNavigation("/inventory-importfiles")}>
                             <FaFileImport />
-                            <span className={isCollapsed ? "hidden" : ""}>Import Files</span>
+                            <span className={isCollapsed ? "hidden" : ""}>File Management</span>
                         </li>
                         <li className="logout" onClick={handleLogout}>
                             <FaSignOutAlt />

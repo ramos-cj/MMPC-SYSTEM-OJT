@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import mmpcLogo from '@/assets/mmpc-logo1.png'; // Ensure the path is correct
+import mmpcLogo from '@/assets/mmpc-logo1.png'; 
 import { FaEdit, FaTrash, FaSearch, FaTimes, FaUsers } from "react-icons/fa";
 import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
 import SidebarInventory from "@/components/sidebar-inventory";
 import "@/styles/userlist.css";
 
-// Define the structure of Employee data
 interface Employee {
   id: number;
   employee_number: string;
@@ -28,27 +27,27 @@ const InventoryUserList: React.FC = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(15);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
 
-  // Fetch employees and divisions/departments from database
+  // Fetch employees
   useEffect(() => {
-    fetch("/inventory-user-management/list")
-      .then((response) => response.json())
-      .then((data: Employee[]) => {
-        setUsers(data);
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch("/inventory-user-management/list");
+            const data = await response.json();
+            setUsers(data);
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        }
+    };
 
-        // Extract unique Division and Department values from database
-        const uniqueDivisions = [...new Set(data.map((user) => user.division_department))];
-        const uniqueDepartments = [...new Set(data.map((user) => user.department_code))];
+    fetchUsers();
+}, []); // ✅ This will run ONLY when the component mounts
 
-        setDivisions(uniqueDivisions);
-        setDepartments(uniqueDepartments);
-      })
-      .catch((error) => console.error("Error fetching user data:", error));
-  }, []);
 
-  // Sorting function for division/department
+  // Sorting function
   const sortedUsers = [...users].sort((a, b) => {
     const fieldToSort = selectedDivision ? "division_department" : "department_code";
     return sortOrder === "asc"
@@ -56,7 +55,7 @@ const InventoryUserList: React.FC = () => {
       : String(b[fieldToSort as keyof Employee]).localeCompare(String(a[fieldToSort as keyof Employee]));
   });
 
-  // Filtering based on user selection
+  // Filter users
   const filteredUsers = sortedUsers.filter(
     (user) =>
       (user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -66,12 +65,23 @@ const InventoryUserList: React.FC = () => {
       (selectedDepartment ? user.department_code === selectedDepartment : true)
   );
 
-  // Sorting User ID
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredUsers.length / entriesPerPage);
+  const paginatedUsers = filteredUsers.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
+
+  // Change Page
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  // Sort User ID
   const handleSort = () => {
     setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
   };
 
-  // Open modal with employee data
+  // Open modal
   const handleEmployeeClick = (employee: Employee) => {
     setSelectedEmployee(employee);
   };
@@ -81,6 +91,65 @@ const InventoryUserList: React.FC = () => {
     setSelectedEmployee(null);
   };
 
+  const handleEditClick = async (employee: Employee) => {
+    try {
+        const response = await fetch(`/inventory-user-management/get/${employee.id}`);
+        if (!response.ok) throw new Error("Failed to fetch employee details.");
+
+        const employeeData = await response.json();
+        setEditEmployee(employeeData); // ✅ Now it correctly sets the employee's existing details
+    } catch (error) {
+        console.error("Error fetching employee details:", error);
+        alert("Error fetching employee details.");
+    }
+};
+  
+  const handleSaveChanges = async () => {
+    if (!editEmployee) return;
+
+    // ✅ Extract only necessary fields
+    const { id, ...employeeData } = editEmployee;
+
+    try {
+        const response = await fetch(`/inventory-user-management/update/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(employeeData),
+        });
+
+        if (!response.ok) throw new Error("Failed to update employee.");
+
+        alert("Employee details updated successfully!"); // ✅ Simple alert instead of a pop-up
+
+        window.location.reload(); // ✅ Refresh to show updated data
+    } catch (error) {
+        console.error("Error updating employee:", error);
+        alert("Error updating employee."); // ✅ Alert for errors
+    }
+};
+
+
+const handleDelete = async (id: number) => {
+  if (!window.confirm("Are you sure you want to delete this employee?")) return;
+
+  try {
+      const response = await fetch(`/inventory-user-management/delete/${id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+      });
+
+      if (!response.ok) throw new Error("Failed to delete employee.");
+
+      alert("Employee deleted successfully!"); // ✅ Simple alert for success
+
+      window.location.reload(); // ✅ Refresh the user list
+  } catch (error) {
+      console.error("Error deleting employee:", error);
+      alert("Error deleting employee."); // ✅ Alert for errors
+  }
+};
+
+  
   return (
     <div className={`inventory-userlist-container ${selectedEmployee ? "blurred" : ""}`}>
       <SidebarInventory />
@@ -91,7 +160,14 @@ const InventoryUserList: React.FC = () => {
         <div className="filter-container">
           <label className="entries-label">
             Show
-            <select value={entriesPerPage} onChange={(e) => setEntriesPerPage(Number(e.target.value))} className="entries-select">
+            <select
+              value={entriesPerPage}
+              onChange={(e) => {
+                setEntriesPerPage(Number(e.target.value));
+                setCurrentPage(1); // Reset to first page when changing entries per page
+              }}
+              className="entries-select"
+            >
               <option value="15">15</option>
               <option value="30">30</option>
               <option value="45">45</option>
@@ -138,9 +214,9 @@ const InventoryUserList: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user, index) => (
+              {paginatedUsers.map((user, index) => (
                 <tr key={user.id}>
-                  <td>{index + 1}</td>
+                  <td>{(currentPage - 1) * entriesPerPage + index + 1}</td>
                   <td className="clickable" onClick={() => handleEmployeeClick(user)}>{user.employee_number}</td>
                   <td>{user.first_name}</td>
                   <td>{user.middle_initial ?? "-"}</td>
@@ -148,14 +224,25 @@ const InventoryUserList: React.FC = () => {
                   <td>{user.division_department}</td>
                   <td>{user.department_code}</td>
                   <td className="userlist-actions">
-                    <FaEdit className="edit-icon" />
-                    <FaTrash className="delete-icon" />
+                    <FaEdit className="edit-icon" onClick={() => handleEditClick(user)} />
+                    <FaTrash className="delete-icon" onClick={() => handleDelete(user.id)} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        <div className="pagination">
+                        <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Previous</button>
+                        {[...Array(totalPages)].map((_, index) => (
+                            <button key={index + 1} className={currentPage === index + 1 ? "active" : ""} onClick={() => setCurrentPage(index + 1)}>
+                                {index + 1}
+                            </button>
+                        ))}
+                        <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+                    </div>
       </div>
 
       {/* Employee Info Modal */}
@@ -202,6 +289,108 @@ const InventoryUserList: React.FC = () => {
           </div>
         </div>
       )}
+      
+      {editEmployee && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <div className="modal-header">
+        <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+        <h2>Edit Profile</h2>
+        <FaTimes className="close-icon" onClick={() => setEditEmployee(null)} />
+      </div>
+
+      <div className="modal-form">
+  {editEmployee && (
+    <>
+      <div className="form-group">
+        <label>Employee Number:</label>
+        <input
+          type="text"
+          value={editEmployee.employee_number || ""}
+          onChange={(e) => setEditEmployee({ ...editEmployee, employee_number: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>First Name:</label>
+        <input
+          type="text"
+          value={editEmployee.first_name || ""}
+          onChange={(e) => setEditEmployee({ ...editEmployee, first_name: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Middle Initial:</label>
+        <input
+          type="text"
+          value={editEmployee.middle_initial || ""}
+          onChange={(e) => setEditEmployee({ ...editEmployee, middle_initial: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Last Name:</label>
+        <input
+          type="text"
+          value={editEmployee.last_name || ""}
+          onChange={(e) => setEditEmployee({ ...editEmployee, last_name: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Division Department:</label>
+        <input
+          type="text"
+          value={editEmployee.division_department || ""}
+          onChange={(e) => setEditEmployee({ ...editEmployee, division_department: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Position:</label>
+        <input
+          type="text"
+          value={editEmployee.position || ""}
+          onChange={(e) => setEditEmployee({ ...editEmployee, position: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Section Code:</label>
+        <input
+          type="text"
+          value={editEmployee.section_code || ""}
+          onChange={(e) => setEditEmployee({ ...editEmployee, section_code: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Division Code:</label>
+        <input
+          type="text"
+          value={editEmployee.division_code || ""}
+          onChange={(e) => setEditEmployee({ ...editEmployee, division_code: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Department Code:</label>
+        <input
+          type="text"
+          value={editEmployee.department_code || ""}
+          onChange={(e) => setEditEmployee({ ...editEmployee, department_code: e.target.value })}
+        />
+      </div>
+    </>
+  )}
+</div>
+
+
+      <button className="save-button" onClick={handleSaveChanges}>Save & Close</button>
+    </div>
+  </div>
+)}
     </div>
   );
 };
