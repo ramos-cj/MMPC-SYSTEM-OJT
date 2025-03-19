@@ -6,6 +6,7 @@ use App\Http\Controllers\InventoryDashboardController;
 use App\Http\Controllers\InventoryDeviceManagementController;
 use App\Http\Controllers\InventoryUserManagementController;
 use App\Http\Controllers\InventoryDeviceAssignmentController;
+use App\Http\Controllers\InventoryRepairManagementController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -68,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/inventory-devicemanagement/delete/{id}', [InventoryDeviceManagementController::class, 'delete']);
     Route::match(['PUT', 'POST'], '/inventory-devicemanagement/update/{id}', [InventoryDeviceManagementController::class, 'update']);
     Route::post('/inventory-devicemanagement/update/{id}', [InventoryDeviceManagementController::class, 'update']);
-Route::get('/device-images/{filename}', [InventoryDeviceManagementController::class, 'getDeviceImage'])
+    Route::get('/device-images/{filename}', [InventoryDeviceManagementController::class, 'getDeviceImage'])
     ->where('filename', '.*')
     ->name('device.image');
 
@@ -83,6 +84,7 @@ Route::get('/device-images/{filename}', [InventoryDeviceManagementController::cl
     Route::post('/assign-device', [InventoryDeviceAssignmentController::class, 'assignDevice']);
     Route::post('/transfer-device', [InventoryDeviceAssignmentController::class, 'transferDevice']);
     Route::delete('/delete-assignment/{id}', [InventoryDeviceAssignmentController::class, 'deleteAssignment']);
+    Route::get('/repair-management/list', [InventoryRepairManagementController::class, 'listBadDevices']);
 
 
     Route::get('/inventory-repairmanagement', function () {
