@@ -136,7 +136,7 @@ const RepairManagement: React.FC = () => {
                   <td>{item.need_to_be_repair || "N/A"}</td>
                   <td>
                     <button className="repair-action-btn">
-                      <FaTools /> Repair
+                      <FaTools />
                     </button>
                   </td>
                 </tr>
