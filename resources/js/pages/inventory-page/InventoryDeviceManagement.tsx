@@ -39,39 +39,34 @@ const InventoryDeviceManagement: React.FC = () => {
         const file = e.target.files?.[0] || null;
         setFormData((prev) => ({
             ...prev,
-            image_file: file, // ✅ Store File object
+            image_file: file,
         }));
-    };      
+    };    
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
     
         const data = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
-            if (value !== null) {
-                if (key === "image_file" && value instanceof File) {
-                    data.append(key, value); // ✅ Append File for image
-                } else {
-                    data.append(key, value as string);
-                }
-            }
+            if (value !== null) data.append(key, value as string | Blob);
         });
     
         router.post("/inventory-device-management/save", data, {
-            forceFormData: true, // ✅ Ensures FormData is sent properly
+            forceFormData: true,  // Ensure InertiaJS correctly handles FormData
             onSuccess: () => alert("Device saved successfully!"),
             onError: (errors) => {
                 const errorMsg = Object.values(errors).join("\n");
                 setErrorMessage(errorMsg);
             },
         });
-    };    
+    };
     
+
     return (
         <div className="device-management-container">
             <SidebarInventory />
             <div className="device-management-content">
-                <h2>DEVICE MANAGEMENT</h2>
+                <h2>Device Management</h2>
                 <form onSubmit={handleSubmit} className="device-form">
                     <div className="form-grid">
                         <div className="form-group">
@@ -189,7 +184,7 @@ const InventoryDeviceManagement: React.FC = () => {
                                     value={formData.need_to_be_repair}
                                     onChange={handleChange}
                                 ></textarea>
-                            </div>
+                            </div> 
                         )}
 
                         <div className="form-group">

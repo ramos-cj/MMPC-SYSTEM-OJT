@@ -154,7 +154,7 @@ const handleDelete = async (id: number) => {
     <div className={`inventory-userlist-container ${selectedEmployee ? "blurred" : ""}`}>
       <SidebarInventory />
       <div className="userlist-content">
-        <h2>USER LIST ({users.length} employees)</h2>
+        <h2>User List ({users.length} employees)</h2>
 
         {/* Filters */}
         <div className="filter-container">
@@ -295,14 +295,14 @@ const handleDelete = async (id: number) => {
     <div className="modal-content">
       <div className="modal-header">
         <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
-        <h2>Edit Profile</h2>
+        <h3>Edit Profile</h3>
         <FaTimes className="close-icon" onClick={() => setEditEmployee(null)} />
       </div>
 
       <div className="modal-form">
   {editEmployee && (
     <>
-      <div className="form-group">
+      <div className="form-group1">
         <label>Employee Number:</label>
         <input
           type="text"
@@ -311,7 +311,7 @@ const handleDelete = async (id: number) => {
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-group1">
         <label>First Name:</label>
         <input
           type="text"
@@ -320,7 +320,7 @@ const handleDelete = async (id: number) => {
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-group1">
         <label>Middle Initial:</label>
         <input
           type="text"
@@ -329,7 +329,7 @@ const handleDelete = async (id: number) => {
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-group1">
         <label>Last Name:</label>
         <input
           type="text"
@@ -338,8 +338,8 @@ const handleDelete = async (id: number) => {
         />
       </div>
 
-      <div className="form-group">
-        <label>Division Department:</label>
+      <div className="form-group1">
+        <label>Division/Department:</label>
         <input
           type="text"
           value={editEmployee.division_department || ""}
@@ -347,7 +347,7 @@ const handleDelete = async (id: number) => {
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-group2">
         <label>Position:</label>
         <input
           type="text"
@@ -356,7 +356,7 @@ const handleDelete = async (id: number) => {
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-group2">
         <label>Section Code:</label>
         <input
           type="text"
@@ -365,7 +365,7 @@ const handleDelete = async (id: number) => {
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-group2">
         <label>Division Code:</label>
         <input
           type="text"
@@ -374,7 +374,7 @@ const handleDelete = async (id: number) => {
         />
       </div>
 
-      <div className="form-group">
+      <div className="form-group3">
         <label>Department Code:</label>
         <input
           type="text"

@@ -39,7 +39,6 @@ export default function InventoryDeviceList() {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
     const [editDevice, setEditDevice] = useState<Device | null>(null);
-    const [formData, setFormData] = useState<FormData | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 

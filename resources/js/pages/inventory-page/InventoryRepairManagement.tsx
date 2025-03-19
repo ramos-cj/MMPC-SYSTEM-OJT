@@ -14,7 +14,8 @@ interface RepairItem {
   computer_name: string;
   warranty: string;
   location: string;
-  defectivity: string;
+  condition: string; // Added field to check for "Bad" condition
+  need_to_be_repair: string; // Stores defects/issues
 }
 
 const RepairManagement: React.FC = () => {
@@ -24,13 +25,19 @@ const RepairManagement: React.FC = () => {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(15);
 
+  // Fetch only devices with "Bad" condition
   useEffect(() => {
     fetch("/repair-management/list")
       .then((response) => response.json())
-      .then((data: RepairItem[]) => setItems(data))
+      .then((data: RepairItem[]) => {
+        // ✅ Filter only devices with a "Bad" condition
+        const badDevices = data.filter((item) => item.condition === "Bad");
+        setItems(badDevices);
+      })
       .catch((error) => console.error("Error fetching repair data:", error));
   }, []);
 
+  // Filtering logic
   const filteredItems = items.filter(
     (item) =>
       (item.general_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -46,6 +53,7 @@ const RepairManagement: React.FC = () => {
       <div className="repair-content">
         <h2>Repair Management ({items.length} devices)</h2>
 
+        {/* Filters */}
         <div className="filter-container">
           <label className="entries-label">
             Show
@@ -76,15 +84,14 @@ const RepairManagement: React.FC = () => {
             onChange={(e) => setSelectedClassification(e.target.value)}
           >
             <option value="">Select Classification</option>
-            {/* Map classifications dynamically if needed */}
           </select>
 
           <select value={selectedBrand} onChange={(e) => setSelectedBrand(e.target.value)}>
             <option value="">Select Brand</option>
-            {/* Map brands dynamically if needed */}
           </select>
         </div>
 
+        {/* Table */}
         <div className="repair-table-container">
           <table>
             <thead>
@@ -97,7 +104,7 @@ const RepairManagement: React.FC = () => {
                 <th>Computer Name</th>
                 <th>Warranty</th>
                 <th>Location</th>
-                <th>Defectivity</th>
+                <th>Defects/Issues</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -112,7 +119,7 @@ const RepairManagement: React.FC = () => {
                   <td>{item.computer_name}</td>
                   <td>{item.warranty}</td>
                   <td>{item.location}</td>
-                  <td>{item.defectivity}</td>
+                  <td>{item.need_to_be_repair || "N/A"}</td>
                   <td>
                     <button className="repair-action-btn">
                       <FaTools /> Repair

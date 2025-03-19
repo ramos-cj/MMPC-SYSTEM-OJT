@@ -28,10 +28,14 @@
 }
 
 .auth-icon {
-    font-size: 40px;
+    font-size: 1rem; /* Adjust size (2rem = 32px) */
+    width: 40px;  /* Optional, adjust as needed */
+    height: 40px; /* Optional, adjust as needed */
     margin-bottom: 10px;
     color: black;
+    margin-left: 43.5%;
 }
+
 
 .auth-title {
     font-size: 22px;
@@ -116,3 +120,4 @@
         padding: 8px;
     }
 }
+
