@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect} from "react";
 import { Head } from "@inertiajs/react";
 import SidebarInventory from "@/components/sidebar-inventory";
 import "@/styles/DeviceAssignment.css";
 import mmpcLogo from '@/assets/mmpc-logo1.png';
 import { FaTrash, FaExchangeAlt, FaTimes, } from "react-icons/fa";
-import "@/styles/userlist.css";
+
 
 interface Employee {
     id: number;
@@ -428,28 +429,44 @@ const InventoryDeviceAssignment: React.FC = () => {
             <div className="modal-form">
                 {/* Current Assignee and Date Returned */}
                 <div className="assignee-container">
-                    <div className="assignee-row">
-                        <label>Current Assignee</label>
-                        <input type="text" value={transferData.current_assignee} readOnly />
-                        <label>Date Returned</label>
-                        <input type="date" onChange={(e) => setTransferData({...transferData, return_date: e.target.value})} />
-                    </div>
-                </div>
+    <div className="assignee-row">
+        <div className="assignee-field">
+            <label>Current Assignee</label>
+            <input type="text" value={transferData.current_assignee} readOnly />
+        </div>
+        <div className="assignee-field">
+            <label>Date Returned</label>
+            <input type="date" onChange={(e) => setTransferData({ ...transferData, return_date: e.target.value })} />
+        </div>
+    </div>
+</div>
 
-                <div className="transfer-container">
-                    <span className="transfer-text">transfer to</span>
-                </div>
+<div className="transfer-container">
+    <span className="transfer-text">transfer to</span>
+</div>
 
-                {/* New Assignee and Date Transferred */}
-                <div className="assignee-container">
-                    <div className="assignee-row">
-                        <label>New Assignee</label>
-                        <input type="text" placeholder="Enter Name" 
-                            onChange={(e) => setTransferData({...transferData, new_assignee: e.target.value})} />
-                        <label>Date Transferred</label>
-                        <input type="date" onChange={(e) => setTransferData({...transferData, transferred_date: e.target.value})} />
-                    </div>
-                </div>
+
+{/* New Assignee and Date Transferred */}
+<div className="assignee-container">
+    <div className="assignee-row">
+        <div className="assignee-field">
+            <label>New Assignee</label>
+            <input 
+                type="text" 
+                placeholder="Enter Name" 
+                onChange={(e) => setTransferData({ ...transferData, new_assignee: e.target.value })} 
+            />
+        </div>
+        <div className="assignee-field">
+            <label>Date Transferred</label>
+            <input 
+                type="date" 
+                onChange={(e) => setTransferData({ ...transferData, transferred_date: e.target.value })} 
+            />
+        </div>
+    </div>
+</div>
+
 
                 {/* Editable Accessories Field */}
                 <div className="assignee-container">
@@ -462,11 +479,30 @@ const InventoryDeviceAssignment: React.FC = () => {
                 <label className="full-width">Device Information</label>
 
                 <div className="device-info">
-                    <input type="text" value={transferData.classification} readOnly />
-                    <input type="text" value={transferData.brand} readOnly />
-                    <input type="text" value={transferData.model} readOnly />
-                    <input type="text" value={transferData.serial_number} readOnly />
-                </div>
+    <div>
+        <label>Classification</label>
+        <input type="text" value={transferData.classification} readOnly />
+    </div>
+
+    <div>
+        <label>Brand</label>
+        <input type="text" value={transferData.brand} readOnly />
+    </div>
+
+    <div>
+        <label>Model</label>
+        <input type="text" value={transferData.model} readOnly />
+    </div>
+
+    <div>
+        <label>Serial Number</label>
+        <input type="text" value={transferData.serial_number} readOnly />
+    </div>
+</div>
+
+
+                
+
             </div>
 
             <button className="transfer-button" onClick={handleTransferDevice}>

@@ -65,7 +65,7 @@ public function update(Request $request, $id)
     return response()->json(['message' => 'Employee updated successfully']);
 }
 
-// ✅ Delete employee
+// ✅ Delete employees
 public function delete($id)
 {
     $employee = Employee::findOrFail($id);

@@ -39,29 +39,34 @@ const InventoryDeviceManagement: React.FC = () => {
         const file = e.target.files?.[0] || null;
         setFormData((prev) => ({
             ...prev,
-            image_file: file,
+            image_file: file, // ✅ Store File object
         }));
-    };    
+    };      
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
     
         const data = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
-            if (value !== null) data.append(key, value as string | Blob);
+            if (value !== null) {
+                if (key === "image_file" && value instanceof File) {
+                    data.append(key, value); // ✅ Append File for image
+                } else {
+                    data.append(key, value as string);
+                }
+            }
         });
     
         router.post("/inventory-device-management/save", data, {
-            forceFormData: true,  // Ensure InertiaJS correctly handles FormData
+            forceFormData: true, // ✅ Ensures FormData is sent properly
             onSuccess: () => alert("Device saved successfully!"),
             onError: (errors) => {
                 const errorMsg = Object.values(errors).join("\n");
                 setErrorMessage(errorMsg);
             },
         });
-    };
+    };    
     
-
     return (
         <div className="device-management-container">
             <SidebarInventory />

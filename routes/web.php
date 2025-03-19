@@ -28,22 +28,6 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('dashboard/InventoryDashboard');
     })->name('inventory-dashboard');
 
-    Route::get('/inventory-userlist', function () {
-        return Inertia::render('inventory-page/InventoryUserList');
-    })->name('inventory-userlist');
-    
-    Route::get('/inventory-devicelist', function () {
-        return Inertia::render('inventory-page/InventoryDeviceList');
-    })->name('inventory-devicelist');
-    
-    Route::get('/inventory-repairmanagement', function () {
-        return Inertia::render('inventory-page/InventoryRepairManagement');
-    })->name('inventory-repairmanagement');
-    
-    Route::get('/inventory-importfiles', function () {
-        return Inertia::render('inventory-page/InventoryImportFiles');
-    })->name('inventory-importfiles');
-
     Route::get('/inventory-dashboard/stats', [InventoryDashboardController::class, 'getStats']);
     
     
@@ -56,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
     })->name('inventory-devicelist');
 
     Route::get('/devices', [InventoryDeviceManagementController::class, 'getDevices']);
+    Route::get('/device-image/{filename}', [InventoryDeviceManagementController::class, 'getDeviceImage'])
+    ->where('filename', '.*')
+    ->name('device.image');
 
 
     Route::get('/inventory-usermanagement', function () {
@@ -75,7 +62,16 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('inventory-page/InventoryDeviceManagement');
     })->name('inventory-devicemanagement');
 
-    Route::post('/inventory-device-management/save', [InventoryDeviceManagementController::class, 'store']);
+    Route::get('/inventory-devicemanagement/list', [InventoryDeviceManagementController::class, 'list']);
+    Route::get('/inventory-devicemanagement/get/{id}', [InventoryDeviceManagementController::class, 'getDevice']);
+    Route::post('/inventory-devicemanagement/save', [InventoryDeviceManagementController::class, 'store']);
+    Route::delete('/inventory-devicemanagement/delete/{id}', [InventoryDeviceManagementController::class, 'delete']);
+    Route::match(['PUT', 'POST'], '/inventory-devicemanagement/update/{id}', [InventoryDeviceManagementController::class, 'update']);
+    Route::post('/inventory-devicemanagement/update/{id}', [InventoryDeviceManagementController::class, 'update']);
+Route::get('/device-images/{filename}', [InventoryDeviceManagementController::class, 'getDeviceImage'])
+    ->where('filename', '.*')
+    ->name('device.image');
+
 
     Route::get('/inventory-deviceassignment', function () {
         return Inertia::render('inventory-page/InventoryDeviceAssignment');

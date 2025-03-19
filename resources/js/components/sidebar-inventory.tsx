@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { router, usePage } from "@inertiajs/react";
-import { 
-    FaBars, FaUsers, FaClipboardList, FaSignOutAlt, FaTools, FaFileImport, FaPowerOff 
-} from "react-icons/fa";
+import { FaBars, FaUsers, FaClipboardList, FaSignOutAlt, FaTools, FaFileImport, FaPowerOff, FaTimes} from "react-icons/fa";
 import { MdAssignment, MdManageAccounts, MdDevices, MdList } from "react-icons/md";
 import "../styles/sidebar.css";
 import logo from "../assets/mmpc-logo.png";
@@ -101,10 +99,10 @@ const SidebarInventory: React.FC = () => {
                     <div className="logout-modal">
                         <div className="logout-header">
                             <img src={logo} alt="Mitsubishi Logo" className="modal-logo" />
-                            <FaPowerOff className="logout-icon" />
-                            <button className="close-btn" onClick={cancelLogout}>✖</button>
+                            <label>Logout</label>
+                            <FaTimes className="close-icon" onClick={cancelLogout}/>
                         </div>
-                        <p>Are you sure you want to logout?</p>
+                        <p className="logout-message">Are you sure you want to logout?</p>
                         <div className="logout-buttons">
                             <button className="yes-btn" onClick={confirmLogout}>Yes</button>
                             <button className="no-btn" onClick={cancelLogout}>No</button>

@@ -2,7 +2,6 @@
 .assign-table-container {
     background: white;
     border-radius: 4px;
-    overflow-x: auto;
     padding: 20px;
     margin-top: 10px; /* Lower table position */
 }
@@ -49,6 +48,7 @@
     margin-top: 6.5%;
     border-radius: 4px;
     overflow-y: auto;
+    overflow-x: hidden;
     height: calc(100vh - 100px);
 
 }
@@ -120,11 +120,12 @@
 
 /* Accessories input styling */
 .accessories-input {
-    width: 50%; /* Set width for better alignment */
-    padding: 10px;
+    width: 50%;
+    padding: 8px;
+    font-size: 14px;
     border: 1px solid #ccc;
-    border-radius: 5px;
-   
+    border-radius: 4px;
+    font-weight: lighter;
 }
 
 /* Assign Device Button should be centered */
@@ -152,7 +153,6 @@
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    overflow-x: auto;
 }
 
 .table-controls {
@@ -374,17 +374,10 @@
 }
 
 /* Full Width for Device Information */
-.full-width {
-    grid-column: span 2;
-    text-align: left;
+.modal-form .full-width{
+    text-align: center;
     font-weight: bold;
-}
-
-/* Device Information Grid */
-.device-info {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    font-size: 21px;
 }
 
 /* Transfer Button */
@@ -427,13 +420,45 @@
 }
 
 .assignee-row {
+    margin-top: 3%;
     display: grid;
-    flex-direction: column;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 20px; /* Spacing between fields */
 }
 
-.assignee-row label {
-    margin-top: 5px;
+.assignee-field {
+    display: flex;
+    flex-direction: column; /* Label on top of input */
+}
+
+.assignee-field label {
     font-weight: bold;
-    font-size: 14px;
     margin-bottom: 5px;
+}
+
+.assignee-field input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.device-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Creates 2 equal columns */
+    gap: 16px; /* Space between grid items */
+}
+
+.device-info div {
+    display: flex;
+    flex-direction: column; /* Ensures label is on top of input */
+}
+
+.device-info label {
+    font-weight: bold;
+    margin-bottom: 2px; /* Adds space between label and input */
+}
+
+.device-info input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
 }

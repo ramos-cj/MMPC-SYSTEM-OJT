@@ -213,3 +213,81 @@
     transition:cubic-bezier(0.075, 0.82, 0.165, 1)
   }
   
+
+  .edit-modal {
+    width: 600px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid red;
+    padding-bottom: 10px;
+}
+
+.modal-header h2 {
+    font-size: 22px;
+    margin: 0 auto;
+}
+
+.edit-device-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.edit-grid {
+    display: flex;
+    justify-content: space-between;
+}
+
+.edit-column {
+    width: 48%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.edit-column label {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.edit-column input,
+.edit-column select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.edit-image-section {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.edit-image {
+    width: 120px;
+    height: auto;
+    display: block;
+    margin: 10px auto;
+    border-radius: 5px;
+}
+
+.save-btn {
+    background-color: red;
+    color: white;
+    font-size: 16px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+}
