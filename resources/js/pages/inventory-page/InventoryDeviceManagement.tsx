@@ -51,7 +51,7 @@ const InventoryDeviceManagement: React.FC = () => {
             if (value !== null) data.append(key, value as string | Blob);
         });
     
-        router.post("/inventory-device-management/save", data, {
+        router.post("/inventory-devicemanagement/save", data, {
             forceFormData: true,  // Ensure InertiaJS correctly handles FormData
             onSuccess: () => alert("Device saved successfully!"),
             onError: (errors) => {

@@ -19,7 +19,6 @@ interface Device {
     location: string;
     serial_number: string;
     estimated_acquisition_year: string;
-    accessories?: string;
     with_warranty: string;
     computer_name?: string;
     qr_code: string;
@@ -388,8 +387,8 @@ export default function InventoryDeviceList() {
                                 <option value="No">No</option>
                             </select>
 
-                            <label>Accessories:</label>
-                            <input type="text" name="accessories" value={editDevice.accessories || ""} onChange={handleInputChange} />
+                            <label>Defects/Issues:</label>
+                            <input type="text" name="accessories" value={editDevice.need_to_be_repair || ""} onChange={handleInputChange} />
 
                             <label>Estimated Acquisition Year:</label>
                             <input type="text" name="estimated_acquisition_year" value={editDevice.estimated_acquisition_year} onChange={handleInputChange} />

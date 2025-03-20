@@ -68,13 +68,17 @@ public function store(Request $request)
     if ($request->hasFile('image_file')) {
         $file = $request->file('image_file');
         $filename = time() . '.' . $file->getClientOriginalExtension();
-        $file->storeAs('private/public/device-images', $filename); // ✅ Store in correct location
-        $device->image_file = $filename; // ✅ Save only the filename in DB
+        $file->storeAs('public/device-images', $filename);
+        $device->image_file = $filename;
     }    
 
     $device->save();
 
-    return response()->json(['success' => true, 'message' => 'Device saved successfully!', 'device' => $device]);
+    return redirect()->route('inventory-devicelist')->with([
+        'success' => true,
+        'message' => 'Device saved successfully!',
+        'device' => $device
+    ]);
 }
 
 public function getDeviceImage($filename)

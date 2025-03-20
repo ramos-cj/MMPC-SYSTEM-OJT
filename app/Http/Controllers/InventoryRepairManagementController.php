@@ -20,4 +20,19 @@ class InventoryRepairManagementController extends Controller
     return response()->json($badDevices);
 }
 
+public function updateDeviceIssues(Request $request, $id)
+{
+    $device = Device::findOrFail($id);
+
+    $device->need_to_be_repair = $request->input('need_to_be_repair');
+    if ($device->need_to_be_repair === "") {
+        $device->condition = "Good"; // Change condition to Good if no issues remain
+    }
+
+    $device->save();
+
+    return response()->json(['message' => 'Device issues updated successfully!']);
+}
+
+
 }

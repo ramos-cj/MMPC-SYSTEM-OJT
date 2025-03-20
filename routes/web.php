@@ -85,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/transfer-device', [InventoryDeviceAssignmentController::class, 'transferDevice']);
     Route::delete('/delete-assignment/{id}', [InventoryDeviceAssignmentController::class, 'deleteAssignment']);
     Route::get('/repair-management/list', [InventoryRepairManagementController::class, 'listBadDevices']);
-
+    Route::post('/repair-management/update/{id}', [InventoryRepairManagementController::class, 'updateDeviceIssues']);
 
     Route::get('/inventory-repairmanagement', function () {
         return Inertia::render('inventory-page/InventoryRepairManagement');

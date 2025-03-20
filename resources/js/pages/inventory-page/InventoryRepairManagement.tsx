@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SidebarInventory from "@/components/sidebar-inventory";
-import { FaSearch, FaTools } from "react-icons/fa";
+import mmpcLogo from '@/assets/mmpc-logo1.png'; 
+import { FaSearch, FaTools, FaTimes } from "react-icons/fa";
 import "@/styles/userlist.css";
 import "@/styles/DeviceRepairManagement.css";
 
@@ -21,6 +22,8 @@ interface RepairItem {
 const RepairManagement: React.FC = () => {
   const [items, setItems] = useState<RepairItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedItem, setSelectedItem] = useState<RepairItem | null>(null);
+  const [checklist, setChecklist] = useState<string[]>([]);
   const [selectedClassification, setSelectedClassification] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(15);
@@ -60,6 +63,40 @@ const RepairManagement: React.FC = () => {
   const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
   const currentItems = filteredItems.slice(indexOfFirstEntry, indexOfLastEntry);
   const totalPages = Math.ceil(filteredItems.length / entriesPerPage);
+
+  const handleRepairClick = (item: RepairItem) => {
+    setSelectedItem(item);
+    setChecklist(item.need_to_be_repair.split(","));
+  };
+
+  const closeModal = () => {
+    setSelectedItem(null);
+} ;
+
+  const handleCheckboxChange = (issue: string) => {
+    setChecklist((prev) =>
+      prev.includes(issue) ? prev.filter((i) => i !== issue) : [...prev, issue]
+    );
+  };
+
+  const handleSave = async () => {
+    if (!selectedItem) return;
+
+    try {
+      const response = await fetch(`/repair-management/update/${selectedItem.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ need_to_be_repair: checklist.join(",") }),
+      });
+
+      if (!response.ok) throw new Error("Failed to update the device.");
+
+      alert("Device issues updated successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating device issues:", error);
+    }
+  };
 
   return (
     <div className="repair-management-container">
@@ -135,9 +172,9 @@ const RepairManagement: React.FC = () => {
                   <td>{item.location}</td>
                   <td>{item.need_to_be_repair || "N/A"}</td>
                   <td>
-                    <button className="repair-action-btn">
-                      <FaTools />
-                    </button>
+                  <button className="clickable" onClick={() => handleRepairClick(item)}>
+                    <FaTools />
+                  </button>
                   </td>
                 </tr>
               ))}
@@ -155,6 +192,39 @@ const RepairManagement: React.FC = () => {
                         ))}
                         <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
                     </div>
+
+                    {selectedItem && (
+          <div className="repair-modal-overlay">
+            <div className="repair-modal">
+               {/* Header */}
+            <div className="modal-header">
+              <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+              <h2>Repair Issues</h2>
+              <FaTimes className="close-icon" onClick={closeModal} />
+            </div>
+              
+              <div className="repair-modal-body">
+                {checklist.map((issue) => (
+                  <div key={issue}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={checklist.includes(issue)}
+                        onChange={() => handleCheckboxChange(issue)}
+                      />
+                      {issue}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="repair-modal-footer">
+                <button onClick={handleSave}>Save</button>
+                <button onClick={() => setSelectedItem(null)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
