@@ -6,6 +6,7 @@ use App\Http\Controllers\InventoryDashboardController;
 use App\Http\Controllers\InventoryDeviceManagementController;
 use App\Http\Controllers\InventoryUserManagementController;
 use App\Http\Controllers\InventoryDeviceAssignmentController;
+use App\Http\Controllers\InventoryFileController;
 use App\Http\Controllers\InventoryRepairManagementController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -94,6 +95,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory-importfiles', function () {
         return Inertia::render('inventory-page/InventoryImportFiles');
     })->name('inventory-importfiles');
+
+    Route::post('/inventory/import', [InventoryFileController::class, 'importFile']);
+    Route::post('/inventory/export', [InventoryFileController::class, 'exportFile']);
+    Route::get('/inventory/file-logs', [InventoryFileController::class, 'getLogs']);
+
+
 
     Route::post('/logout', function () {
         Auth::logout();
