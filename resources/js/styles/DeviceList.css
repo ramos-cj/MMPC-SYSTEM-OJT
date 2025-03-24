@@ -154,7 +154,7 @@
   }
   
   /* Modal Content */
-  .modal-content {
+  .device-info-modal {
     background: white;
     padding: 20px;
     width: 600px;
@@ -165,7 +165,7 @@
   }
   
   /* Modal Header */
-  .modal-header {
+  .device-modal-header1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -173,13 +173,41 @@
     border-bottom: 2px solid #ccc;
   }
   
-  .modal-header h2{
+  .device-modal-header1 h2{
     position: absolute;
     margin-left: 150px;
     font-size: 25px;
   
   }
-  
+    /* Modal Content */
+    .edit-modal-content {
+        background: white;
+        margin-top: 5%;
+        margin-left: 10%;
+        padding: 15px;
+        width: 75%;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        position: relative;
+        height: auto;
+      }
+      
+      /* Modal Header */
+      .edit-modal-header2 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #ccc;
+      }
+      
+      .edit-modal-header2 h2{
+        position: absolute;
+        margin-left: 450px;
+        font-size: 25px;
+      
+      }
+      
   /* MMPC Logo */
   .mmpc-logo {
     height: 50px;
@@ -188,11 +216,21 @@
   }
   
   /* Close Button */
-  .close-icon {
+  .close-icon1 {
     font-size: 20px;
     cursor: pointer;
     color: red;
+    margin-right: 3% ;
   }
+  
+ /* Close Button */
+ .close-icon2 {
+    font-size: 20px;
+    cursor: pointer;
+    color: red;
+    margin-right: 3% ;
+  }
+  
   
   /* Profile Section */
   .profile-section {
@@ -222,72 +260,237 @@
     text-align: center;
 }
 
-.modal-header {
+.details-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 2px solid red;
     padding-bottom: 10px;
 }
-
-.modal-header h2 {
-    font-size: 22px;
-    margin: 0 auto;
+  
+.details-modal-header h2{
+    position: absolute;
+    margin-left: 440px;
+    font-size: 25px;
+  
 }
 
 .edit-device-form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    width: 100%;
 }
 
-.edit-grid {
-    display: flex;
-    justify-content: space-between;
-}
 
 .edit-column {
-    width: 48%;
     display: flex;
     flex-direction: column;
-    gap: 8px;
 }
 
 .edit-column label {
-    font-size: 14px;
     font-weight: bold;
-    text-align: left;
+    margin-bottom: 5px; /* Adds spacing between label and input */
 }
 
 .edit-column input,
 .edit-column select {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%; /* Makes inputs fill the column */
+}
+
+.modal-body {
+    margin-top: 1%;
+    display: flex;
+    justify-content: center; /* Centers the grid inside the modal */
+    align-items: center;
+}
+.edit-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Three equal columns */
+    gap: 15px; /* Adjusts spacing between fields */
+    width: 100%;
+    max-width: 1300px; /* Adjust as needed */
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+}
+
+.field label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.field input,
+.field select {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 14px;
+    width: 100%;
+
 }
 
+.modal-body {
+    display: flex;
+    justify-content: center; /* Centers the form */
+    align-items: center;
+}
+
+
+.choose-image {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    align-items: center;
+    width:30%;
+    display:flex;
+    margin-bottom: 1%;
+    margin-left: 34.5%;
+
+}
+
+.choose-image input[name="image_file"] {
+    display:flex;
+    text-align: center; /* Doesn't affect file inputs, but good for consistency */
+    color: #b0acac;
+    width: auto;
+    max-width: 100%;
+    min-width: 40%;
+    margin-left: 15%;
+    padding-right: 9%;
+
+}
+
+
 .edit-image-section {
+    margin-bottom: .5%;
+}
+
+.edit-image-section img {
+    width:320px; /* Adjust image size */
+    height: 300;
+    border-radius: 5px;
+    border: 1px solid #dddddd;
+    margin-left: 35%;
+}
+img, video {
+    max-width: 200%;
+    height: auto;
+}
+
+.edit-image-section p {
+    color: #db2727;
+    font-size: 14px;
+    margin-left: 43%;
+}
+
+
+
+.save-btn1 {
+    background-color: red;
+    color: white;
+    font-size: 18px; /* Increase font size for better visibility */
+    font-weight: bold;
+    border: none;
+    border-radius: 8px; /* Slightly rounded corners */
+    cursor: pointer;
+    width: 30%; /* Make it larger */
+    height: 50px; /* Set a fixed height */
+    margin-top: 10px;
+    margin-left:35% ;
+    display: block;
     text-align: center;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.save-btn1:hover {
+    background-color: darkred; /* Darker shade when hovered */
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+.save-btn1:active {
+    transform: scale(0.98); /* Press effect */
+}
+
+.device-details {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Two columns */
+    gap: 12px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Aligns label to the left */
+}
+
+.input-group label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+    text-align: left; /* Ensures text stays left-aligned */
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+.defects {
+    width: 100.7%;
+    padding: 8px;
+    border-radius: 5px;
+    display: flex;
     margin-top: 15px;
 }
 
-.edit-image {
-    width: 120px;
-    height: auto;
-    display: block;
-    margin: 10px auto;
+.defects label {
+    font-weight: 600;
+    color: #333;
+    margin-top: 1%;
+    margin-right: 1%;
+    text-align: left; /* Ensures text stays left-aligned */
+
+}
+.defects input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
     border-radius: 5px;
+    background-color: #f9f9f9;
+}
+.image-device-details {
+    margin-top: 1%;
+    margin-bottom: .5%;
 }
 
-.save-btn {
-    background-color: red;
-    color: white;
-    font-size: 16px;
-    padding: 10px;
-    border: none;
+.image-device-details img {
+    width:220px; /* Adjust image size */
     border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 10px;
+    border: 1px solid #dddddd;
+    margin-left: 40.5%;
+}
+img, video {
+    max-width: 200%;
+    height: auto;
+}
+
+.image-device-details p {
+    color: #888;
+    font-size: 14px;
+}
+    /* Modal Content */
+.details-modal-content {
+        background: white;
+        margin-top: 5%;
+        margin-left: 10%;
+        padding: 15px;
+        width: 75%;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        position: relative;
 }

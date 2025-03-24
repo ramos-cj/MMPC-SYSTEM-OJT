@@ -235,10 +235,10 @@ export default function InventoryDeviceList() {
                             <thead>
                                 <tr>
                                     <th>Device ID</th>
+                                    <th>Host Name</th>
                                     <th>Tag No.</th>
-                                    <th>General Name</th>
+                                    <th>Brand Name</th>
                                     <th>Classification</th>
-                                    <th>Brand</th>
                                     <th>Model</th>
                                     <th>Condition</th>
                                     <th>Remarks</th>
@@ -249,10 +249,10 @@ export default function InventoryDeviceList() {
                                 {currentDevices.map((device) => (
                                     <tr key={device.id}>
                                         <td>{device.id}</td>
+                                        <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.computer_name}</td>
                                         <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.tag_no}</td>
                                         <td>{device.general_name}</td>
                                         <td>{device.classification}</td>
-                                        <td>{device.brand_name}</td>
                                         <td>{device.model}</td>
                                         <td>{device.condition}</td>
                                         <td>{device.remarks}</td>
@@ -282,150 +282,243 @@ export default function InventoryDeviceList() {
             {/* Device Info Modal */}
             {selectedDevice && (
                 <div className="modal-overlay">
-                    <div className="modal-content">
+                    <div className="details-modal-content">
                         {/* Header */}
-            <div className="modal-header">
+            <div className="details-modal-header">
               <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
               <h2>Device's Information</h2>
-              <FaTimes className="close-icon" onClick={closeModal} />
+              <FaTimes className="close-icon1" onClick={closeModal} />
             </div>
 
                         {/* Image Display */}
-                        {selectedDevice.image_file ? (
-   <img
-   src={`/device-image/${selectedDevice.image_file}`} 
-   alt="Device Image"
-   className="device-image"
-   style={{ width: "150px", height: "auto" }}
-   onError={(e) => e.currentTarget.style.display='none'} // Hide if not found
-/>
+                        <div className="image-device-details">
+                        {selectedDevice.image_file ? (<img src={`/device-image/${selectedDevice.image_file}`} 
+                        alt="Device Image"className="device-image"
+                        onError={(e) => e.currentTarget.style.display='none'} // Hide if not found
+                        />
+                    ) : (
+                    <p>No Image Available</p>
 
-) : (
-    <p>No Image Available</p>
-)}
+                    )}
+                    </div>
+
+{/* Device Details */}
+<div className="device-details">
+    <div className="input-group">
+        <label>Tag No:</label>
+        <input type="text" value={selectedDevice.tag_no || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>IP Guard:</label>
+        <input type="text" value={selectedDevice.pi_guard || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>General Name:</label>
+        <input type="text" value={selectedDevice.general_name || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>With Activation Updates:</label>
+        <input type="text" value={selectedDevice.activation_updates || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>Classification:</label>
+        <input type="text" value={selectedDevice.classification || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>Brand Name:</label>
+        <input type="text" value={selectedDevice.brand_name || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>Model Name:</label>
+        <input type="text" value={selectedDevice.model || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>Location:</label>
+        <input type="text" value={selectedDevice.location || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>Have QR Code:</label>
+        <input type="text" value={selectedDevice.qr_code || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>Property Tag:</label>
+        <input type="text" value={selectedDevice.property_tag || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>With Activation:</label>
+        <input type="text" value={selectedDevice.with_warranty || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>Computer Name:</label>
+        <input type="text" value={selectedDevice.computer_name || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>Serial Number:</label>
+        <input type="text" value={selectedDevice.serial_number || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>Estimated Acquisition Year:</label>
+        <input type="text" value={selectedDevice.estimated_acquisition_year || ''} readOnly />
+    </div>
+
+    <div className="input-group">
+        <label>Condition:</label>
+        <input type="text" value={selectedDevice.condition || ''} readOnly />
+    </div>
 
 
-                        {/* Device Details */}
-                        <div className="device-details">
-                            <p><strong>Tag No:</strong> {selectedDevice.tag_no}</p>
-                            <p><strong>IP Guard:</strong> {selectedDevice.pi_guard}</p>
-                            <p><strong>General Name:</strong> {selectedDevice.general_name}</p>
-                            <p><strong>With Activation Updates:</strong> {selectedDevice.activation_updates}</p>
-                            <p><strong>Classification:</strong> {selectedDevice.classification}</p>
-                            <p><strong>Brand Name:</strong> {selectedDevice.brand_name}</p>
-                            <p><strong>Model Name:</strong> {selectedDevice.model}</p>
-                            <p><strong>Location:</strong> {selectedDevice.location}</p>
-                            <p><strong>Have QR Code:</strong> {selectedDevice.qr_code}</p>
-                            <p><strong>Property Tag:</strong> {selectedDevice.property_tag}</p>
-                            <p><strong>With Activation:</strong> {selectedDevice.with_warranty}</p>
-                            <p><strong>Computer Name:</strong> {selectedDevice.computer_name}</p>
-                            <p><strong>Serial Number:</strong> {selectedDevice.serial_number}</p>
-                            <p><strong>Estimated Acquisition Year:</strong> {selectedDevice.estimated_acquisition_year}</p>
-                            <p><strong>Condition:</strong> {selectedDevice.condition}</p>
-                            <p><strong>Defects/Issues:</strong> {selectedDevice.need_to_be_repair}</p>
-                            <p><strong>Remarks:</strong> {selectedDevice.remarks}</p>
-                        </div>
+    <div className="input-group">
+        <label>Remarks:</label>
+        <input type="text" value={selectedDevice.remarks || ''} readOnly />
+    </div>
+ </div>
+
+
+    <div className="defects">
+        <label>Defects/Issues:</label>
+        <input type="text" value={selectedDevice.need_to_be_repair || ''} readOnly />
+    </div>
+
+
                     </div>
                 </div>
             )}
 
-             {/* Edit Device Modal */}
-{editDevice && (
+              {/* Edit Device Modal */}
+             {editDevice && (
     <div className="modal-overlay">
-        <div className="modal-content edit-modal">
-            <div className="modal-header">
+        <div className="edit-modal-content">
+            <div className="edit-modal-header2">
                 <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
                 <h2>EDIT DEVICE</h2>
-                <FaTimes className="close-icon" onClick={closeEditModal} />
+                <FaTimes className="close-icon2" onClick={closeEditModal} />
             </div>
 
             <div className="modal-body">
-                <form className="edit-device-form">
-                    <div className="edit-grid">
-                        {/* Left Column */}
-                        <div className="edit-column">
-                            <label>Tag No.:</label>
-                            <input type="text" name="tag_no" value={editDevice.tag_no} onChange={handleInputChange} />
+    <form className="edit-device-form">
 
-                            <label>General Name:</label>
-                            <input type="text" name="general_name" value={editDevice.general_name} onChange={handleInputChange} />
-
-                            <label>Brand Name:</label>
-                            <input type="text" name="brand_name" value={editDevice.brand_name} onChange={handleInputChange} />
-
-                            <label>Classification:</label>
-                            <select name="classification" value={editDevice.classification} onChange={handleInputChange}>
-                                <option value="Laptop">Laptop</option>
-                                <option value="Phone">Phone</option>
-                                <option value="Tablet">Tablet</option>
-                            </select>
-
-                            <label>Model:</label>
-                            <input type="text" name="model" value={editDevice.model} onChange={handleInputChange} />
-
-                            <label>Serial Number:</label>
-                            <input type="text" name="serial_number" value={editDevice.serial_number} onChange={handleInputChange} />
-
-                            <label>Property Tag:</label>
-                            <input type="text" name="property_tag" value={editDevice.property_tag || ""} onChange={handleInputChange} />
-
-                            <label>Computer Name:</label>
-                            <input type="text" name="computer_name" value={editDevice.computer_name || ""} onChange={handleInputChange} />
-                        </div>
-
-                        {/* Right Column */}
-                        <div className="edit-column">
-                            <label>With IP-Guard:</label>
-                            <select name="pi_guard" value={editDevice.pi_guard} onChange={handleInputChange}>
-                                <option value="Unauthorized">Unauthorized</option>
-                                <option value="Unclassified">Unclassified</option>
-                            </select>
-
-                            <label>Activation Updates:</label>
-                            <select name="activation_updates" value={editDevice.activation_updates} onChange={handleInputChange}>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </select>
-
-                            <label>Defects/Issues:</label>
-                            <input type="text" name="accessories" value={editDevice.need_to_be_repair || ""} onChange={handleInputChange} />
-
-                            <label>Estimated Acquisition Year:</label>
-                            <input type="text" name="estimated_acquisition_year" value={editDevice.estimated_acquisition_year} onChange={handleInputChange} />
-
-                            <label>Location:</label>
-                            <input type="text" name="location" value={editDevice.location} onChange={handleInputChange} />
-
-                            <label>QR Code:</label>
-                            <select name="qr_code" value={editDevice.qr_code} onChange={handleInputChange}>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </select>
-
-                            <label>Warranty:</label>
-                            <select name="with_warranty" value={editDevice.with_warranty} onChange={handleInputChange}>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </select>
-
-                            <label>Remarks:</label>
-                            <input type="text" name="remarks" value={editDevice.remarks || ""} onChange={handleInputChange} />
-                        </div>
-                    </div>
-
-                    {/* Image Upload */}
+                     {/* Image Upload */}
                     <div className="edit-image-section">
-                    <label>Current Image:</label>
                     {imagePreview || editDevice?.image_file ? (
-                        <img src={`/device-image/${editDevice?.image_file}`} alt="Device Image" style={{ width: "150px", height: "auto" }} />
+                        <img src={`/device-image/${editDevice?.image_file}`} alt="Device Image"/>
                     ) : (
+                        
                         <p>No Image Available</p>
                     )}
-                    <input type="file" name="image_file" onChange={handleFileChange} />
                     </div>
+                    
+            <div className="choose-image">
+            <input type="file" name="image_file" onChange={handleFileChange}  />
+            </div>
+
+            <div className="edit-grid">
+            <div className="field">
+                <label>Tag No.:</label>
+                <input type="text" name="tag_no" value={editDevice.tag_no} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>General Name:</label>
+                <input type="text" name="general_name" value={editDevice.general_name} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>Brand Name:</label>
+                <input type="text" name="brand_name" value={editDevice.brand_name} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>Classification:</label>
+                <select name="classification" value={editDevice.classification} onChange={handleInputChange}>
+                    <option value="Laptop">Laptop</option>
+                    <option value="Phone">Phone</option>
+                    <option value="Tablet">Tablet</option>
+                </select>
+            </div>
+
+            <div className="field">
+                <label>Model:</label>
+                <input type="text" name="model" value={editDevice.model} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>Serial Number:</label>
+                <input type="text" name="serial_number" value={editDevice.serial_number} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>Property Tag:</label>
+                <input type="text" name="property_tag" value={editDevice.property_tag || ""} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>Computer Name:</label>
+                <input type="text" name="computer_name" value={editDevice.computer_name || ""} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>With IP-Guard:</label>
+                <select name="pi_guard" value={editDevice.pi_guard} onChange={handleInputChange}>
+                    <option value="Unauthorized">Unauthorized</option>
+                    <option value="Unclassified">Unclassified</option>
+                </select>
+            </div>
+
+            <div className="field">
+                <label>Activation Updates:</label>
+                <select name="activation_updates" value={editDevice.activation_updates} onChange={handleInputChange}>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+
+            <div className="field">
+                <label>Estimated Acquisition Year:</label>
+                <input type="text" name="estimated_acquisition_year" value={editDevice.estimated_acquisition_year} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>Location:</label>
+                <input type="text" name="location" value={editDevice.location} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>QR Code:</label>
+                <select name="qr_code" value={editDevice.qr_code} onChange={handleInputChange}>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+
+            <div className="field">
+                <label>Warranty:</label>
+                <select name="with_warranty" value={editDevice.with_warranty} onChange={handleInputChange}>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+
+            <div className="field">
+                <label>Remarks:</label>
+                <input type="text" name="remarks" value={editDevice.remarks || ""} onChange={handleInputChange} />
+            </div>
+            </div>
 
                     {/* Save & Close Button */}
-                    <button type="button" onClick={handleSaveChanges} className="save-btn">Save & Close</button>
+                    <button type="button" onClick={handleSaveChanges} className="save-btn1">Save & Close</button>
                 </form>
             </div>
         </div>

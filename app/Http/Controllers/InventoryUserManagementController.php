@@ -8,12 +8,21 @@ use App\Models\Employee;
 class InventoryUserManagementController extends Controller
 {
     // Fetch employee list and return JSON
-    public function list()
-    {
-        return response()->json(
-            Employee::orderBy('id', 'asc')->get() // Sorted by default in ascending order
-        );
-    }
+    // Fetch employee list and return JSON with assigned device computer_name
+public function list()
+{
+    $employees = Employee::leftJoin('device_assignments', 'employees.id', '=', 'device_assignments.employee_id')
+                        ->leftJoin('devices', 'device_assignments.device_id', '=', 'devices.id')
+                        ->select(
+                            'employees.*',
+                            'devices.computer_name as computer_name'
+                        )
+                        ->orderBy('employees.id', 'asc')
+                        ->get();
+                        
+    return response()->json($employees);
+}
+
 
     // ✅ Fetch single employee by ID
 // ✅ Fetch single employee by ID

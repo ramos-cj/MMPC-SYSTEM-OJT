@@ -1,14 +1,28 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import SidebarInventory from "@/components/sidebar-inventory";
-import { FaUpload, FaDownload } from "react-icons/fa";
+import { FaUpload, FaDownload, FaSearch } from "react-icons/fa";
+import mmpcLogo from "@/assets/mmpc-logo.png";
 import "@/styles/ImportFiles.css";
+import "@/styles/userlist.css";
 
 const InventoryImportFiles = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [importedFiles, setImportedFiles] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectedExports, setSelectedExports] = useState<string[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [entriesPerPage, setEntriesPerPage] = useState(15);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const filteredFiles = importedFiles.filter(file =>
+        file.file_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const totalPages = Math.ceil(filteredFiles.length / entriesPerPage);
+
+    const displayedFiles = filteredFiles.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
+
 
     useEffect(() => {
         fetchFiles();
@@ -56,15 +70,13 @@ const InventoryImportFiles = () => {
             alert("Please select at least one data type to export.");
             return;
         }
-    
+
         try {
             const response = await axios.post('/inventory/export', { selectedData: selectedExports }, {
                 responseType: 'blob',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' }
             });
-    
+
             const urlBlob = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = urlBlob;
@@ -76,11 +88,10 @@ const InventoryImportFiles = () => {
             alert("Error exporting data.");
             console.error(error);
         }
-    };    
+    };
 
     const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { value, checked } = event.target;
-
         if (checked) {
             setSelectedExports(prev => [...prev, value]);
         } else {
@@ -89,53 +100,54 @@ const InventoryImportFiles = () => {
     };
 
     return (
-        <div className="inventory-import-container">
+        <div className="inventory-page">
             <SidebarInventory />
-            <div className="import-content">
-                <h2>File Management</h2>
-                
-                {/* File Import Section */}
-                <div className="import-box">
-                    <input type="file" onChange={handleFileChange} />
-                    <button onClick={handleImport} disabled={loading}>
-                        {loading ? "Importing..." : <><FaUpload /> Import</>}
-                    </button>
+            <div className="inventory-import-container">
+                <div className="import-header">
+                    <h2>Import Files</h2>
                 </div>
-                
-                {/* File Export Section */}
-                <div className="export-box">
-                    <h3>Select Data to Export:</h3>
-                    <div>
-                        <label>
-                            <input
-                                type="checkbox"
-                                value="Employees"
-                                onChange={handleCheckboxChange}
-                            /> Employees
-                        </label>
-                        <label>
-                            <input
-                                type="checkbox"
-                                value="Devices"
-                                onChange={handleCheckboxChange}
-                            /> Devices
-                        </label>
-                        <label>
-                            <input
-                                type="checkbox"
-                                value="DeviceAssignments"
-                                onChange={handleCheckboxChange}
-                            /> Device Assignments
-                        </label>
+                <div className="file-actions">
+                    <div className="import-box">
+                        <input type="file" onChange={handleFileChange} />
+                        <button onClick={handleImport} disabled={loading} className="import-btn">
+                            {loading ? "Importing..." : <><FaUpload /> Import</>}
+                        </button>
                     </div>
-                    <button onClick={handleExport} disabled={selectedExports.length === 0}>
-                        <FaDownload /> Export Selected Data
-                    </button>
+
+                    <div className="export-box">
+                        <label>Choose files to export:</label>
+                        <div>
+                            <label><input type="checkbox" value="Employees" onChange={handleCheckboxChange} /> Employee</label>
+                            <label><input type="checkbox" value="Devices" onChange={handleCheckboxChange} /> Devices</label>
+                            <label><input type="checkbox" value="DeviceAssignments" onChange={handleCheckboxChange} /> Devices Assignment</label>
+                        </div>
+                        <button onClick={handleExport} className="export-btn"><FaDownload /> Export</button>
+                    </div>
                 </div>
 
-                {/* Imported Files Table */}
-                <div>
-                    <h3>Imported Files</h3>
+                <div className="table-container">
+                <div className="filter-container">
+                <label className="entries-label">
+                        Show
+                        <select value={entriesPerPage} onChange={(e) => setEntriesPerPage(Number(e.target.value))}>
+                            {[15, 30, 45, 60, 75, 100].map(num => (
+                                <option key={num} value={num}>{num}</option>
+                            ))}
+                        </select>
+                        entries
+                    </label>
+
+                    <div className="search-container">
+                    <FaSearch className="search-icon" />
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+
+                    <h3>Recently Upload</h3>
                     <table>
                         <thead>
                             <tr>
@@ -145,7 +157,7 @@ const InventoryImportFiles = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {importedFiles.map((file, index) => (
+                        {displayedFiles.map((file, index) => (
                                 <tr key={index}>
                                     <td>{file.file_name}</td>
                                     <td>{file.action}</td>
@@ -154,8 +166,24 @@ const InventoryImportFiles = () => {
                             ))}
                         </tbody>
                     </table>
+
+                    {/* Pagination Controls */}
+                <div className="pagination">
+                    <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Previous</button>
+                    {[...Array(totalPages)].map((_, index) => (
+                        <button
+                            key={index}
+                            className={currentPage === index + 1 ? 'active' : ''}
+                            onClick={() => setCurrentPage(index + 1)}
+                        >
+                            {index + 1}
+                        </button>
+                    ))}
+                    <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
+                </div>
                 </div>
             </div>
+        </div>
         </div>
     );
 };

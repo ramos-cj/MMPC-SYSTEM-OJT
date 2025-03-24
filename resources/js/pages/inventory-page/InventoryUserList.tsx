@@ -16,6 +16,7 @@ interface Employee {
   division_code: string;
   department_code: string;
   section_code: string;
+  computer_name?: string;
 }
 
 const InventoryUserList: React.FC = () => {
@@ -210,6 +211,7 @@ const handleDelete = async (id: number) => {
                 <th>Last Name</th>
                 <th>Division</th>
                 <th>Department</th>
+                <th>Assigned Device Name</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -223,6 +225,7 @@ const handleDelete = async (id: number) => {
                   <td>{user.last_name}</td>
                   <td>{user.division_department}</td>
                   <td>{user.department_code}</td>
+                  <td>{user.computer_name || "No Device Assigned"}</td>
                   <td className="userlist-actions">
                     <FaEdit className="edit-icon" onClick={() => handleEditClick(user)} />
                     <FaTrash className="delete-icon" onClick={() => handleDelete(user.id)} />
@@ -273,6 +276,8 @@ const handleDelete = async (id: number) => {
                 <input type="text" value={selectedEmployee.last_name} readOnly />
                 <label>Position:</label>
                 <input type="text" value={selectedEmployee.position} readOnly />
+                <label>Assigned Device Name:</label>
+                <input type="text" value={selectedEmployee.computer_name || "No Device Assigned"} readOnly />
               </div>
 
               <div className="column">

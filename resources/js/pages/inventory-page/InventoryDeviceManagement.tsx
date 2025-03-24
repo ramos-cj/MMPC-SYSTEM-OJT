@@ -156,8 +156,8 @@ const InventoryDeviceManagement: React.FC = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Computer Name</label>
-                            <input type="text" name="computer_name" placeholder="Enter Computer Name" value={formData.computer_name} onChange={handleChange} />
+                            <label>Host Name</label>
+                            <input type="text" name="computer_name" placeholder="Enter Host Name" value={formData.computer_name} onChange={handleChange} />
                         </div>
 
                         <div className="form-group">
