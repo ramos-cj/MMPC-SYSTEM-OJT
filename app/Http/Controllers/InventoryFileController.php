@@ -6,15 +6,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\YourImportClass;
-use App\Exports\YourExportClass; 
-use App\Models\FileLog; 
+use App\Exports\EmployeeExport;
+use App\Exports\DeviceExport;
+use App\Exports\DeviceAssignmentExport;
+use App\Models\FileLog;
+use Maatwebsite\Excel\Excel as ExcelType;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class InventoryFileController extends Controller
 {
     public function importFile(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:pdf,xlsx'
+            'file' => 'required|mimes:xlsx,pdf'
         ]);
 
         $file = $request->file('file');
@@ -23,7 +30,7 @@ class InventoryFileController extends Controller
 
         try {
             if ($file->getClientOriginalExtension() === 'xlsx') {
-                Excel::import(new YourImportClass, $file); // ✅ Correct Excel import handling
+                Excel::import(new YourImportClass, $file);
             }
 
             FileLog::create([
@@ -37,31 +44,93 @@ class InventoryFileController extends Controller
         }
     }
 
-    public function exportFile(Request $request)
+    public function exportEmployees()
     {
-        $request->validate([
-            'template_name' => 'required',
-            'export_format' => 'required|in:pdf,xlsx',
-        ]);
+    return Excel::download(new EmployeeExport, 'EmployeesData.xlsx');
+    }
 
-        $filename = $request->template_name . '.' . $request->export_format;
+    public function exportDevices()
+    {
+    return Excel::download(new DeviceExport, 'DevicesData.xlsx');
+    }
+    public function exportDeviceAssignments()
+    {
+    return Excel::download(new DeviceAssignmentExport, 'DeviceAssignmentsData.xlsx');
+    }
 
-        try {
-            if ($request->export_format === 'xlsx') {
-                return Excel::download(new YourExportClass, $filename);
-            } 
-            // Handle PDF export if required
+    public function exportFile(Request $request)
+{
+    $selectedData = $request->input('selectedData');
+    $filename = 'ExportedData_' . time() . '.xlsx';
 
-            FileLog::create([
-                'file_name' => $filename,
-                'action' => 'Export',
-            ]);
+    $exportClasses = [
+        'Employees' => new EmployeeExport(),
+        'Devices' => new DeviceExport(),
+        'DeviceAssignments' => new DeviceAssignmentExport()
+    ];
 
-            return response()->json(['success' => true, 'message' => 'File exported successfully!']);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error exporting file.', 'error' => $e->getMessage()]);
+    $exports = [];
+    $sheetNames = [];
+
+    foreach ($selectedData as $dataType) {
+        if (isset($exportClasses[$dataType])) {
+            $exports[] = $exportClasses[$dataType];
+            $sheetNames[] = $dataType;
         }
     }
+
+    if (empty($exports)) {
+        return response()->json(['success' => false, 'message' => 'No data selected for export.']);
+    }
+
+    $multiExport = new class($exports, $sheetNames) implements WithMultipleSheets {
+        use Exportable;
+
+        private $exports;
+        private $sheetNames;
+
+        public function __construct($exports, $sheetNames)
+        {
+            $this->exports = $exports;
+            $this->sheetNames = $sheetNames;
+        }
+
+        public function sheets(): array
+        {
+            $sheets = [];
+            foreach ($this->exports as $index => $export) {
+                $sheets[] = new class($export, $this->sheetNames[$index]) implements FromCollection, WithHeadings {
+                    private $export;
+                    private $sheetName;
+
+                    public function __construct($export, $sheetName)
+                    {
+                        $this->export = $export;
+                        $this->sheetName = $sheetName;
+                    }
+
+                    public function collection()
+                    {
+                        return $this->export->collection();
+                    }
+
+                    public function headings(): array
+                    {
+                        return $this->export->headings();
+                    }
+                };
+            }
+            return $sheets;
+        }
+    };
+
+    FileLog::create([
+        'file_name' => $filename,
+        'action' => 'Export',
+    ]);
+
+    return Excel::download($multiExport, $filename);
+}
 
     public function getLogs()
     {

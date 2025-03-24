@@ -97,9 +97,11 @@ Route::middleware(['auth'])->group(function () {
     })->name('inventory-importfiles');
 
     Route::post('/inventory/import', [InventoryFileController::class, 'importFile']);
-    Route::post('/inventory/export', [InventoryFileController::class, 'exportFile']);
     Route::get('/inventory/file-logs', [InventoryFileController::class, 'getLogs']);
-
+    Route::post('/inventory/export/employees', [InventoryFileController::class, 'exportEmployees']);
+    Route::post('/inventory/export/devices', [InventoryFileController::class, 'exportDevices']);
+    Route::post('/inventory/export/device-assignments', [InventoryFileController::class, 'exportDeviceAssignments']);
+    Route::post('/inventory/export', [InventoryFileController::class, 'exportFile']);
 
 
     Route::post('/logout', function () {
