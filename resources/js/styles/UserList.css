@@ -260,6 +260,7 @@ text-align: left; /* Ensures text is aligned to the left */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
   position: relative;
+  margin-top: 5%;
 }
 
 /* Modal Header */
@@ -382,7 +383,7 @@ text-align: left; /* Ensures text is aligned to the left */
 
 .save-button {
   grid-column: span 2; /* Make button span both columns */
-    background-color: red;
+    background-color:#d32f2f;
     color: white;
     padding: 12px;
     border: none;
@@ -391,6 +392,11 @@ text-align: left; /* Ensures text is aligned to the left */
     font-weight: bold;
     width: 30%;
     margin-top: 20px;
+}
+
+.save-button:hover {
+  background: #b71c1c;
+  transform: scale(1.05); /* Slight zoom effect */
 }
 
 .modal-form label {

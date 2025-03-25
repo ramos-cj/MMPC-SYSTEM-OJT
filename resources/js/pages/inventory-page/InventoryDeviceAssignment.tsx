@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect} from "react";
 import { Head } from "@inertiajs/react";
 import SidebarInventory from "@/components/sidebar-inventory";
 import "@/styles/DeviceAssignment.css";
 import mmpcLogo from '@/assets/mmpc-logo1.png';
-import { FaTrash, FaExchangeAlt, FaTimes, } from "react-icons/fa";
+import { FaTrash, FaExchangeAlt, FaTimes, FaSearch, } from "react-icons/fa";
 
 
 interface Employee {
@@ -26,23 +25,29 @@ interface Device {
     employee_id?: number | null;
     employee_name?: string;
     employee_number?: string;
-    previous_assignee?: string; // ✅ Added this property
+    previous_assignee?: string;
+    computer_name?: string;
 }
 
 
 const InventoryDeviceAssignment: React.FC = () => {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [devices, setDevices] = useState<Device[]>([]);
-    const [brands, setBrands] = useState<string[]>([]);
-    const [models, setModels] = useState<string[]>([]);
     const [assignedDevices, setAssignedDevices] = useState<Device[]>([]);
     const [classifications, setClassifications] = useState<string[]>([]);
+    const [brands, setBrands] = useState<string[]>([]);
+    const [models, setModels] = useState<string[]>([]);
+    const [computers, setComputers] = useState<Device[]>([]);
 
+    const [searchTerm, setSearchTerm] = useState("");
+    const [entriesPerPage, setEntriesPerPage] = useState(15);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const [selectedEmployee, setSelectedEmployee] = useState<string>("");
     const [selectedClassification, setSelectedClassification] = useState<string>("");
     const [selectedBrand, setSelectedBrand] = useState<string>("");
     const [selectedModel, setSelectedModel] = useState<string>("");
+    const [selectedComputer, setSelectedComputer] = useState<string>("");
     const [selectedAccessories, setSelectedAccessories] = useState<string>("");  // ✅ Add this
     const [showTransferModal, setShowTransferModal] = useState(false);
     const [transferData, setTransferData] = useState({
@@ -58,7 +63,6 @@ const InventoryDeviceAssignment: React.FC = () => {
     serial_number: '',
     accessories: '',
 });
-
 
     // Fetch employees, available devices, and assigned devices
     useEffect(() => {
@@ -119,10 +123,40 @@ const InventoryDeviceAssignment: React.FC = () => {
             setModels(uniqueModels);
             setSelectedModel("");  // Reset model dropdown
         }
-    }, [selectedBrand, devices]);    
+    }, [selectedBrand, devices]);
+
+	useEffect(() => {
+        if (selectedModel) {
+            const availableComputers = devices
+                .filter(device =>
+                    device.classification === selectedClassification &&
+                    device.brand_name === selectedBrand &&
+                    device.model === selectedModel &&
+                    device.remarks === 'Free'
+                );
+
+            setComputers(availableComputers);
+            setSelectedComputer("");
+        }
+    }, [selectedModel, devices]);
+    
+    const filteredDevices = assignedDevices.filter(device => {
+        const searchText = searchTerm.toLowerCase();
+
+        return (
+            device.employee_name?.toLowerCase().includes(searchText) ||
+            device.computer_name?.toLowerCase().includes(searchText) ||
+            device.employee_number?.includes(searchTerm)
+        );
+    });
+
+    const indexOfLastEntry = currentPage * entriesPerPage;
+    const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
+    const currentDevices = filteredDevices.slice(indexOfFirstEntry, indexOfLastEntry);
+    const totalPages = Math.ceil(filteredDevices.length / entriesPerPage);
 
     const handleAssignDevice = async () => {
-        if (!selectedEmployee || !selectedClassification || !selectedBrand || !selectedModel) {
+        if (!selectedEmployee || !selectedClassification || !selectedBrand || !selectedModel || !selectedComputer) {
             alert("Please select all fields before assigning a device.");
             return;
         }
@@ -143,6 +177,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                     brand: selectedBrand,
                     model: selectedModel,
                     accessories: selectedAccessories,
+                    computer_name: selectedComputer,
                 }),
                 credentials: "include", // ✅ Include cookies for session authentication
             });
@@ -166,6 +201,7 @@ const InventoryDeviceAssignment: React.FC = () => {
             setSelectedClassification("");
             setSelectedBrand("");
             setSelectedModel("");
+            setSelectedComputer("");
             setSelectedAccessories(""); 
     
         } catch (err) {
@@ -272,17 +308,16 @@ const InventoryDeviceAssignment: React.FC = () => {
             serial_number: '',
             accessories: ''
         }); // Reset the form data
-    };    
+    };     
 
     return (
         <>
-            <Head title="Inventory Device Assignment" />
+           <Head title="Inventory Device Assignment" />
             <div className="dashboard-wrapper">
                 <SidebarInventory />
                 <div className="assign-content-container">
                     <h2 className="title">DEVICE ASSIGNMENT</h2>
                     <div className="main-container">
-                        {/* Device Assignment Form */}
                         {/* Device Assignment Form */}
 <div className="form-container">
     {/* Employee Name */}
@@ -350,6 +385,18 @@ const InventoryDeviceAssignment: React.FC = () => {
         </select>
     </div> 
 
+    <div className="form-group">
+                        <label>Host Name</label>
+                        <select className="dropdown" value={selectedComputer} onChange={(e) => setSelectedComputer(e.target.value)}>
+                            <option value="">Select Host</option>
+                            {computers.map((device) => (
+                                <option key={device.id} value={device.computer_name}>
+                                    {device.computer_name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
     {/* Accessories Input Centered */}
     <div className="accessories-container">
         <label>Accessories</label>
@@ -368,36 +415,69 @@ const InventoryDeviceAssignment: React.FC = () => {
     </button>
 </div>
 
-
-                       <div className="assign-table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Employee No.</th>
-                                <th>Current Assigned</th>
-                                <th>Previous Assignee</th>
-                                <th>Accessories</th>
-                                <th>Classification</th>
-                                <th>Brand</th>
-                                <th>Model</th>
-                                <th>Serial Number</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-        {assignedDevices.map((device) => (
-            <tr key={device.id}>
-                <td>{device.id}</td>
-                <td>{device.employee_number}</td>
-                <td>{device.employee_name}</td>
-                <td>{device.previous_assignee}</td>
-                <td>{device.accessories || "N/A"}</td>
-                <td>{device.classification}</td>
-                <td>{device.brand_name}</td>
-                <td>{device.model}</td>
-                <td>{device.serial_number}</td>
-                <td>
+<div className="assign-table-container">
+                         {/* Search and Entries Filter */}
+                <div className="filter-container">
+                    <label>
+                        Show
+                        <select
+                            value={entriesPerPage}
+                            onChange={(e) => {
+                                setEntriesPerPage(Number(e.target.value));
+                                setCurrentPage(1);
+                            }}
+                        >
+                            {[15, 30, 45, 60, 75, 100].map(number => (
+                                <option key={number} value={number}>{number}</option>
+                            ))}
+                        </select>
+                        entries
+                    </label>
+                    
+                    <div className="search-container">
+                        <FaSearch className="search-icon"/>
+                        <input 
+                            type="text" 
+                            placeholder="Search by Employee Name, Host Name, or Employee Number..."
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                        />
+                    </div>
+                </div>
+                    {/* Table */}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Employee No.</th>
+                            <th>Assigned Employee</th>
+                            <th>Previous Assignee</th>
+                            <th>Computer Name</th>
+                            <th>Accessories</th>
+                            <th>Classification</th>
+                            <th>Brand</th>
+                            <th>Model</th>
+                            <th>Serial Number</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentDevices.map(device => (
+                            <tr key={device.id}>
+                                <td>{device.id}</td>
+                                <td>{device.employee_number}</td>
+                                <td>{device.employee_name}</td>
+                                <td>{device.previous_assignee}</td>
+                                <td>{device.computer_name || "N/A"}</td>
+                                <td>{device.accessories || "N/A"}</td>
+                                <td>{device.classification}</td>
+                                <td>{device.brand_name}</td>
+                                <td>{device.model}</td>
+                                <td>{device.serial_number}</td>
+            <td>
                     <button className="action-btn transfer-btn" onClick={() => openTransferModal(device)}>
                         <FaExchangeAlt />
                     </button>
@@ -409,9 +489,24 @@ const InventoryDeviceAssignment: React.FC = () => {
         ))}
     </tbody>
 </table>
-                        </div>
-                    </div>
+</div>
+
+ {/* Pagination */}
+ <div className="pagination">
+                    <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Previous</button>
+                    {Array.from({ length: totalPages }, (_, index) => (
+                        <button
+                            key={index + 1}
+                            className={currentPage === index + 1 ? "active" : ""}
+                            onClick={() => setCurrentPage(index + 1)}
+                        >
+                            {index + 1}
+                        </button>
+                    ))}
+                    <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
                 </div>
+            </div>
+        </div>
 
 
                 

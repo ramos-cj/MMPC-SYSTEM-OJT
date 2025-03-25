@@ -4,6 +4,7 @@
     border-radius: 4px;
     padding: 20px;
     margin-top: 10px; /* Lower table position */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
     
 .assign-table-container .clickable{
@@ -85,11 +86,11 @@
     background: white;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
     width: 100%;
     margin-left: auto;
     margin-right: auto;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Form groups should take full width */
@@ -131,7 +132,7 @@
 /* Assign Device Button should be centered */
 .assign-button {
     grid-column: span 2; /* Make button span both columns */
-    background-color: red;
+    background-color: #d32f2f;
     color: white;
     padding: 12px;
     border: none;
@@ -144,7 +145,8 @@
 }
 
 .assign-button:hover {
-    background-color: darkred;
+    background-color: #bf1c1c;
+    transform: scale(1.05); /* Slight zoom effect */
 }
 
 /* Table Container */
@@ -462,3 +464,114 @@
     border-radius: 4px;
     width: 100%;
 }
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+  
+  .pagination button {
+    padding: 6px 12px;
+    margin: 0 3px;
+    border: none;
+    background: #fff;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .pagination button:hover {
+    background: #eee;
+  }
+  
+  .pagination .active {
+    background-color: #d32f2f;
+    color: white;
+  }
+
+  /* Adjust Table & Filters */
+.filter-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 20px; /* Increase spacing */
+  }
+  
+  .filter-container div {
+    display: flex;
+    align-items: center;
+  }
+  
+  .filter-container select,
+  .filter-container input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    min-width: 160px;
+  }
+  
+  .filter-container input {
+    padding-left: 30px;
+    width: 250px;
+  }
+
+  /* Ensure sortable header style */
+.sortable-header {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  /* Sort icon styling */
+  .sort-icon {
+    font-size: 16px;
+    margin-left: 5px;
+  }
+  
+  /* Entries Selection */
+  .entries-label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+  .entries-select {
+    margin: 0 8px;
+    padding: 4px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+  }
+  
+  /* Search Box */
+  .search-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    font-size: 14px;
+    color: gray;
+  }
+  
+  .search-container input {
+    padding-left: 30px;
+    width: 200px;
+  }

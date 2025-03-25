@@ -16,10 +16,9 @@ class DeviceAssignment extends Model
         'brand_name',
         'model',
         'serial_number',
-        'previous_assignee',
-        'transferred_date',
-        'accessories'
-    ];
+        'accessories',
+        'computer_name',
+    ];    
     
     public function employee()
     {

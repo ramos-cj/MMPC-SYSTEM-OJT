@@ -84,7 +84,7 @@
 }
 
 .btn-submit {
-    background-color: red;
+    background-color: #d32f2f;
     color: white;
     font-size: 16px;
     padding: 12px 30px;
@@ -96,7 +96,8 @@
 }
 
 .btn-submit:hover {
-    background-color: darkred;
+    background-color: #b71c1c;
+    transform: scale(1.05); /* Slight zoom effect */
 }
 
 /* Responsive Design */

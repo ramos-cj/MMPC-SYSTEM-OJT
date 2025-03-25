@@ -18,12 +18,14 @@ class InventoryDeviceAssignmentController extends Controller
     // Fetch Available Devices
     public function getAvailableDevices()
     {
-        return response()->json(
-            Device::where('condition', 'Good')
-                ->whereIn('remarks', ['Available', 'Free'])
-                ->get()
-        );
+    return response()->json(
+        Device::where('condition', 'Good')
+            ->whereIn('remarks', ['Available', 'Free'])
+            ->select('id', 'classification', 'brand_name', 'model', 'serial_number', 'computer_name', 'remarks')
+            ->get()
+    );
     }
+
 
     // Fetch Assigned Devices
     public function getAssignedDevices()
@@ -41,6 +43,7 @@ class InventoryDeviceAssignmentController extends Controller
             'brand_name' => $assignment->brand_name,
             'model' => $assignment->model,
             'serial_number' => $assignment->serial_number,
+            'computer_name' => $assignment->computer_name ?? 'N/A', // Ensure computer_name is fetched properly
             'accessories' => $assignment->accessories
         ];
     });
@@ -50,7 +53,6 @@ class InventoryDeviceAssignmentController extends Controller
 
 public function assignDevice(Request $request)
 {
-    // ✅ Check if it's an AJAX request
     if (!$request->ajax()) {
         return response()->json(['error' => 'Invalid request'], 400);
     }
@@ -64,6 +66,7 @@ public function assignDevice(Request $request)
     $device = Device::where('classification', $request->classification)
         ->where('brand_name', $request->brand)
         ->where('model', $request->model)
+        ->where('computer_name', $request->computer_name)
         ->where('condition', 'Good')
         ->whereIn('remarks', ['Available', 'Free'])
         ->first();
@@ -72,7 +75,6 @@ public function assignDevice(Request $request)
         return response()->json(['error' => 'Device not available'], 400);
     }
 
-    // ✅ Create assignment record
     $assignment = DeviceAssignment::create([
         'employee_id' => $employee->id,
         'device_id' => $device->id,
@@ -80,15 +82,16 @@ public function assignDevice(Request $request)
         'brand_name' => $device->brand_name,
         'model' => $device->model,
         'serial_number' => $device->serial_number,
+        'computer_name' => $device->computer_name, // Save computer name
         'accessories' => $request->accessories
     ]);
 
-    // ✅ Mark device as assigned
     $device->remarks = 'Assigned';
     $device->save();
 
     return response()->json(['message' => 'Device assigned successfully!', 'assignedDevice' => $assignment]);
 }
+
 
     public function transferDevice(Request $request)
 {

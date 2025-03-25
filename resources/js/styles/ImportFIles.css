@@ -14,11 +14,28 @@
     overflow-x: auto;
 }
 
+
+
+.inventory-import-container::-webkit-scrollbar {
+    width: 10px; /* Adjust scrollbar width */
+}
+  
+.inventory-import-container::-webkit-scrollbar-thumb {
+    background-color: #d32f2f; /* Set the scrollbar thumb color to red */
+    border-radius: 5px;
+}
+  
+.inventory-import-container::-webkit-scrollbar-track {
+    background-color: #f0f0f0; /* Optional: Change track background */
+}
+
+
 .import-header h2 {
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #d32f2f;
+    border-bottom: 2px solid red;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
 }
 
 .file-actions {
@@ -36,7 +53,7 @@
     width: 45%;
 }
 
-.import-btn, .export-btn {
+.import-btn {
     background-color: #d32f2f;
     color: white;
     border: none;
@@ -45,10 +62,62 @@
     border-radius: 5px;
     cursor: pointer;
     margin-top: 10px;
+    width: 30%;
+    margin-left: 35%;
+    display: flex; /* Use flexbox */
+    align-items: center; /* Vertically center items */
+    justify-content: center; /* Horizontally center items */
+    gap: 8px; /* Adjust spacing between icon and text */
 }
+
+.import-btn svg {
+    color: white;
+    width: 20px; /* Set a fixed width for consistency */
+    height: 20px; /* Set a fixed height for consistency */
+}
+
+
+.import-text{
+    margin-top: 10%;
+    margin-left: 30%;
+}
+
+.export-btn {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 30%;
+    margin-left: 35%;
+    display: flex; /* Use flexbox */
+    align-items: center; /* Vertically center items */
+    justify-content: center; /* Horizontally center items */
+    gap: 8px; /* Adjust spacing between icon and text */
+}
+
+.export-btn svg {
+    color: white;
+    width: 20px; /* Set a fixed width for consistency */
+    height: 20px; /* Set a fixed height for consistency */
+}
+
 
 .import-btn:hover, .export-btn:hover {
     background-color: #b71c1c;
+    transform: scale(1.05); /* Slight zoom effect */
+}
+
+.import-table h3{
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid red;
+    text-align: left;
 }
 
 /* Table Container */

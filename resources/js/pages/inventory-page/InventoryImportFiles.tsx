@@ -108,7 +108,7 @@ const InventoryImportFiles = () => {
                 </div>
                 <div className="file-actions">
                     <div className="import-box">
-                        <input type="file" onChange={handleFileChange} />
+                        <input className="import-text"type="file" onChange={handleFileChange} />
                         <button onClick={handleImport} disabled={loading} className="import-btn">
                             {loading ? "Importing..." : <><FaUpload /> Import</>}
                         </button>
@@ -134,7 +134,7 @@ const InventoryImportFiles = () => {
                                 <option key={num} value={num}>{num}</option>
                             ))}
                         </select>
-                        entries
+                         entries
                     </label>
 
                     <div className="search-container">
@@ -146,7 +146,9 @@ const InventoryImportFiles = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-
+                    </div>
+                    
+                    <div className="import-table">
                     <h3>Recently Upload</h3>
                     <table>
                         <thead>
@@ -166,6 +168,7 @@ const InventoryImportFiles = () => {
                             ))}
                         </tbody>
                     </table>
+                    </div>
 
                     {/* Pagination Controls */}
                 <div className="pagination">
@@ -183,7 +186,6 @@ const InventoryImportFiles = () => {
                 </div>
                 </div>
             </div>
-        </div>
         </div>
     );
 };
