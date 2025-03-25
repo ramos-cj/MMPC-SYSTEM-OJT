@@ -94,7 +94,11 @@ text-align: left; /* Ensures text is aligned to the left */
   padding: 12px;
   text-align: center;
   border: none;
+  white-space: normal; /* Allow text to wrap to the next line */
+  word-break: break-word; /* Break long words to prevent overflow */
+  max-width: 200px; /* Limit the width of the cell to make text wrap */
 }
+
 
 .userlist-table-container th {
   background-color: #d32f2f;

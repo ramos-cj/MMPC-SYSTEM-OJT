@@ -43,7 +43,7 @@ class InventoryDeviceAssignmentController extends Controller
             'brand_name' => $assignment->brand_name,
             'model' => $assignment->model,
             'serial_number' => $assignment->serial_number,
-            'computer_name' => $assignment->computer_name ?? 'N/A', // Ensure computer_name is fetched properly
+            'computer_name' => $assignment->computer_name ?? 'N/A',
             'accessories' => $assignment->accessories
         ];
     });
@@ -82,7 +82,7 @@ public function assignDevice(Request $request)
         'brand_name' => $device->brand_name,
         'model' => $device->model,
         'serial_number' => $device->serial_number,
-        'computer_name' => $device->computer_name, // Save computer name
+        'computer_name' => $device->computer_name,
         'accessories' => $request->accessories
     ]);
 
@@ -91,7 +91,6 @@ public function assignDevice(Request $request)
 
     return response()->json(['message' => 'Device assigned successfully!', 'assignedDevice' => $assignment]);
 }
-
 
     public function transferDevice(Request $request)
 {

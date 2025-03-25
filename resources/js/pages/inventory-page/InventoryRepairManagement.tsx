@@ -53,6 +53,7 @@ const RepairManagement: React.FC = () => {
     (item) =>
       (item.general_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.brand_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.computer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.tag_no.includes(searchTerm)) &&
         (selectedClassification === "" || item.classification === selectedClassification) &&
         (selectedBrand === "" || item.brand_name === selectedBrand)
@@ -83,20 +84,22 @@ const RepairManagement: React.FC = () => {
     if (!selectedItem) return;
 
     try {
-      const response = await fetch(`/repair-management/update/${selectedItem.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ need_to_be_repair: checklist.join(",") }),
-      });
+        const needToBeRepaired = checklist.length === 0 ? "N/A" : checklist.join(","); // ✅ If no issues, mark as "N/A"
 
-      if (!response.ok) throw new Error("Failed to update the device.");
+        const response = await fetch(`/repair-management/update/${selectedItem.id}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ need_to_be_repair: needToBeRepaired }),
+        });
 
-      alert("Device issues updated successfully!");
-      window.location.reload();
+        if (!response.ok) throw new Error("Failed to update the device.");
+
+        alert("Device issues updated successfully!");
+        window.location.reload();
     } catch (error) {
-      console.error("Error updating device issues:", error);
+        console.error("Error updating device issues:", error);
     }
-  };
+};
 
   return (
     <div className="repair-management-container">
@@ -147,12 +150,11 @@ const RepairManagement: React.FC = () => {
           <table>
             <thead>
               <tr>
+                <th>Host Name</th>
                 <th>Tag No.</th>
-                <th>General Name</th>
-                <th>Brand Name</th>
+                <th>Brand</th>
                 <th>Classification</th>
                 <th>Model</th>
-                <th>Computer Name</th>
                 <th>Warranty</th>
                 <th>Location</th>
                 <th>Defects/Issues</th>
@@ -162,12 +164,11 @@ const RepairManagement: React.FC = () => {
             <tbody>
             {currentItems.map((item) => (
                 <tr key={item.id}>
+                  <td>{item.computer_name}</td>
                   <td>{item.tag_no}</td>
                   <td>{item.general_name}</td>
-                  <td>{item.brand_name}</td>
                   <td>{item.classification}</td>
                   <td>{item.model}</td>
-                  <td>{item.computer_name}</td>
                   <td>{item.with_warranty}</td>
                   <td>{item.location}</td>
                   <td>{item.need_to_be_repair || "N/A"}</td>
@@ -197,9 +198,9 @@ const RepairManagement: React.FC = () => {
           <div className="repair-modal-overlay">
             <div className="repair-modal">
                {/* Header */}
-            <div className="modal-header">
+            <div className="repair-modal-header">
               <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
-              <h2>Repair Issues</h2>
+              <h5>Repair Issues</h5>
               <FaTimes className="close-icon" onClick={closeModal} />
             </div>
               
@@ -219,8 +220,8 @@ const RepairManagement: React.FC = () => {
               </div>
               
               <div className="repair-modal-footer">
-                <button onClick={handleSave}>Save</button>
-                <button onClick={() => setSelectedItem(null)}>Cancel</button>
+                <button className="save-button1" onClick={handleSave}>Save</button>
+                <button className="cancel-button1" onClick={() => setSelectedItem(null)}>Cancel</button>
               </div>
             </div>
           </div>

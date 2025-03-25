@@ -35,20 +35,38 @@
     border-radius: 4px;
     overflow-x: auto;
     margin-top: 10px; /* Ensure proper spacing */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.device-list-container::-webkit-scrollbar {
+    width: 10px; /* Adjust scrollbar width */
+}
+  
+.device-list-container::-webkit-scrollbar-thumb {
+    background-color: #d32f2f; /* Set the scrollbar thumb color to red */
+    border-radius: 5px;
+}
+  
+.device-list-container::-webkit-scrollbar-track {
+    background-color: #f0f0f0; /* Optional: Change track background */
 }
 
 /* Table Styling */
 .device-table-container table {
     width: 100%;
     border-collapse: collapse;
+    table-layout:initial;
+    word-break: break-word; /* Breaks long words to avoid overflow */
 }
 
-/* Remove Table Borders */
+/* Table Cells */
 .device-table-container th,
 .device-table-container td {
-    padding: 12px;
+    padding: 8px; /* Slightly reduced padding */
     text-align: center;
-    border: none; /* Removes table lines */
+    border: none;
+    white-space: normal; /* Allow line wrapping */
+    word-break: break-word; /* Breaks long words to avoid overflow */
 }
 
 /* Table Header */
@@ -63,6 +81,22 @@
     background-color: #f8f8f8;
 }
 
+/* Adjusted Table Width */
+.device-table-container {
+    background: white;
+    padding: 6px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin-top: 5px;
+}
+
+/* Double Line Display */
+.device-table-container th,
+.device-table-container td {
+    height: auto; /* Allow content to stretch vertically */
+    line-height: 1.2; /* Adjusted line height for readability */
+}
+
 /* No Data Message */
 .no-data {
     text-align: center;
@@ -73,8 +107,10 @@
 /* Action Icons */
 .device-actions {
     display: flex;
+    flex-direction: row-reverse;
     justify-content: center;
     gap: 10px;
+    margin-right: 1000px;
 }
 
 .edit-icon,
@@ -198,7 +234,7 @@
         align-items: center;
         justify-content: space-between;
         padding-bottom: 10px;
-        border-bottom: 2px solid #ccc;
+        border-bottom: 2px solid #d32f2f;
       }
       
       .edit-modal-header2 h2{
@@ -389,7 +425,7 @@ img, video {
 
 
 .save-btn1 {
-    background-color: red;
+    background-color: #d32f2f;
     color: white;
     font-size: 18px; /* Increase font size for better visibility */
     font-weight: bold;
@@ -406,7 +442,7 @@ img, video {
 }
 
 .save-btn1:hover {
-    background-color: darkred; /* Darker shade when hovered */
+    background-color: #b71c1c; /* Darker shade when hovered */
     transform: scale(1.05); /* Slight zoom effect */
 }
 
@@ -482,6 +518,7 @@ img, video {
 .image-device-details p {
     color: #888;
     font-size: 14px;
+    margin-left: 45%;
 }
     /* Modal Content */
 .details-modal-content {

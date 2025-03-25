@@ -19,29 +19,30 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 class InventoryFileController extends Controller
 {
     public function importFile(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,pdf'
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx,pdf'
+    ]);
+
+    $file = $request->file('file');
+    $originalName = $file->getClientOriginalName(); // ✅ Get original file name
+    $filename = $originalName . '_' . time() . '.' . $file->getClientOriginalExtension(); // Append timestamp for uniqueness
+    $filePath = $file->storeAs('private/public/imported-files', $filename);
+
+    try {
+        if ($file->getClientOriginalExtension() === 'xlsx') {
+            Excel::import(new YourImportClass, $file);
+        }
+
+        FileLog::create([
+            'file_name' => $originalName, // ✅ Save original name in the database
+            'action' => 'Import',
         ]);
 
-        $file = $request->file('file');
-        $filename = time() . '.' . $file->getClientOriginalExtension();
-        $filePath = $file->storeAs('private/public/imported-files', $filename);
-
-        try {
-            if ($file->getClientOriginalExtension() === 'xlsx') {
-                Excel::import(new YourImportClass, $file);
-            }
-
-            FileLog::create([
-                'file_name' => $filename,
-                'action' => 'Import',
-            ]);
-
-            return response()->json(['success' => true, 'message' => 'File imported successfully!']);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error importing file.', 'error' => $e->getMessage()]);
-        }
+        return response()->json(['success' => true, 'message' => 'File imported successfully!']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => 'Error importing file.', 'error' => $e->getMessage()]);
+    }
     }
 
     public function exportEmployees()
@@ -61,7 +62,7 @@ class InventoryFileController extends Controller
     public function exportFile(Request $request)
 {
     $selectedData = $request->input('selectedData');
-    $filename = 'ExportedData_' . time() . '.xlsx';
+    $templateName = $request->input('templateName', 'ExportedData_' . time()); // ✅ Get template name or use default
 
     $exportClasses = [
         'Employees' => new EmployeeExport(),
@@ -125,12 +126,13 @@ class InventoryFileController extends Controller
     };
 
     FileLog::create([
-        'file_name' => $filename,
+        'file_name' => $templateName . '.xlsx',
         'action' => 'Export',
     ]);
 
-    return Excel::download($multiExport, $filename);
+    return Excel::download($multiExport, $templateName . '.xlsx'); // ✅ Use the provided template name
 }
+
 
     public function getLogs()
     {

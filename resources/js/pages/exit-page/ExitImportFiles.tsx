@@ -9,7 +9,7 @@ export default function ExitClearanceDashboard() {
             <Head title="Inventory Dashboard" />
             <div className="dashboard-wrapper">
                 <SidebarExitClearance />
-                <Sidebar /> {/* Sidebar for navigation */}
+                <Sidebar /> {/* Sidebar for navigati on */}
                 <div className="dashboard-content">
                     <h1>Exit Clearance Dashboard</h1>
                     <p>Welcome to the Exit Clearance Management System.</p>

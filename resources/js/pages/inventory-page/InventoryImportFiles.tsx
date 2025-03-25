@@ -12,6 +12,7 @@ const InventoryImportFiles = () => {
     const [loading, setLoading] = useState(false);
     const [selectedExports, setSelectedExports] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [templateName, setTemplateName] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(15);
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -44,13 +45,17 @@ const InventoryImportFiles = () => {
 
     const handleImport = async () => {
         if (!selectedFile) return;
-
+    
         const formData = new FormData();
         formData.append("file", selectedFile);
+        formData.append("file_name", selectedFile.name); // ✅ Include original file name
         setLoading(true);
-
+    
         try {
-            const response = await axios.post('/inventory/import', formData);
+            const response = await axios.post('/inventory/import', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+    
             if (response.data.success) {
                 alert(response.data.message);
                 fetchFiles();
@@ -59,11 +64,12 @@ const InventoryImportFiles = () => {
             }
         } catch (error) {
             alert("Error importing file.");
+            console.error("Error:", error);
         } finally {
             setLoading(false);
             setSelectedFile(null);
         }
-    };
+    };    
 
     const handleExport = async () => {
         if (selectedExports.length === 0) {
@@ -71,16 +77,27 @@ const InventoryImportFiles = () => {
             return;
         }
 
+        if (!templateName.trim()) {
+            alert("Please enter a template name.");
+            return;
+        }
+
         try {
-            const response = await axios.post('/inventory/export', { selectedData: selectedExports }, {
-                responseType: 'blob',
-                headers: { 'Content-Type': 'application/json' }
-            });
+            const response = await axios.post('/inventory/export', 
+                { 
+                    selectedData: selectedExports,
+                    templateName: templateName.trim()  // ✅ Include template name
+                }, 
+                {
+                    responseType: 'blob',
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
 
             const urlBlob = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = urlBlob;
-            link.setAttribute('download', `Inventory_Data_${Date.now()}.xlsx`);
+            link.setAttribute('download', `${templateName.trim()}.xlsx`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -121,6 +138,14 @@ const InventoryImportFiles = () => {
                             <label><input type="checkbox" value="Devices" onChange={handleCheckboxChange} /> Devices</label>
                             <label><input type="checkbox" value="DeviceAssignments" onChange={handleCheckboxChange} /> Devices Assignment</label>
                         </div>
+                    <label>Template Name</label>
+                    <input
+                        type="text"
+                        placeholder="Enter Template Name"
+                        value={templateName}
+                        onChange={(e) => setTemplateName(e.target.value)}
+                        className="template-name-input"
+                    />
                         <button onClick={handleExport} className="export-btn"><FaDownload /> Export</button>
                     </div>
                 </div>

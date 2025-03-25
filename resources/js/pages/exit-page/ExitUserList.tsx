@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import mmpcLogo from '@/assets/mmpc-logo1.png'; 
 import { FaEdit, FaTrash, FaSearch, FaTimes, FaUsers } from "react-icons/fa";
 import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
-import SidebarInventory from "@/components/sidebar-inventory";
+import ExitInventory from "@/components/sidebar-exitclearance";
 import "@/styles/userlist.css";
 
 interface Employee {
-  employee_id: number;
+  id: number;
   employee_number: string;
   first_name: string;
   middle_initial?: string;
@@ -16,7 +16,6 @@ interface Employee {
   division_code: string;
   department_code: string;
   section_code: string;
-  assigned_devices: string[]; // Array of assigned device names
   computer_name?: string;
 }
 
@@ -95,7 +94,7 @@ const InventoryUserList: React.FC = () => {
 
   const handleEditClick = async (employee: Employee) => {
     try {
-        const response = await fetch(`/inventory-user-management/get/${employee.employee_id}`);
+        const response = await fetch(`/inventory-user-management/get/${employee.id}`);
         if (!response.ok) throw new Error("Failed to fetch employee details.");
 
         const employeeData = await response.json();
@@ -110,10 +109,10 @@ const InventoryUserList: React.FC = () => {
     if (!editEmployee) return;
 
     // ✅ Extract only necessary fields
-    const { employee_id, ...employeeData } = editEmployee;
+    const { id, ...employeeData } = editEmployee;
 
     try {
-        const response = await fetch(`/inventory-user-management/update/${employee_id}`, {
+        const response = await fetch(`/inventory-user-management/update/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(employeeData),
@@ -154,7 +153,7 @@ const handleDelete = async (id: number) => {
   
   return (
     <div className={`inventory-userlist-container ${selectedEmployee ? "blurred" : ""}`}>
-      <SidebarInventory />
+      <ExitInventory />
       <div className="userlist-content">
         <h2>User List ({users.length} employees)</h2>
 
@@ -212,38 +211,28 @@ const handleDelete = async (id: number) => {
                 <th>Last Name</th>
                 <th>Division</th>
                 <th>Department</th>
-                <th>Assigned Device</th>
+                <th>Assigned Device Name</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-  {paginatedUsers.map((user: Employee, index: number) => (
-    <tr key={user.employee_id}>
-      <td>{(currentPage - 1) * entriesPerPage + index + 1}</td>
-      <td className="clickable" onClick={() => handleEmployeeClick(user)}>{user.employee_number}</td>
-      <td>{user.first_name}</td>
-      <td>{user.middle_initial ?? "-"}</td>
-      <td>{user.last_name}</td>
-      <td>{user.division_department}</td>
-      <td>{user.department_code}</td>
-      <td>
-        {user.assigned_devices && user.assigned_devices.length > 0 ? (
-          user.assigned_devices.map((device: string, idx: number) => (
-            <div key={idx} style={{ whiteSpace: 'pre-wrap' }}>
-              {device}
-            </div>
-          ))
-        ) : (
-          "No Device Assigned"
-        )}
-      </td>
-      <td className="userlist-actions">
-        <FaEdit className="edit-icon" onClick={() => handleEditClick(user)} />
-        <FaTrash className="delete-icon" onClick={() => handleDelete(user.employee_id)} />
-      </td>
-    </tr>
-  ))}
-</tbody>
+              {paginatedUsers.map((user, index) => (
+                <tr key={user.id}>
+                  <td>{(currentPage - 1) * entriesPerPage + index + 1}</td>
+                  <td className="clickable" onClick={() => handleEmployeeClick(user)}>{user.employee_number}</td>
+                  <td>{user.first_name}</td>
+                  <td>{user.middle_initial ?? "-"}</td>
+                  <td>{user.last_name}</td>
+                  <td>{user.division_department}</td>
+                  <td>{user.department_code}</td>
+                  <td>{user.computer_name || "No Device Assigned"}</td>
+                  <td className="userlist-actions">
+                    <FaEdit className="edit-icon" onClick={() => handleEditClick(user)} />
+                    <FaTrash className="delete-icon" onClick={() => handleDelete(user.id)} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
 

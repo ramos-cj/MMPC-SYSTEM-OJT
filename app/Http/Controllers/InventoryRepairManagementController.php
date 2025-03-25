@@ -25,8 +25,10 @@ public function updateDeviceIssues(Request $request, $id)
     $device = Device::findOrFail($id);
 
     $device->need_to_be_repair = $request->input('need_to_be_repair');
-    if ($device->need_to_be_repair === "") {
-        $device->condition = "Good"; // Change condition to Good if no issues remain
+
+    // ✅ If issues are listed as "N/A", mark condition as "Good"
+    if ($device->need_to_be_repair === "N/A") {
+        $device->condition = "Good";
     }
 
     $device->save();

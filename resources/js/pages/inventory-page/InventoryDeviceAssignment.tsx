@@ -162,14 +162,14 @@ const InventoryDeviceAssignment: React.FC = () => {
         }
     
         try {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content"); // ✅ Get CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
     
             const response = await fetch("/assign-device", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrfToken || "", // ✅ Ensure CSRF token is included
-                    "X-Requested-With": "XMLHttpRequest", // ✅ Required for Laravel AJAX validation
+                    "X-CSRF-TOKEN": csrfToken || "",
+                    "X-Requested-With": "XMLHttpRequest",
                 },
                 body: JSON.stringify({
                     employee: selectedEmployee,
@@ -179,36 +179,34 @@ const InventoryDeviceAssignment: React.FC = () => {
                     accessories: selectedAccessories,
                     computer_name: selectedComputer,
                 }),
-                credentials: "include", // ✅ Include cookies for session authentication
+                credentials: "include",
             });
     
             if (!response.ok) {
-                const errorData = await response.text(); // Get raw response text
-                console.error("Server Response:", errorData); // ✅ Log full response
+                const errorData = await response.text();
+                console.error("Server Response:", errorData);
                 throw new Error("Failed to assign device.");
             }
     
             const data = await response.json();
             alert(data.message);
     
-            // ✅ Reload assigned devices list after successful assignment
             fetch("/assigned-devices")
                 .then((res) => res.json())
                 .then((updatedData) => setAssignedDevices(updatedData));
     
-            // ✅ Reset form inputs
             setSelectedEmployee("");
             setSelectedClassification("");
             setSelectedBrand("");
             setSelectedModel("");
             setSelectedComputer("");
             setSelectedAccessories(""); 
-    
         } catch (err) {
             console.error("Error:", err);
             alert("Error assigning device. Please check the console for details.");
         }
     };
+    
     
     
     const openTransferModal = (device: Device) => {
@@ -398,7 +396,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                     </div>
 
     {/* Accessories Input Centered */}
-    <div className="accessories-container">
+    <div className="form-group">
         <label>Accessories</label>
         <input
             type="text"

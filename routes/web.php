@@ -120,7 +120,34 @@ Route::post('/exitclearance-register', [ExitClearanceAuthController::class, 'reg
 
 // ✅ Exit Clearance Dashboard Route (with Authentication Middleware)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/exitclearance-dashboard', function () {
+    Route::get('/exit-dashboard', function () {
         return Inertia::render('dashboard/ExitClearanceDashboard');
-    })->name('exitclearance-dashboard');
+    })->name('exit-dashboard');
+
+    Route::get('/exit-exitclearance', function () {
+        return Inertia::render('exit-page/ExitExitClearance');
+    })->name('exit-exitclearance');
+
+    Route::get('/exit-clearancestatus', function () {
+        return Inertia::render('exit-page/ExitClearanceStatus');
+    })->name('exit-clearancestatus');
+
+    Route::get('/exit-usermanagement', function () {
+        return Inertia::render('exit-page/ExitUserManagement');
+    })->name('exit-usermanagement');
+
+    Route::get('/exit-importfiles', function () {
+        return Inertia::render('exit-page/ExitImportFiles');
+    })->name('exit-importfiles');
+    Route::get('/exit-userlist', function () {
+        return Inertia::render('exit-page/ExitUserList');
+    })->name('exit-userlist');
+
+    Route::get('/inventory-user-management/list', [InventoryUserManagementController::class, 'list']);
+    Route::get('/inventory-user-management/get/{id}', [InventoryUserManagementController::class, 'getEmployee']);
+    Route::post('/inventory-user-management/save', [InventoryUserManagementController::class, 'store']);
+
+    Route::put('/inventory-user-management/update/{id}', [InventoryUserManagementController::class, 'update']);
+    Route::delete('/inventory-user-management/delete/{id}', [InventoryUserManagementController::class, 'delete']);
+
 });

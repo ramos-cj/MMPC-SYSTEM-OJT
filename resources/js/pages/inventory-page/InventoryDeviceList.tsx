@@ -26,7 +26,8 @@ interface Device {
     pi_guard: string;
     property_tag: string;
     activation_updates: string;
-    image_file?: string; // Image filename stored in the database
+    image_file?: string;
+    employee_name?: string; // ✅ New field for Employee Name
 }
 
 export default function InventoryDeviceList() {
@@ -66,6 +67,8 @@ export default function InventoryDeviceList() {
     const filteredDevices = devices.filter(device =>
         (device.general_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         device.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        device.computer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        device.employee_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         device.tag_no.includes(searchTerm)) &&
         (selectedClassification === "" || device.classification === selectedClassification) &&
         (selectedBrand === "" || device.brand_name === selectedBrand)
@@ -231,39 +234,41 @@ export default function InventoryDeviceList() {
 
                     {/* Table */}
                     <div className="device-table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Device ID</th>
-                                    <th>Host Name</th>
-                                    <th>Tag No.</th>
-                                    <th>Brand Name</th>
-                                    <th>Classification</th>
-                                    <th>Model</th>
-                                    <th>Condition</th>
-                                    <th>Remarks</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentDevices.map((device) => (
-                                    <tr key={device.id}>
-                                        <td>{device.id}</td>
-                                        <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.computer_name}</td>
-                                        <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.tag_no}</td>
-                                        <td>{device.general_name}</td>
-                                        <td>{device.classification}</td>
-                                        <td>{device.model}</td>
-                                        <td>{device.condition}</td>
-                                        <td>{device.remarks}</td>
-                                        <td className="device-actions">
-                                            <FaEdit className="edit-icon" onClick={() => handleEditClick(device)} />
-                                            <FaTrash className="delete-icon" onClick={() => handleDelete(device.id)} />
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <table>
+    <thead>
+        <tr>
+            <th>Device ID</th>
+            <th>Host Name</th>
+            <th>Tag No.</th>
+            <th>Brand Name</th>
+            <th>Classification</th>
+            <th>Model</th>
+            <th>Condition</th>
+            <th>Remarks</th>
+            <th>Assigned To</th> {/* New column for Employee Name */}
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {currentDevices.map((device) => (
+            <tr key={device.id}>
+                <td>{device.id}</td>
+                <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.computer_name || "N/A"}</td>
+                <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.tag_no}</td>
+                <td>{device.brand_name}</td>
+                <td>{device.classification}</td>
+                <td>{device.model}</td>
+                <td>{device.condition}</td>
+                <td>{device.remarks}</td>
+                <td>{device.employee_name || "Unassigned"}</td> {/* Display Employee Name */}
+                <td>
+                    <FaEdit className="edit-icon" onClick={() => handleEditClick(device)} />
+                    <FaTrash className="delete-icon" onClick={() => handleDelete(device.id)} />
+                </td>
+            </tr>
+        ))}
+    </tbody>
+</table>
                     </div>
 
                     {/* Pagination */}
@@ -436,11 +441,6 @@ export default function InventoryDeviceList() {
             </div>
 
             <div className="field">
-                <label>Brand Name:</label>
-                <input type="text" name="brand_name" value={editDevice.brand_name} onChange={handleInputChange} />
-            </div>
-
-            <div className="field">
                 <label>Classification:</label>
                 <select name="classification" value={editDevice.classification} onChange={handleInputChange}>
                     <option value="Laptop">Laptop</option>
@@ -462,6 +462,14 @@ export default function InventoryDeviceList() {
             <div className="field">
                 <label>Property Tag:</label>
                 <input type="text" name="property_tag" value={editDevice.property_tag || ""} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>Condition:</label>
+                <select name="condition" value={editDevice.condition} onChange={handleInputChange}>
+                    <option value="Good">Good Condition</option>
+                    <option value="Bad">Bad Conditiion</option>
+                </select>
             </div>
 
             <div className="field">

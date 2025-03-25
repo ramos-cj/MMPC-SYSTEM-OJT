@@ -11,7 +11,19 @@ class InventoryDeviceManagementController extends Controller
 
     public function getDevices()
 {
-    $devices = Device::all();
+    $devices = Device::leftJoin('device_assignments', 'devices.id', '=', 'device_assignments.device_id')
+        ->leftJoin('employees', 'device_assignments.employee_id', '=', 'employees.id')
+        ->select(
+            'devices.*',
+            'employees.first_name',
+            'employees.last_name',
+            'device_assignments.employee_id'
+        )
+        ->get()
+        ->map(function ($device) {
+            $device->employee_name = $device->first_name && $device->last_name ? $device->first_name . ' ' . $device->last_name : 'Unassigned';
+            return $device;
+        });
 
     return response()->json($devices);
 }
