@@ -260,51 +260,65 @@ const handleDelete = async (id: number) => {
       </div>
 
       {/* Employee Info Modal */}
-      {selectedEmployee && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+{selectedEmployee && (
+    <div className="modal-overlay">
+        <div className="modal-content">
             {/* Header */}
             <div className="modal-header">
-              <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
-              <h2>Employee’s Information</h2>
-              <FaTimes className="close-icon" onClick={closeModal} />
+                <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+                <h2>Employee’s Information</h2>
+                <FaTimes className="close-icon" onClick={closeModal} />
             </div>
 
             {/* Profile Picture & Name */}
             <div className="profile-section">
-              <FaUsers className="user-icon" />
-              <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial ?? ""} {selectedEmployee.last_name}</p>
+                <FaUsers className="user-icon" />
+                <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial ?? ""} {selectedEmployee.last_name}</p>
             </div>
 
             {/* Employee Details (2 Columns) */}
             <div className="employee-details">
-              <div className="column">
-                <label>First Name:</label>
-                <input type="text" value={selectedEmployee.first_name} readOnly />
-                <label>Middle Initial:</label>
-                <input type="text" value={selectedEmployee.middle_initial ?? "-"} readOnly />
-                <label>Last Name:</label>
-                <input type="text" value={selectedEmployee.last_name} readOnly />
-                <label>Position:</label>
-                <input type="text" value={selectedEmployee.position} readOnly />
-                <label>Assigned Device Name:</label>
-                <input type="text" value={selectedEmployee.computer_name || "No Device Assigned"} readOnly />
-              </div>
+                <div className="column">
+                    <label>First Name:</label>
+                    <input type="text" value={selectedEmployee.first_name} readOnly />
+                    <label>Middle Initial:</label>
+                    <input type="text" value={selectedEmployee.middle_initial ?? "-"} readOnly />
+                    <label>Last Name:</label>
+                    <input type="text" value={selectedEmployee.last_name} readOnly />
+                    <label>Position:</label>
+                    <input type="text" value={selectedEmployee.position} readOnly />
+                </div>
 
-              <div className="column">
-                <label>Division Code:</label>
-                <input type="text" value={selectedEmployee.division_code} readOnly />
-                <label>Department Code:</label>
-                <input type="text" value={selectedEmployee.department_code} readOnly />
-                <label>Division/Department:</label>
-                <input type="text" value={selectedEmployee.division_department} readOnly />
-                <label>Section Code:</label>
-                <input type="text" value={selectedEmployee.section_code} readOnly />
-              </div>
+                <div className="column">
+                    <label>Division Code:</label>
+                    <input type="text" value={selectedEmployee.division_code} readOnly />
+                    <label>Department Code:</label>
+                    <input type="text" value={selectedEmployee.department_code} readOnly />
+                    <label>Division/Department:</label>
+                    <input type="text" value={selectedEmployee.division_department} readOnly />
+                    <label>Section Code:</label>
+                    <input type="text" value={selectedEmployee.section_code} readOnly />
+                </div>
             </div>
-          </div>
+
+            {/* Assigned Devices Section */}
+            <div className="assigned-devices">
+                <label>Assigned Devices:</label>
+                <div className="assigned-devices-input">{selectedEmployee.assigned_devices && selectedEmployee.assigned_devices.length > 0 ? (
+                    <ul>
+                        {selectedEmployee.assigned_devices.map((device, idx) => (
+                            <li key={idx}>{device}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No Device Assigned</p>
+                )}
+                </div>
+            </div>
         </div>
-      )}
+    </div>
+)}
+
       
       {editEmployee && (
   <div className="modal-overlay">

@@ -120,9 +120,9 @@ Route::post('/exitclearance-register', [ExitClearanceAuthController::class, 'reg
 
 // ✅ Exit Clearance Dashboard Route (with Authentication Middleware)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/exit-dashboard', function () {
+    Route::get('/exitclearance-dashboard', function () {
         return Inertia::render('dashboard/ExitClearanceDashboard');
-    })->name('exit-dashboard');
+    })->name('exitclearance-dashboard');
 
     Route::get('/exit-exitclearance', function () {
         return Inertia::render('exit-page/ExitExitClearance');

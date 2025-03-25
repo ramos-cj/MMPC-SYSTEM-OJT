@@ -18,6 +18,7 @@ const InventoryDashboard: React.FC = () => {
         latestUpdate: "",
         assetSummary: [] as { classification: string; total: number; warrantyExpired: number }[],
     });
+    
 
     useEffect(() => {
         fetch("/inventory-dashboard/stats")

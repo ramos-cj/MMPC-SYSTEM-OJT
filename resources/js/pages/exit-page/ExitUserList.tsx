@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import mmpcLogo from '@/assets/mmpc-logo1.png'; 
 import { FaEdit, FaTrash, FaSearch, FaTimes, FaUsers } from "react-icons/fa";
 import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
-import ExitInventory from "@/components/sidebar-exitclearance";
+import SidebarExit from "@/components/sidebar-exitclearance";
 import "@/styles/userlist.css";
 
 interface Employee {
-  id: number;
+  employee_id: number;
   employee_number: string;
   first_name: string;
   middle_initial?: string;
@@ -16,6 +16,7 @@ interface Employee {
   division_code: string;
   department_code: string;
   section_code: string;
+  assigned_devices: string[]; // Array of assigned device names
   computer_name?: string;
 }
 
@@ -94,7 +95,7 @@ const InventoryUserList: React.FC = () => {
 
   const handleEditClick = async (employee: Employee) => {
     try {
-        const response = await fetch(`/inventory-user-management/get/${employee.id}`);
+        const response = await fetch(`/inventory-user-management/get/${employee.employee_id}`);
         if (!response.ok) throw new Error("Failed to fetch employee details.");
 
         const employeeData = await response.json();
@@ -109,10 +110,10 @@ const InventoryUserList: React.FC = () => {
     if (!editEmployee) return;
 
     // ✅ Extract only necessary fields
-    const { id, ...employeeData } = editEmployee;
+    const { employee_id, ...employeeData } = editEmployee;
 
     try {
-        const response = await fetch(`/inventory-user-management/update/${id}`, {
+        const response = await fetch(`/inventory-user-management/update/${employee_id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(employeeData),
@@ -153,7 +154,7 @@ const handleDelete = async (id: number) => {
   
   return (
     <div className={`inventory-userlist-container ${selectedEmployee ? "blurred" : ""}`}>
-      <ExitInventory />
+      <SidebarExit />
       <div className="userlist-content">
         <h2>User List ({users.length} employees)</h2>
 
@@ -211,28 +212,38 @@ const handleDelete = async (id: number) => {
                 <th>Last Name</th>
                 <th>Division</th>
                 <th>Department</th>
-                <th>Assigned Device Name</th>
+                <th>Assigned Device</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {paginatedUsers.map((user, index) => (
-                <tr key={user.id}>
-                  <td>{(currentPage - 1) * entriesPerPage + index + 1}</td>
-                  <td className="clickable" onClick={() => handleEmployeeClick(user)}>{user.employee_number}</td>
-                  <td>{user.first_name}</td>
-                  <td>{user.middle_initial ?? "-"}</td>
-                  <td>{user.last_name}</td>
-                  <td>{user.division_department}</td>
-                  <td>{user.department_code}</td>
-                  <td>{user.computer_name || "No Device Assigned"}</td>
-                  <td className="userlist-actions">
-                    <FaEdit className="edit-icon" onClick={() => handleEditClick(user)} />
-                    <FaTrash className="delete-icon" onClick={() => handleDelete(user.id)} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+  {paginatedUsers.map((user: Employee, index: number) => (
+    <tr key={user.employee_id}>
+      <td>{(currentPage - 1) * entriesPerPage + index + 1}</td>
+      <td className="clickable" onClick={() => handleEmployeeClick(user)}>{user.employee_number}</td>
+      <td>{user.first_name}</td>
+      <td>{user.middle_initial ?? "-"}</td>
+      <td>{user.last_name}</td>
+      <td>{user.division_department}</td>
+      <td>{user.department_code}</td>
+      <td>
+        {user.assigned_devices && user.assigned_devices.length > 0 ? (
+          user.assigned_devices.map((device: string, idx: number) => (
+            <div key={idx} style={{ whiteSpace: 'pre-wrap' }}>
+              {device}
+            </div>
+          ))
+        ) : (
+          "No Device Assigned"
+        )}
+      </td>
+      <td className="userlist-actions">
+        <FaEdit className="edit-icon" onClick={() => handleEditClick(user)} />
+        <FaTrash className="delete-icon" onClick={() => handleDelete(user.employee_id)} />
+      </td>
+    </tr>
+  ))}
+</tbody>
           </table>
         </div>
 
@@ -249,51 +260,65 @@ const handleDelete = async (id: number) => {
       </div>
 
       {/* Employee Info Modal */}
-      {selectedEmployee && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+{selectedEmployee && (
+    <div className="modal-overlay">
+        <div className="modal-content">
             {/* Header */}
             <div className="modal-header">
-              <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
-              <h2>Employee’s Information</h2>
-              <FaTimes className="close-icon" onClick={closeModal} />
+                <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+                <h2>Employee’s Information</h2>
+                <FaTimes className="close-icon" onClick={closeModal} />
             </div>
 
             {/* Profile Picture & Name */}
             <div className="profile-section">
-              <FaUsers className="user-icon" />
-              <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial ?? ""} {selectedEmployee.last_name}</p>
+                <FaUsers className="user-icon" />
+                <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial ?? ""} {selectedEmployee.last_name}</p>
             </div>
 
             {/* Employee Details (2 Columns) */}
             <div className="employee-details">
-              <div className="column">
-                <label>First Name:</label>
-                <input type="text" value={selectedEmployee.first_name} readOnly />
-                <label>Middle Initial:</label>
-                <input type="text" value={selectedEmployee.middle_initial ?? "-"} readOnly />
-                <label>Last Name:</label>
-                <input type="text" value={selectedEmployee.last_name} readOnly />
-                <label>Position:</label>
-                <input type="text" value={selectedEmployee.position} readOnly />
-                <label>Assigned Device Name:</label>
-                <input type="text" value={selectedEmployee.computer_name || "No Device Assigned"} readOnly />
-              </div>
+                <div className="column">
+                    <label>First Name:</label>
+                    <input type="text" value={selectedEmployee.first_name} readOnly />
+                    <label>Middle Initial:</label>
+                    <input type="text" value={selectedEmployee.middle_initial ?? "-"} readOnly />
+                    <label>Last Name:</label>
+                    <input type="text" value={selectedEmployee.last_name} readOnly />
+                    <label>Position:</label>
+                    <input type="text" value={selectedEmployee.position} readOnly />
+                </div>
 
-              <div className="column">
-                <label>Division Code:</label>
-                <input type="text" value={selectedEmployee.division_code} readOnly />
-                <label>Department Code:</label>
-                <input type="text" value={selectedEmployee.department_code} readOnly />
-                <label>Division/Department:</label>
-                <input type="text" value={selectedEmployee.division_department} readOnly />
-                <label>Section Code:</label>
-                <input type="text" value={selectedEmployee.section_code} readOnly />
-              </div>
+                <div className="column">
+                    <label>Division Code:</label>
+                    <input type="text" value={selectedEmployee.division_code} readOnly />
+                    <label>Department Code:</label>
+                    <input type="text" value={selectedEmployee.department_code} readOnly />
+                    <label>Division/Department:</label>
+                    <input type="text" value={selectedEmployee.division_department} readOnly />
+                    <label>Section Code:</label>
+                    <input type="text" value={selectedEmployee.section_code} readOnly />
+                </div>
             </div>
-          </div>
+
+            {/* Assigned Devices Section */}
+            <div className="assigned-devices">
+                <label>Assigned Devices:</label>
+                <div className="assigned-devices-input">{selectedEmployee.assigned_devices && selectedEmployee.assigned_devices.length > 0 ? (
+                    <ul>
+                        {selectedEmployee.assigned_devices.map((device, idx) => (
+                            <li key={idx}>{device}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No Device Assigned</p>
+                )}
+                </div>
+            </div>
         </div>
-      )}
+    </div>
+)}
+
       
       {editEmployee && (
   <div className="modal-overlay">

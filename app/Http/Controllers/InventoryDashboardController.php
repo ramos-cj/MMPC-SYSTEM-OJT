@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Device;
 use App\Models\Employee;
+use App\Models\FileLog;
 use App\Models\ImportedFile;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +20,7 @@ class InventoryDashboardController extends Controller
         $totalAccessories = Device::whereNotNull('accessories')->count();
         $totalGoodCondition = Device::where('condition', 'Good')->count();
         $totalBadCondition = Device::where('condition', 'Bad')->count();
-        //$totalImportedFiles = ImportedFile::count();
+        $totalImportedFiles = FileLog::count();
 
         // Fetch latest update date
         $latestEmployeeUpdate = Employee::latest('updated_at')->value('updated_at');
@@ -40,7 +41,7 @@ class InventoryDashboardController extends Controller
             'totalAccessories' => $totalAccessories,
             'totalGoodCondition' => $totalGoodCondition,
             'totalBadCondition' => $totalBadCondition,
-            //'totalImportedFiles' => $totalImportedFiles,
+            'totalImportedFiles' => $totalImportedFiles,
             'latestUpdate' => $latestUpdate ? $latestUpdate->toDateTimeString() : "No recent updates",
             'assetSummary' => $assetSummary
         ]);

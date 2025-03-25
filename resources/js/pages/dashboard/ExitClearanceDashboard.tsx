@@ -6,7 +6,7 @@ import SidebarExitClearance from '@/components/sidebar-exitclearance';
 export default function ExitClearanceDashboard() {
     return (
         <>
-            <Head title="Inventory Dashboard" />
+            <Head title="Exit Clearance Dashboard" />
             <div className="dashboard-wrapper">
                 <SidebarExitClearance />
                 <Sidebar /> {/* Sidebar for navigation */}

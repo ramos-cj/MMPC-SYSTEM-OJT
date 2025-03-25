@@ -433,3 +433,21 @@ text-align: left; /* Ensures text is aligned to the left */
   margin-left: 50%;
 
 }
+
+.assigned-devices {
+  margin-top: 20px;
+}
+
+.assigned-devices label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.assigned-devices-input{
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+}

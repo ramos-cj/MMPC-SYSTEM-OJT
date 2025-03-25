@@ -45,7 +45,7 @@ const SidebarInventory: React.FC = () => {
                 <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
                     <img src={logo} alt="Mitsubishi Logo" className="sidebar-logo" />
                     <ul>
-                        <li className={url === "/exit-dashboard" ? "active" : ""} onClick={() => handleNavigation("/exit-dashboard")}>
+                        <li className={url === "/exitclearance-dashboard" ? "active" : ""} onClick={() => handleNavigation("/exitclearance-dashboard")}>
                             <FaClipboardList />
                             <span className={isCollapsed ? "hidden" : ""}>Dashboard</span>
                         </li>
