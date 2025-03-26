@@ -16,7 +16,7 @@ interface Employee {
   division_code: string;
   department_code: string;
   section_code: string;
-  assigned_devices: string[]; // Array of assigned device names
+  assigned_devices: string[];
   computer_name?: string;
 }
 
@@ -99,35 +99,58 @@ const InventoryUserList: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch employee details.");
 
         const employeeData = await response.json();
-        setEditEmployee(employeeData); // ✅ Now it correctly sets the employee's existing details
+        setEditEmployee({ 
+            ...employeeData, 
+            assigned_devices: employee.assigned_devices || [] // Keep assigned devices for display
+        }); // ✅ Now it correctly sets the employee's existing details
     } catch (error) {
         console.error("Error fetching employee details:", error);
         alert("Error fetching employee details.");
     }
 };
   
-  const handleSaveChanges = async () => {
-    if (!editEmployee) return;
+const handleSaveChanges = async () => {
+  if (!editEmployee || !editEmployee.employee_id) {
+      alert("Failed to find employee ID. Please try again.");
+      return;
+  }
 
-    // ✅ Extract only necessary fields
-    const { employee_id, ...employeeData } = editEmployee;
+  try {
+      const response = await fetch(`/inventory-user-management/update/${editEmployee.employee_id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+              employee_number: editEmployee.employee_number,
+              first_name: editEmployee.first_name,
+              middle_initial: editEmployee.middle_initial,
+              last_name: editEmployee.last_name,
+              position: editEmployee.position,
+              division_department: editEmployee.division_department,
+              division_code: editEmployee.division_code,
+              department_code: editEmployee.department_code,
+              section_code: editEmployee.section_code
+          }),
+      });
 
-    try {
-        const response = await fetch(`/inventory-user-management/update/${employee_id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(employeeData),
-        });
+      if (!response.ok) {
+          const errorMessage = await response.text();
+          console.error("Error updating employee:", errorMessage);
+          throw new Error("Failed to update employee.");
+      }
 
-        if (!response.ok) throw new Error("Failed to update employee.");
+      const updatedEmployee = await response.json();
+      alert("Employee details updated successfully!");
 
-        alert("Employee details updated successfully!"); // ✅ Simple alert instead of a pop-up
+      // Update the users array with the edited employee
+      setUsers(prevUsers => prevUsers.map(user => 
+          user.employee_id === editEmployee.employee_id ? { ...user, ...editEmployee } : user
+      ));
 
-        window.location.reload(); // ✅ Refresh to show updated data
-    } catch (error) {
-        console.error("Error updating employee:", error);
-        alert("Error updating employee."); // ✅ Alert for errors
-    }
+      setEditEmployee(null); // Close the edit form
+  } catch (error) {
+      console.error("Error updating employee:", error);
+      alert("Error updating employee.");
+  }
 };
 
 
@@ -150,7 +173,6 @@ const handleDelete = async (id: number) => {
       alert("Error deleting employee."); // ✅ Alert for errors
   }
 };
-
   
   return (
     <div className={`inventory-userlist-container ${selectedEmployee ? "blurred" : ""}`}>
@@ -225,7 +247,7 @@ const handleDelete = async (id: number) => {
       <td>{user.middle_initial ?? "-"}</td>
       <td>{user.last_name}</td>
       <td>{user.division_department}</td>
-      <td>{user.department_code}</td>
+      <td>{user.position}</td>
       <td>
         {user.assigned_devices && user.assigned_devices.length > 0 ? (
           user.assigned_devices.map((device: string, idx: number) => (

@@ -161,6 +161,15 @@ const InventoryDeviceAssignment: React.FC = () => {
             return;
         }
     
+        const employeeId = employees.find(
+            (emp) => `${emp.first_name} ${emp.last_name} (${emp.employee_number})` === selectedEmployee
+        )?.id;
+    
+        if (!employeeId) {
+            alert("Selected employee not found. Please try again.");
+            return;
+        }
+    
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
     
@@ -172,7 +181,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                     "X-Requested-With": "XMLHttpRequest",
                 },
                 body: JSON.stringify({
-                    employee: selectedEmployee,
+                    employee_id: employeeId,
                     classification: selectedClassification,
                     brand: selectedBrand,
                     model: selectedModel,
@@ -183,7 +192,7 @@ const InventoryDeviceAssignment: React.FC = () => {
             });
     
             if (!response.ok) {
-                const errorData = await response.text();
+                const errorData = await response.json();
                 console.error("Server Response:", errorData);
                 throw new Error("Failed to assign device.");
             }
@@ -207,8 +216,6 @@ const InventoryDeviceAssignment: React.FC = () => {
         }
     };
     
-    
-    
     const openTransferModal = (device: Device) => {
         console.log("Opening transfer modal for:", device); // Debugging log
     
@@ -229,11 +236,18 @@ const InventoryDeviceAssignment: React.FC = () => {
         setShowTransferModal(true);
     };
     
-    
-    
     const handleTransferDevice = async () => {
         if (!transferData.new_assignee || !transferData.transferred_date) {
             alert("Please fill in all fields.");
+            return;
+        }
+    
+        const employee = employees.find(emp => 
+            `${emp.first_name} ${emp.last_name} (${emp.employee_number})` === transferData.new_assignee
+        );
+    
+        if (!employee) {
+            alert("New assignee not found. Please select a valid employee.");
             return;
         }
     
@@ -244,9 +258,21 @@ const InventoryDeviceAssignment: React.FC = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrfToken || "", // Include CSRF token
+                    "X-CSRF-TOKEN": csrfToken || "", 
+                    "X-Requested-With": "XMLHttpRequest",
                 },
-                body: JSON.stringify(transferData), // ✅ Send accessories in the request
+                body: JSON.stringify({
+                    assignment_id: transferData.assignment_id,
+                    new_assignee_id: employee.id, // Send employee_id instead of name
+                    transferred_date: transferData.transferred_date,
+                    return_date: transferData.return_date,
+                    classification: transferData.classification,
+                    brand: transferData.brand,
+                    model: transferData.model,
+                    serial_number: transferData.serial_number,
+                    accessories: transferData.accessories,
+                }),
+                credentials: "include",
             });
     
             if (!response.ok) {
@@ -262,7 +288,7 @@ const InventoryDeviceAssignment: React.FC = () => {
             console.error("Error:", err);
             alert("Error transferring device. Please check console for details.");
         }
-    };
+    };    
     
     const deleteAssignment = async (id: number) => {
         if (!window.confirm("Are you sure you want to delete this assignment?")) return;
@@ -331,7 +357,7 @@ const InventoryDeviceAssignment: React.FC = () => {
         />
         <datalist id="employeeList">
             {employees.map((emp) => (
-                <option key={emp.id} value={`${emp.first_name} ${emp.last_name}`} />
+                <option key={emp.id} value={`${emp.first_name} ${emp.last_name} (${emp.employee_number})`} />
             ))}
         </datalist>
     </div>
@@ -547,8 +573,15 @@ const InventoryDeviceAssignment: React.FC = () => {
             <input 
                 type="text" 
                 placeholder="Enter Name" 
-                onChange={(e) => setTransferData({ ...transferData, new_assignee: e.target.value })} 
+                value={transferData.new_assignee}
+                onChange={(e) => setTransferData({ ...transferData, new_assignee: e.target.value })}
+                list="employeeListTransfer"
             />
+            <datalist id="employeeListTransfer">
+                {employees.map((emp) => (
+                    <option key={emp.id} value={`${emp.first_name} ${emp.last_name} (${emp.employee_number})`} />
+                ))}
+            </datalist>
         </div>
         <div className="assignee-field">
             <label>Date Transferred</label>
@@ -559,7 +592,6 @@ const InventoryDeviceAssignment: React.FC = () => {
         </div>
     </div>
 </div>
-
 
                 {/* Editable Accessories Field */}
                 <div className="assignee-container">

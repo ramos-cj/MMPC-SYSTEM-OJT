@@ -12,12 +12,13 @@ class DeviceAssignment extends Model
     protected $fillable = [
         'employee_id',
         'device_id',
+        'employee_name',
         'classification',
         'brand_name',
         'model',
         'serial_number',
-        'accessories',
         'computer_name',
+        'accessories',
     ];    
     
     public function employee()

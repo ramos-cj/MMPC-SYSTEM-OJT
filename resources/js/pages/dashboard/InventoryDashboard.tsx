@@ -97,7 +97,7 @@ const InventoryDashboard: React.FC = () => {
                         <div className="stat-card">
                             <div className="icon"><FaFileImport /></div>
                             <h3>{stats.totalImportedFiles}</h3>
-                            <p>Imported Files</p>
+                            <p>Files Managed</p>
                             <div className="more-info" onClick={() => Inertia.visit('/inventory-importfiles')}>More Info <FaArrowRight /></div>
                         </div>
                     </div>

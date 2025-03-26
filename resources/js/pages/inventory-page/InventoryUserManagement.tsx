@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { router } from "@inertiajs/react";
 import SidebarInventory from "@/components/sidebar-inventory";
+import axios from "axios";
 import "@/styles/UserManagement.css";
 
 export default function InventoryUserManagement() {
@@ -16,13 +17,48 @@ export default function InventoryUserManagement() {
         department_code: "",
     });
 
-    const [errorMessage, setErrorMessage] = useState<string | null>(null); // Error modal state
+    const [divisions, setDivisions] = useState<string[]>([]);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isAddingNewDivision, setIsAddingNewDivision] = useState(false);
+    const [newDivision, setNewDivision] = useState<string>("");
+
+    useEffect(() => {
+        fetchDivisions();
+    }, []);
+
+    const fetchDivisions = async () => {
+        try {
+            const response = await axios.get('/inventory-user-management/divisions');
+            setDivisions(response.data);
+        } catch (error) {
+            console.error("Error fetching divisions:", error);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+
+        if (name === "division_department" && value === "new-division") {
+            setIsAddingNewDivision(true);
+            setFormData((prev) => ({
+                ...prev,
+                division_department: "",
+            }));
+        } else {
+            setIsAddingNewDivision(false);
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        }
+    };
+
+    const handleNewDivisionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setNewDivision(value);
         setFormData((prev) => ({
             ...prev,
-            [name]: value,
+            division_department: value,
         }));
     };
 
@@ -30,7 +66,11 @@ export default function InventoryUserManagement() {
         e.preventDefault();
 
         router.post("/inventory-user-management/save", formData, {
-            onSuccess: () => alert("User saved successfully!"),
+            onSuccess: () => {
+                alert("User saved successfully!");
+                fetchDivisions(); // Refresh divisions list
+                setNewDivision("");
+            },
             onError: (errors) => {
                 const errorMsg = Object.values(errors).join("\n");
                 setErrorMessage(errorMsg);
@@ -52,67 +92,68 @@ export default function InventoryUserManagement() {
                                     <input type="text" name="employee_number" placeholder="Enter Employee Number" value={formData.employee_number} onChange={handleChange} required />
                                 </div>
                                 <div className="form-group">
-                                    <label>Position:</label>
-                                    <input type="text" name="position" placeholder="Enter Employee's Position" value={formData.position} onChange={handleChange} required />
+                                    <label>Department:</label>
+                                    <input type="text" name="position" placeholder="Enter Employee's Department" value={formData.position} onChange={handleChange} required />
                                 </div>
                             </div>
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>First Name:</label>
-                                    <input type="text" name="first_name" placeholder="Enter First Name" value={formData.first_name} onChange={handleChange} required />
+                                    <input type="text" name="first_name" placeholder="Enter Employee's First Name" value={formData.first_name} onChange={handleChange} required />
                                 </div>
                                 <div className="form-group">
                                     <label>Middle Initial:</label>
-                                    <input type="text" name="middle_initial" placeholder="Enter Middle Initial" value={formData.middle_initial} onChange={handleChange} maxLength={1} />
+                                    <input type="text" name="middle_initial" placeholder="Enter Employee's Middle Initial" value={formData.middle_initial} onChange={handleChange} maxLength={1} />
                                 </div>
                                 <div className="form-group">
                                     <label>Last Name:</label>
-                                    <input type="text" name="last_name" placeholder="Enter Last Name" value={formData.last_name} onChange={handleChange} required />
-                                </div>
-                            </div>
-                            <div className="form-row">
-                            <div className="form-group">
-                                    <label>Department Code:</label>
-                                    <input type="text" name="department_code" placeholder="Enter Department Code" value={formData.department_code} onChange={handleChange} required />
-                                </div>
-                                <div className="form-group">
-                                    <label>Section Code:</label>
-                                    <input type="text" name="section_code" placeholder="Enter Section Code" value={formData.section_code} onChange={handleChange} required />
+                                    <input type="text" name="last_name" placeholder="Enter Employee's Last Name" value={formData.last_name} onChange={handleChange} required />
                                 </div>
                             </div>
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Division Code:</label>
-                                    <input type="text" name="division_code" placeholder="Enter Division Code" value={formData.division_code} onChange={handleChange} required />
-                                    
+                                    <input type="text" name="division_code" placeholder="Enter Employee's Division Code"value={formData.division_code} onChange={handleChange} required />
                                 </div>
                                 <div className="form-group">
-                                    <label>Division / Department:</label>
-                                    <select name="division_department" value={formData.division_department} onChange={handleChange} required>
-                                        <option value="">Choose Division / Department</option>
-                                        <option value="HR">HR</option>
-                                        <option value="IT">IT</option>
-                                    </select>
+                                    <label>Department Code:</label>
+                                    <input type="text" name="department_code" placeholder="Enter Employee's Department Code"value={formData.department_code} onChange={handleChange} required />
+                                </div>
+                                <div className="form-group">
+                                    <label>Section Code:</label>
+                                    <input type="text" name="section_code" placeholder="Enter Employee's Section Code" value={formData.section_code} onChange={handleChange} required />
                                 </div>
                             </div>
-                            <div className="form-actions">
-                                <button type="submit" className="btn-submit">Save User</button>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Choose Division:</label>
+                                    <select name="division_department" value={formData.division_department} onChange={handleChange} required>
+                                        <option value="">Select Division</option>
+                                        {divisions.map((division) => (
+                                            <option key={division} value={division}>{division}</option>
+                                        ))}
+                                        <option value="new-division">Add New Division</option>
+                                    </select>
+
+                                    {isAddingNewDivision && (
+                                        <div>
+                                            <label>New Division:</label>
+                                            <input 
+                                                type="text" 
+                                                value={newDivision}
+                                                onChange={handleNewDivisionChange}
+                                                placeholder="Enter New Division"
+                                                required
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
+                            <button type="submit" className="save-btn">Save Device</button>
                         </form>
                     </div>
                 </div>
             </div>
-
-            {/* Error Modal */}
-            {errorMessage && (
-                <div className="error-modal-overlay">
-                    <div className="error-modal">
-                        <h3>Error</h3>
-                        <p>{errorMessage}</p>
-                        <button onClick={() => setErrorMessage(null)}>OK</button>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

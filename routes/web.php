@@ -146,6 +146,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory-user-management/list', [InventoryUserManagementController::class, 'list']);
     Route::get('/inventory-user-management/get/{id}', [InventoryUserManagementController::class, 'getEmployee']);
     Route::post('/inventory-user-management/save', [InventoryUserManagementController::class, 'store']);
+    Route::get('/inventory-user-management/divisions', [InventoryUserManagementController::class, 'getDivisions']);
 
     Route::put('/inventory-user-management/update/{id}', [InventoryUserManagementController::class, 'update']);
     Route::delete('/inventory-user-management/delete/{id}', [InventoryUserManagementController::class, 'delete']);

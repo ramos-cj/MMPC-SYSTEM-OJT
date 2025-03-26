@@ -57,7 +57,7 @@ public function assignDevice(Request $request)
         return response()->json(['error' => 'Invalid request'], 400);
     }
 
-    $employee = Employee::whereRaw("CONCAT(first_name, ' ', last_name) = ?", [$request->employee])->first();
+    $employee = Employee::find($request->employee_id);
 
     if (!$employee) {
         return response()->json(['error' => 'Employee not found'], 404);
@@ -77,6 +77,7 @@ public function assignDevice(Request $request)
 
     $assignment = DeviceAssignment::create([
         'employee_id' => $employee->id,
+        'employee_name' => $employee->first_name . ' ' . $employee->last_name, // Add this line to populate the column
         'device_id' => $device->id,
         'classification' => $device->classification,
         'brand_name' => $device->brand_name,
@@ -92,28 +93,34 @@ public function assignDevice(Request $request)
     return response()->json(['message' => 'Device assigned successfully!', 'assignedDevice' => $assignment]);
 }
 
-    public function transferDevice(Request $request)
+
+public function transferDevice(Request $request)
 {
+    if (!$request->ajax()) {
+        return response()->json(['error' => 'Invalid request'], 400);
+    }
+
     $assignment = DeviceAssignment::find($request->assignment_id);
 
     if (!$assignment) {
         return response()->json(['error' => 'Assignment not found'], 404);
     }
 
-    $newEmployee = Employee::whereRaw("CONCAT(first_name, ' ', last_name) = ?", [$request->new_assignee])->first();
+    $employee = Employee::find($request->new_assignee_id); // Fetch by ID instead of name
 
-    if (!$newEmployee) {
+    if (!$employee) {
         return response()->json(['error' => 'New assignee not found'], 404);
     }
 
     // Update the current assignment
     $assignment->previous_assignee = $assignment->employee->first_name . ' ' . $assignment->employee->last_name;
+    $assignment->employee_id = $employee->id;
     $assignment->transferred_date = $request->transferred_date;
-    $assignment->employee_id = $newEmployee->id;
     $assignment->save();
 
     return response()->json(['message' => 'Device transferred successfully!', 'updatedAssignment' => $assignment]);
 }
+
 public function deleteAssignment($id)
 {
     $assignment = DeviceAssignment::find($id);
