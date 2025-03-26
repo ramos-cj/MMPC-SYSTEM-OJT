@@ -125,6 +125,7 @@ const InventoryImportFiles = () => {
                 </div>
                 <div className="file-actions">
                     <div className="import-box">
+                    <h4>Choose files to import</h4>  
                         <input className="import-text"type="file" onChange={handleFileChange} />
                         <button onClick={handleImport} disabled={loading} className="import-btn">
                             {loading ? "Importing..." : <><FaUpload /> Import</>}
@@ -132,13 +133,8 @@ const InventoryImportFiles = () => {
                     </div>
 
                     <div className="export-box">
-                        <label>Choose files to export:</label>
-                        <div>
-                            <label><input type="checkbox" value="Employees" onChange={handleCheckboxChange} /> Employee</label>
-                            <label><input type="checkbox" value="Devices" onChange={handleCheckboxChange} /> Devices</label>
-                            <label><input type="checkbox" value="DeviceAssignments" onChange={handleCheckboxChange} /> Devices Assignment</label>
-                        </div>
-                    <label>Template Name</label>
+                    <h4>Template Name:</h4>   
+                    <div className="template-box">   
                     <input
                         type="text"
                         placeholder="Enter Template Name"
@@ -146,6 +142,17 @@ const InventoryImportFiles = () => {
                         onChange={(e) => setTemplateName(e.target.value)}
                         className="template-name-input"
                     />
+                    </div>
+                        <div className="export-box-list">
+                        <h5>Choose files to export:</h5>
+                        <div>
+                            <label><input type="checkbox" value="Employees" onChange={handleCheckboxChange} /> Employee</label>
+                            <label><input type="checkbox" value="Devices" onChange={handleCheckboxChange} /> Devices</label>
+                            <label><input type="checkbox" value="DeviceAssignments" onChange={handleCheckboxChange} /> Devices Assignment</label>
+                        </div>
+                        </div>
+            
+
                         <button onClick={handleExport} className="export-btn"><FaDownload /> Export</button>
                     </div>
                 </div>
