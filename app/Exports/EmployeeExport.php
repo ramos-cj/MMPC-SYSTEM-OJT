@@ -11,7 +11,7 @@ class EmployeeExport implements FromCollection, WithHeadings
     public function collection()
     {
         return Employee::select(
-            'employee_number', 'first_name', 'middle_initial', 'last_name',
+            'employee_number', 'first_name', 'middle_initial', 'last_name', 'employee_type',
             'division_department', 'position', 'section_code', 'division_code', 'department_code'
         )->get();
     }
@@ -21,7 +21,7 @@ class EmployeeExport implements FromCollection, WithHeadings
         return [
             ['Employees Data'],  // Title of the sheet
             [
-                'Employee Number', 'First Name', 'Middle Initial', 'Last Name', 
+                'Employee Number', 'First Name', 'Middle Initial', 'Last Name', 'Employee Type',
                 'Division / Department', 'Position', 'Section Code', 'Division Code', 'Department Code'
             ]
         ];

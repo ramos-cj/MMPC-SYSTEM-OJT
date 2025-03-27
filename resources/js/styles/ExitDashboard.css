@@ -1,0 +1,73 @@
+/* Charts Container - 2 Column Layout */
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 equal columns */
+    gap: 20px; /* Space between charts */
+    margin-top: 20px;
+    padding: 20px;
+}
+
+/* Styling for Bar Chart */
+.chart-box1 {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px; /* Fixed height */
+    border: 1px solid #ddd;
+}
+
+/* Styling for Pie Chart */
+.chart-box2 {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px; /* Fixed height */
+    border: 1px solid #ddd;
+}
+
+/* Ensure Charts Fit Properly */
+.chart-box1 canvas,
+.chart-box2 canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 300px;
+}
+
+/* Responsive Design - Stack in One Column for Small Screens */
+@media (max-width: 1024px) {
+    .charts-container {
+        grid-template-columns: 1fr; /* 1 column on smaller screens */
+    }
+}
+
+.charts-container .chart-box1 h3{
+
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid red;
+    width: 100%;
+}
+
+.charts-container .chart-box2 h3{
+
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid red;
+    width: 100%;
+}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Employee;
+use Illuminate\Support\Facades\DB;
 
 class InventoryUserManagementController extends Controller
 {
@@ -26,7 +27,8 @@ class InventoryUserManagementController extends Controller
                             'employees.section_code',
                             'devices.general_name',
                             'devices.model',
-                            'devices.computer_name'
+                            'devices.computer_name',
+                            DB::raw('IFNULL(employees.employee_type, "N/A") as employee_type')
                         )
                         ->orderBy('employees.id', 'asc')
                         ->get();
@@ -51,7 +53,8 @@ class InventoryUserManagementController extends Controller
             'division_code' => $employee->division_code,
             'department_code' => $employee->department_code,
             'section_code' => $employee->section_code,
-            'assigned_devices' => $deviceList
+            'assigned_devices' => $deviceList,
+            'employee_type' => $employee->employee_type // Ensure it's being returned
         ];
     })->values();
 
@@ -84,12 +87,18 @@ class InventoryUserManagementController extends Controller
         'section_code' => 'required|string',
         'division_code' => 'required|string',
         'department_code' => 'required|string',
+        'employee_type' => 'required|string',
     ]);
 
     $employee = Employee::create($request->all());
 
-    return response()->json(['message' => 'User registered successfully!', 'employee' => $employee]);
-}
+    return redirect()->route('inventory-userlist')->with([
+        'success' => true,
+        'message' => 'Employee saved successfully!',
+        'employee' => $employee
+    ]);
+    }
+
 
 
     // ✅ Update employee details
@@ -107,12 +116,14 @@ class InventoryUserManagementController extends Controller
         'section_code' => 'required|string',
         'division_code' => 'required|string',
         'department_code' => 'required|string',
+        'employee_type' => 'required|string',
     ]);
 
     $employee->update($request->all());
 
     return response()->json($employee);
 }
+
 
 // ✅ Delete employees
     public function delete($id)

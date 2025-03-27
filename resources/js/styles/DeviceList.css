@@ -56,7 +56,7 @@
     width: 100%;
     border-collapse: collapse;
     table-layout:initial;
-    word-break: break-word; /* Breaks long words to avoid overflow */
+    word-break: break-word;
 }
 
 /* Table Cells */

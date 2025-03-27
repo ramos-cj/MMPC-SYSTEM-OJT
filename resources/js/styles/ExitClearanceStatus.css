@@ -1,0 +1,118 @@
+.clearance-status-container {
+    display: flex;
+    height: 100vh;
+}
+
+.clearance-status-content{
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    margin: 0 20px;
+    margin-top: 100px;
+    overflow-x: auto;
+}
+
+.clearance-status-content h2{
+    font-size: 24px;
+    font-weight: bold;
+    border-bottom: 2px solid red;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+
+
+
+
+  .status-tabs {
+    display: flex;
+  }
+  
+  .status-tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+    background: none;
+    outline: none;
+    transition: all 0.3s;
+  }
+  
+  .status-tab.active {
+    border-bottom: 3px solid red;
+    color: red;
+  }
+  
+  .clearance-status-content::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .clearance-status-content::-webkit-scrollbar-thumb {
+    background-color: #d32f2f;
+    border-radius: 4px;
+  }
+  
+  .clearance-status-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .clearance-status-table-container th,
+  .clearance-status-table-container td {
+    padding: 12px;
+    text-align: center;
+    border: none;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 200px;
+  }
+  
+  .clearance-status-table-container th {
+    background-color: #d32f2f;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .clearance-status-table-container tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+  }
+  
+  .status-tabs {
+    display: flex;
+    align-items:flex-end;
+    overflow: hidden;
+
+  }
+  
+  .status-tabs button {
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    background: #ccc;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    height: 35px; /* Default height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 15%;
+  }
+  
+  .status-tabs button:first-child {
+    border-top-left-radius: 5px;
+ 
+  }
+  
+  .status-tabs button:last-child {
+    border-top-right-radius: 5px;
+ 
+  }
+  
+  .status-tabs button.active {
+    background-color: #d32f2f;
+    color: white;
+    height: 39.5px; /* Bigger height when active */
+    font-size: 15px;
+  }

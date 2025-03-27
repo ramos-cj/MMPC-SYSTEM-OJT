@@ -38,8 +38,9 @@ class YourImportClass implements OnEachRow, WithHeadingRow
                 ['employee_number' => $row['employee_number']],
                 [
                     'first_name' => $row['name'] ?? 'N/A',
-                    'middle_initial' => $row['mi'] ?? 'N/A',
+                    'middle_initial' => $row['mi'] ?? '-',
                     'last_name' => $row['surname'] ?? 'N/A',
+                    'employee_type' => $row['employee_type'] ?? 'N/A',
                     'division_department' => $row['division_department'] ?? 'N/A',
                     'position' => $row['position'] ?? 'N/A',
                     'section_code' => $row['section_code'] ?? 'N/A',

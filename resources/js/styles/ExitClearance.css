@@ -1,0 +1,108 @@
+/* Adjust layout container to push content down and align with sidebar */
+.exit-clearance-container {
+    display: flex;
+    height: 100vh;
+}
+
+.exit-clearance-content{
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    margin: 0 20px;
+    margin-top: 100px;
+    overflow-x: auto;
+}
+
+.exit-clearance-content h2{
+    font-size: 24px;
+    font-weight: bold;
+    border-bottom: 2px solid red;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+  
+  .exit-clearance-content::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .exit-clearance-content::-webkit-scrollbar-thumb {
+    background-color: #d32f2f;
+    border-radius: 4px;
+  }
+  
+  .exit-clearance-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .exit-clearance-table-container th,
+  .exit-clearance-table-container td {
+    padding: 12px;
+    text-align: center;
+    border: none;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 200px;
+  }
+  
+  .exit-clearance-table-container th {
+    background-color: #d32f2f;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .exit-clearance-table-container tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+  }
+  
+  .exit-clearance-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .edit-icon,
+  .delete-icon {
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+  }
+  
+  .edit-icon {
+    color: #ff9800;
+    width: 50px;
+    height: 30px;
+  }
+  
+  .delete-icon {
+    color: #f44336;
+    width: 50px;
+    height: 30px;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+  
+  .pagination button {
+    padding: 6px 12px;
+    margin: 0 3px;
+    border: none;
+    background: #fff;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .pagination button:hover {
+    background: #eee;
+  }
+  
+  .pagination .active {
+    background-color: #d32f2f;
+    color: white;
+  }

@@ -19,5 +19,6 @@ class Employee extends Model
         'section_code',
         'division_code',
         'department_code',
+        'employee_type',
     ];
 }

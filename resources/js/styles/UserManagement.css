@@ -81,6 +81,7 @@
     display: flex;
     justify-content: center;
     margin-top: 3%;
+
 }
 
 .btn-submit {
@@ -93,11 +94,16 @@
     cursor: pointer;
     width: 100%;
     max-width: 300px;
+    cursor: pointer;
 }
 
 .btn-submit:hover {
     background-color: #b71c1c;
     transform: scale(1.05); /* Slight zoom effect */
+}
+
+.new-division {
+    color: #b71c1c;
 }
 
 /* Responsive Design */

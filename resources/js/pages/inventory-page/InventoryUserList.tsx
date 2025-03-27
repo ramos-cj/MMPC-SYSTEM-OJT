@@ -18,6 +18,7 @@ interface Employee {
   section_code: string;
   assigned_devices: string[];
   computer_name?: string;
+  employee_type: string;
 }
 
 const InventoryUserList: React.FC = () => {
@@ -27,26 +28,39 @@ const InventoryUserList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedEmployeeType, setSelectedEmployeeType] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(15);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
 
+  const employeeTypes: string[] = [
+    "Regular Employee",
+    "Third-Party",
+    "Hourly Personnel",
+    "Japanese Executives"
+  ];
+
   // Fetch employees
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchUsersAndDivisions = async () => {
         try {
-            const response = await fetch("/inventory-user-management/list");
-            const data = await response.json();
-            setUsers(data);
+            const userResponse = await fetch("/inventory-user-management/list");
+            const userData = await userResponse.json();
+            setUsers(userData);
+
+            const divisionResponse = await fetch("/inventory-user-management/divisions");
+            const divisionData = await divisionResponse.json();
+            setDivisions(divisionData);
+
         } catch (error) {
-            console.error("Error fetching user data:", error);
+            console.error("Error fetching data:", error);
         }
     };
 
-    fetchUsers();
-}, []); // ✅ This will run ONLY when the component mounts
+    fetchUsersAndDivisions();
+  }, []);
 
 
   // Sorting function
@@ -63,9 +77,17 @@ const InventoryUserList: React.FC = () => {
       (user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.employee_number.includes(searchTerm)) &&
-      (selectedDivision ? user.division_department === selectedDivision : true) &&
-      (selectedDepartment ? user.department_code === selectedDepartment : true)
+        (selectedDivision === "" || user.division_department === selectedDivision) &&
+        (selectedEmployeeType === "" || user.employee_type === selectedEmployeeType)
   );
+
+  const getFullName = (user: Employee) => {
+    // Only show middle initial if it's not "N/A" or "-"
+    const middleInitial = user.middle_initial && user.middle_initial !== "N/A" && user.middle_initial !== "-" 
+      ? user.middle_initial + " " 
+      : "";
+    return `${user.first_name} ${middleInitial}${user.last_name}`;
+  }
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredUsers.length / entriesPerPage);
@@ -99,16 +121,27 @@ const InventoryUserList: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch employee details.");
 
         const employeeData = await response.json();
-        setEditEmployee({ 
-            ...employeeData, 
-            assigned_devices: employee.assigned_devices || [] // Keep assigned devices for display
-        }); // ✅ Now it correctly sets the employee's existing details
+
+        setEditEmployee({
+            employee_id: employee.employee_id,
+            employee_number: employeeData.employee_number,
+            first_name: employeeData.first_name,
+            middle_initial: employeeData.middle_initial,
+            last_name: employeeData.last_name,
+            employee_type: employeeData.employee_type || "N/A", // Default to N/A if null
+            position: employeeData.position,
+            division_department: employeeData.division_department,
+            division_code: employeeData.division_code,
+            department_code: employeeData.department_code,
+            section_code: employeeData.section_code,
+            assigned_devices: employee.assigned_devices || [] 
+        });
     } catch (error) {
         console.error("Error fetching employee details:", error);
         alert("Error fetching employee details.");
     }
 };
-  
+
 const handleSaveChanges = async () => {
   if (!editEmployee || !editEmployee.employee_id) {
       alert("Failed to find employee ID. Please try again.");
@@ -116,14 +149,15 @@ const handleSaveChanges = async () => {
   }
 
   try {
-      const response = await fetch(`/inventory-user-management/update/${editEmployee.employee_id}`, {
-          method: "PUT",
+      const response = await fetch(`/inventory-user-management/update/${editEmployee.employee_id}`, { 
+          method: "PUT", 
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
               employee_number: editEmployee.employee_number,
               first_name: editEmployee.first_name,
               middle_initial: editEmployee.middle_initial,
               last_name: editEmployee.last_name,
+              employee_type: editEmployee.employee_type === "N/A" ? null : editEmployee.employee_type, // Save as null if set to N/A
               position: editEmployee.position,
               division_department: editEmployee.division_department,
               division_code: editEmployee.division_code,
@@ -141,7 +175,6 @@ const handleSaveChanges = async () => {
       const updatedEmployee = await response.json();
       alert("Employee details updated successfully!");
 
-      // Update the users array with the edited employee
       setUsers(prevUsers => prevUsers.map(user => 
           user.employee_id === editEmployee.employee_id ? { ...user, ...editEmployee } : user
       ));
@@ -206,13 +239,19 @@ const handleDelete = async (id: number) => {
             <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
 
-          {/* Division Dropdown */}
           <select value={selectedDivision} onChange={(e) => setSelectedDivision(e.target.value)}>
-            <option value="">Filter by Division</option>
-            {divisions.map((div) => (
-              <option key={div} value={div}>{div}</option>
-            ))}
-          </select>
+              <option value="">All Divisions</option>
+              {divisions.map(division => (
+                <option key={division} value={division}>{division}</option>
+              ))}
+            </select>
+
+            <select value={selectedEmployeeType} onChange={(e) => setSelectedEmployeeType(e.target.value)}>
+              <option value="">All Employee Types</option>
+              {employeeTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
         </div>
 
         {/* Table */}
@@ -229,12 +268,11 @@ const handleDelete = async (id: number) => {
                   )}
                 </th>
                 <th>Employee Number</th>
-                <th>First Name</th>
-                <th>M.I</th>
-                <th>Last Name</th>
+                <th>Full Name</th>
+                <th>Employee Type</th>
                 <th>Division</th>
                 <th>Department</th>
-                <th>Assigned Device</th>
+                <th>Assigned Devices</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -243,9 +281,8 @@ const handleDelete = async (id: number) => {
     <tr key={user.employee_id}>
       <td>{(currentPage - 1) * entriesPerPage + index + 1}</td>
       <td className="clickable" onClick={() => handleEmployeeClick(user)}>{user.employee_number}</td>
-      <td>{user.first_name}</td>
-      <td>{user.middle_initial ?? "-"}</td>
-      <td>{user.last_name}</td>
+      <td className="clickable" onClick={() => handleEmployeeClick(user)}>{getFullName(user)}</td>
+      <td>{user.employee_type}</td>
       <td>{user.division_department}</td>
       <td>{user.position}</td>
       <td>
@@ -309,6 +346,8 @@ const handleDelete = async (id: number) => {
                     <input type="text" value={selectedEmployee.last_name} readOnly />
                     <label>Position:</label>
                     <input type="text" value={selectedEmployee.position} readOnly />
+                    <label>Employee Type</label>
+                <input type="text" value={selectedEmployee.employee_type} readOnly/>
                 </div>
 
                 <div className="column">
@@ -320,12 +359,7 @@ const handleDelete = async (id: number) => {
                     <input type="text" value={selectedEmployee.division_department} readOnly />
                     <label>Section Code:</label>
                     <input type="text" value={selectedEmployee.section_code} readOnly />
-                </div>
-            </div>
-
-            {/* Assigned Devices Section */}
-            <div className="assigned-devices">
-                <label>Assigned Devices:</label>
+                    <label>Assigned Devices:</label>
                 <div className="assigned-devices-input">{selectedEmployee.assigned_devices && selectedEmployee.assigned_devices.length > 0 ? (
                     <ul>
                         {selectedEmployee.assigned_devices.map((device, idx) => (
@@ -335,6 +369,7 @@ const handleDelete = async (id: number) => {
                 ) : (
                     <p>No Device Assigned</p>
                 )}
+                </div>
                 </div>
             </div>
         </div>
@@ -391,16 +426,19 @@ const handleDelete = async (id: number) => {
       </div>
 
       <div className="form-group1">
-        <label>Division/Department:</label>
-        <input
-          type="text"
-          value={editEmployee.division_department || ""}
-          onChange={(e) => setEditEmployee({ ...editEmployee, division_department: e.target.value })}
-        />
+      <label>Division:</label>
+            <select 
+              value={editEmployee.division_department} 
+              onChange={(e) => setEditEmployee({ ...editEmployee, division_department: e.target.value })}
+            >
+              {divisions.map(division => (
+                <option key={division} value={division}>{division}</option>
+              ))}
+            </select>
       </div>
 
       <div className="form-group2">
-        <label>Position:</label>
+        <label>Department:</label>
         <input
           type="text"
           value={editEmployee.position || ""}
@@ -426,13 +464,24 @@ const handleDelete = async (id: number) => {
         />
       </div>
 
-      <div className="form-group3">
+      <div className="form-group2">
         <label>Department Code:</label>
         <input
           type="text"
           value={editEmployee.department_code || ""}
           onChange={(e) => setEditEmployee({ ...editEmployee, department_code: e.target.value })}
         />
+      <div className="form-group2">
+        <label>Employee Type:</label>
+            <select 
+              value={editEmployee.employee_type} 
+              onChange={(e) => setEditEmployee({ ...editEmployee, employee_type: e.target.value })}
+            >
+              {employeeTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+            </div>
       </div>
     </>
   )}

@@ -3,6 +3,7 @@ import { router } from "@inertiajs/react";
 import SidebarInventory from "@/components/sidebar-inventory";
 import axios from "axios";
 import "@/styles/UserManagement.css";
+import "@/styles/UserList.css"
 
 export default function InventoryUserManagement() {
     const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ export default function InventoryUserManagement() {
         section_code: "",
         division_code: "",
         department_code: "",
+        employee_type: "",
     });
 
     const [divisions, setDivisions] = useState<string[]>([]);
@@ -125,6 +127,16 @@ export default function InventoryUserManagement() {
                                 </div>
                             </div>
                             <div className="form-row">
+                            <div className="form-group">
+                                    <label>Employee Type:</label> 
+                                    <select name="employee_type" value={formData.employee_type} onChange={handleChange} required>
+                                        <option value="">Select Employee Type</option>
+                                        <option value="Regular Employee">Regular Employee</option>
+                                        <option value="Third-Party">Third-Party</option>
+                                        <option value="Hourly Personnel">Hourly Personnel</option>
+                                        <option value="Japanese Executives">Japanese Executives</option>
+                                    </select>
+                                </div>
                                 <div className="form-group">
                                     <label>Choose Division:</label>
                                     <select name="division_department" value={formData.division_department} onChange={handleChange} required>
@@ -132,7 +144,7 @@ export default function InventoryUserManagement() {
                                         {divisions.map((division) => (
                                             <option key={division} value={division}>{division}</option>
                                         ))}
-                                        <option value="new-division">Add New Division</option>
+                                        <option value="new-division">* Add New Division *</option>
                                     </select>
 
                                     {isAddingNewDivision && (

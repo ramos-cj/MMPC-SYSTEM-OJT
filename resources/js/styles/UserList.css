@@ -86,17 +86,19 @@ text-align: left; /* Ensures text is aligned to the left */
 /* Table Structure */
 .userlist-table-container table {
   width: 100%;
-  border-collapse: collapse;
+    border-collapse: collapse;
+    table-layout:initial;
+    word-break: break-word;
 }
 
 .userlist-table-container th,
 .userlist-table-container td {
-  padding: 12px;
+  padding: 8px;
   text-align: center;
   border: none;
   white-space: normal; /* Allow text to wrap to the next line */
   word-break: break-word; /* Break long words to prevent overflow */
-  max-width: 200px; /* Limit the width of the cell to make text wrap */
+  max-width: 150px; /* Limit the width of the cell to make text wrap */
 }
 
 
@@ -114,7 +116,6 @@ text-align: left; /* Ensures text is aligned to the left */
 .userlist-actions {
   display: flex;
   justify-content: center;
-  gap: 10px;
 }
 
 .edit-icon,
@@ -345,6 +346,24 @@ text-align: left; /* Ensures text is aligned to the left */
 }
 
 .employee-details input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+}
+
+.form-group1 select {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+}
+
+.form-group2 select {
   width: 100%;
   padding: 6px;
   border: 1px solid #ccc;
