@@ -151,4 +151,6 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/inventory-user-management/update/{id}', [InventoryUserManagementController::class, 'update']);
     Route::delete('/inventory-user-management/delete/{id}', [InventoryUserManagementController::class, 'delete']);
 
+    Route::post('/exit-clearance/issue/{id}', [ExitClearanceController::class, 'issueExitClearance']);
+
 });

@@ -3,6 +3,7 @@ import mmpcLogo from '@/assets/mmpc-logo1.png';
 import { FaEdit, FaTrash, FaSearch, FaTimes, FaUsers } from "react-icons/fa";
 import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
 import SidebarExit from "@/components/sidebar-exitclearance";
+import { FcLeave } from "react-icons/fc";
 import "@/styles/userlist.css";
 
 interface Employee {
@@ -16,38 +17,91 @@ interface Employee {
   division_code: string;
   department_code: string;
   section_code: string;
-  assigned_devices: string[]; // Array of assigned device names
+  assigned_devices: string[];
   computer_name?: string;
+  employee_type: string;
 }
 
-const InventoryUserList: React.FC = () => {
+const ExitUserList: React.FC = () => {
   const [users, setUsers] = useState<Employee[]>([]);
   const [divisions, setDivisions] = useState<string[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedEmployeeType, setSelectedEmployeeType] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(15);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
+  const [issueExitClearanceEmployee, setIssueExitClearanceEmployee] = useState<Employee | null>(null);
+  const [showExitClearanceModal, setShowExitClearanceModal] = useState(false);
+  const [exitClearanceData, setExitClearanceData] = useState({
+    effectivity_date: "",
+    advise_of_hr: "",
+    wisedit_deactivation: "",
+    wiseda_exit_clearance: "",
+    immediate_superior: "",
+    remarks: ""
+  });
+  const employeeTypes: string[] = [
+    "Regular Employee",
+    "Third-Party",
+    "Hourly Personnel",
+    "Japanese Executives"
+  ];
 
   // Fetch employees
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchUsersAndDivisions = async () => {
         try {
-            const response = await fetch("/inventory-user-management/list");
-            const data = await response.json();
-            setUsers(data);
+            const userResponse = await fetch("/inventory-user-management/list");
+            const userData = await userResponse.json();
+            setUsers(userData);
+
+            const divisionResponse = await fetch("/inventory-user-management/divisions");
+            const divisionData = await divisionResponse.json();
+            setDivisions(divisionData);
+
         } catch (error) {
-            console.error("Error fetching user data:", error);
+            console.error("Error fetching data:", error);
         }
     };
 
-    fetchUsers();
-}, []); // ✅ This will run ONLY when the component mounts
+    fetchUsersAndDivisions();
+  }, []);
 
+  const handleIssueExitClearance = (employee: Employee) => {
+    setIssueExitClearanceEmployee(employee);  // Set this employee for issuing exit clearance
+    setShowExitClearanceModal(true);
+  };
+
+  const handleSaveExitClearance = async () => {
+    if (!issueExitClearanceEmployee) return;
+
+    try {
+      const response = await fetch(`/exit-clearance/issue/${issueExitClearanceEmployee.employee_id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(exitClearanceData)
+      });
+
+      if (!response.ok) throw new Error("Failed to issue exit clearance.");
+
+      alert("Exit clearance issued successfully!");
+      setShowExitClearanceModal(false);
+      setIssueExitClearanceEmployee(null);
+    } catch (error) {
+      console.error("Error issuing exit clearance:", error);
+      alert("Error issuing exit clearance.");
+    }
+  };
+
+  const closeExitClearanceModal = () => {
+    setShowExitClearanceModal(false);
+    setIssueExitClearanceEmployee(null);
+  };
 
   // Sorting function
   const sortedUsers = [...users].sort((a, b) => {
@@ -63,9 +117,17 @@ const InventoryUserList: React.FC = () => {
       (user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.employee_number.includes(searchTerm)) &&
-      (selectedDivision ? user.division_department === selectedDivision : true) &&
-      (selectedDepartment ? user.department_code === selectedDepartment : true)
+        (selectedDivision === "" || user.division_department === selectedDivision) &&
+        (selectedEmployeeType === "" || user.employee_type === selectedEmployeeType)
   );
+
+  const getFullName = (user: Employee) => {
+    // Only show middle initial if it's not "N/A" or "-"
+    const middleInitial = user.middle_initial && user.middle_initial !== "N/A" && user.middle_initial !== "-" 
+      ? user.middle_initial + " " 
+      : "";
+    return `${user.first_name} ${middleInitial}${user.last_name}`;
+  }
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredUsers.length / entriesPerPage);
@@ -99,35 +161,69 @@ const InventoryUserList: React.FC = () => {
         if (!response.ok) throw new Error("Failed to fetch employee details.");
 
         const employeeData = await response.json();
-        setEditEmployee(employeeData); // ✅ Now it correctly sets the employee's existing details
+
+        setEditEmployee({
+            employee_id: employee.employee_id,
+            employee_number: employeeData.employee_number,
+            first_name: employeeData.first_name,
+            middle_initial: employeeData.middle_initial,
+            last_name: employeeData.last_name,
+            employee_type: employeeData.employee_type || "N/A", // Default to N/A if null
+            position: employeeData.position,
+            division_department: employeeData.division_department,
+            division_code: employeeData.division_code,
+            department_code: employeeData.department_code,
+            section_code: employeeData.section_code,
+            assigned_devices: employee.assigned_devices || [] 
+        });
     } catch (error) {
         console.error("Error fetching employee details:", error);
         alert("Error fetching employee details.");
     }
 };
-  
-  const handleSaveChanges = async () => {
-    if (!editEmployee) return;
 
-    // ✅ Extract only necessary fields
-    const { employee_id, ...employeeData } = editEmployee;
+const handleSaveChanges = async () => {
+  if (!editEmployee || !editEmployee.employee_id) {
+      alert("Failed to find employee ID. Please try again.");
+      return;
+  }
 
-    try {
-        const response = await fetch(`/inventory-user-management/update/${employee_id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(employeeData),
-        });
+  try {
+      const response = await fetch(`/inventory-user-management/update/${editEmployee.employee_id}`, { 
+          method: "PUT", 
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+              employee_number: editEmployee.employee_number,
+              first_name: editEmployee.first_name,
+              middle_initial: editEmployee.middle_initial,
+              last_name: editEmployee.last_name,
+              employee_type: editEmployee.employee_type === "N/A" ? null : editEmployee.employee_type, // Save as null if set to N/A
+              position: editEmployee.position,
+              division_department: editEmployee.division_department,
+              division_code: editEmployee.division_code,
+              department_code: editEmployee.department_code,
+              section_code: editEmployee.section_code
+          }),
+      });
 
-        if (!response.ok) throw new Error("Failed to update employee.");
+      if (!response.ok) {
+          const errorMessage = await response.text();
+          console.error("Error updating employee:", errorMessage);
+          throw new Error("Failed to update employee.");
+      }
 
-        alert("Employee details updated successfully!"); // ✅ Simple alert instead of a pop-up
+      const updatedEmployee = await response.json();
+      alert("Employee details updated successfully!");
 
-        window.location.reload(); // ✅ Refresh to show updated data
-    } catch (error) {
-        console.error("Error updating employee:", error);
-        alert("Error updating employee."); // ✅ Alert for errors
-    }
+      setUsers(prevUsers => prevUsers.map(user => 
+          user.employee_id === editEmployee.employee_id ? { ...user, ...editEmployee } : user
+      ));
+
+      setEditEmployee(null); // Close the edit form
+  } catch (error) {
+      console.error("Error updating employee:", error);
+      alert("Error updating employee.");
+  }
 };
 
 
@@ -150,7 +246,6 @@ const handleDelete = async (id: number) => {
       alert("Error deleting employee."); // ✅ Alert for errors
   }
 };
-
   
   return (
     <div className={`inventory-userlist-container ${selectedEmployee ? "blurred" : ""}`}>
@@ -184,13 +279,19 @@ const handleDelete = async (id: number) => {
             <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
 
-          {/* Division Dropdown */}
           <select value={selectedDivision} onChange={(e) => setSelectedDivision(e.target.value)}>
-            <option value="">Filter by Division</option>
-            {divisions.map((div) => (
-              <option key={div} value={div}>{div}</option>
-            ))}
-          </select>
+              <option value="">All Divisions</option>
+              {divisions.map(division => (
+                <option key={division} value={division}>{division}</option>
+              ))}
+            </select>
+
+            <select value={selectedEmployeeType} onChange={(e) => setSelectedEmployeeType(e.target.value)}>
+              <option value="">All Employee Types</option>
+              {employeeTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
         </div>
 
         {/* Table */}
@@ -207,12 +308,11 @@ const handleDelete = async (id: number) => {
                   )}
                 </th>
                 <th>Employee Number</th>
-                <th>First Name</th>
-                <th>M.I</th>
-                <th>Last Name</th>
+                <th>Full Name</th>
+                <th>Employee Type</th>
                 <th>Division</th>
                 <th>Department</th>
-                <th>Assigned Device</th>
+                <th>Assigned Devices</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -221,11 +321,10 @@ const handleDelete = async (id: number) => {
     <tr key={user.employee_id}>
       <td>{(currentPage - 1) * entriesPerPage + index + 1}</td>
       <td className="clickable" onClick={() => handleEmployeeClick(user)}>{user.employee_number}</td>
-      <td>{user.first_name}</td>
-      <td>{user.middle_initial ?? "-"}</td>
-      <td>{user.last_name}</td>
+      <td className="clickable" onClick={() => handleEmployeeClick(user)}>{getFullName(user)}</td>
+      <td>{user.employee_type}</td>
       <td>{user.division_department}</td>
-      <td>{user.department_code}</td>
+      <td>{user.position}</td>
       <td>
         {user.assigned_devices && user.assigned_devices.length > 0 ? (
           user.assigned_devices.map((device: string, idx: number) => (
@@ -238,8 +337,10 @@ const handleDelete = async (id: number) => {
         )}
       </td>
       <td className="userlist-actions">
+        <FcLeave className="file-icon" onClick={() => handleIssueExitClearance(user)}/>
         <FaEdit className="edit-icon" onClick={() => handleEditClick(user)} />
         <FaTrash className="delete-icon" onClick={() => handleDelete(user.employee_id)} />
+
       </td>
     </tr>
   ))}
@@ -287,6 +388,8 @@ const handleDelete = async (id: number) => {
                     <input type="text" value={selectedEmployee.last_name} readOnly />
                     <label>Position:</label>
                     <input type="text" value={selectedEmployee.position} readOnly />
+                    <label>Employee Type</label>
+                <input type="text" value={selectedEmployee.employee_type} readOnly/>
                 </div>
 
                 <div className="column">
@@ -298,12 +401,7 @@ const handleDelete = async (id: number) => {
                     <input type="text" value={selectedEmployee.division_department} readOnly />
                     <label>Section Code:</label>
                     <input type="text" value={selectedEmployee.section_code} readOnly />
-                </div>
-            </div>
-
-            {/* Assigned Devices Section */}
-            <div className="assigned-devices">
-                <label>Assigned Devices:</label>
+                    <label>Assigned Devices:</label>
                 <div className="assigned-devices-input">{selectedEmployee.assigned_devices && selectedEmployee.assigned_devices.length > 0 ? (
                     <ul>
                         {selectedEmployee.assigned_devices.map((device, idx) => (
@@ -313,6 +411,7 @@ const handleDelete = async (id: number) => {
                 ) : (
                     <p>No Device Assigned</p>
                 )}
+                </div>
                 </div>
             </div>
         </div>
@@ -369,16 +468,19 @@ const handleDelete = async (id: number) => {
       </div>
 
       <div className="form-group1">
-        <label>Division/Department:</label>
-        <input
-          type="text"
-          value={editEmployee.division_department || ""}
-          onChange={(e) => setEditEmployee({ ...editEmployee, division_department: e.target.value })}
-        />
+      <label>Division:</label>
+            <select 
+              value={editEmployee.division_department} 
+              onChange={(e) => setEditEmployee({ ...editEmployee, division_department: e.target.value })}
+            >
+              {divisions.map(division => (
+                <option key={division} value={division}>{division}</option>
+              ))}
+            </select>
       </div>
 
       <div className="form-group2">
-        <label>Position:</label>
+        <label>Department:</label>
         <input
           type="text"
           value={editEmployee.position || ""}
@@ -404,13 +506,24 @@ const handleDelete = async (id: number) => {
         />
       </div>
 
-      <div className="form-group3">
+      <div className="form-group2">
         <label>Department Code:</label>
         <input
           type="text"
           value={editEmployee.department_code || ""}
           onChange={(e) => setEditEmployee({ ...editEmployee, department_code: e.target.value })}
         />
+      <div className="form-group2">
+        <label>Employee Type:</label>
+            <select 
+              value={editEmployee.employee_type} 
+              onChange={(e) => setEditEmployee({ ...editEmployee, employee_type: e.target.value })}
+            >
+              {employeeTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+            </div>
       </div>
     </>
   )}
@@ -421,8 +534,79 @@ const handleDelete = async (id: number) => {
     </div>
   </div>
 )}
+
+{/* Issue Exit Clearance Modal */}
+{showExitClearanceModal && issueExitClearanceEmployee && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+              <h2>Issue Exit Clearance</h2>
+              <FaTimes className="close-icon" onClick={closeExitClearanceModal} />
+            </div>
+            <div>
+              {/* Profile Picture & Name */}
+            <div className="profile-section">
+                <FaUsers className="user-icon" />
+                <p className="employee-name">{issueExitClearanceEmployee.first_name} {issueExitClearanceEmployee.middle_initial ?? ""} {issueExitClearanceEmployee.last_name}</p>
+            </div>
+            {/* Employee Details (2 Columns) */}
+            <div className="employee-details">
+                <div className="column">
+                    <label>Division/Department:</label>
+                    <input type="text" value={issueExitClearanceEmployee.division_department} readOnly />
+                    <label>Position:</label>
+                    <input type="text" value={issueExitClearanceEmployee.position} readOnly />
+                    <label>Employee Type</label>
+                    <input type="text" value={issueExitClearanceEmployee.employee_type} readOnly/>
+                    <label>Effectivity Date:</label>
+              <input type="date" value={exitClearanceData.effectivity_date}
+                onChange={(e) => setExitClearanceData({ ...exitClearanceData, effectivity_date: e.target.value })} />
+
+              <label>Advise of HR:</label>
+              <input type="date" value={exitClearanceData.advise_of_hr}
+                onChange={(e) => setExitClearanceData({ ...exitClearanceData, advise_of_hr: e.target.value })} />
+
+              <label>Wisedit - Deactivation of User Accounts:</label>
+              <input type="text" placeholder="Enter Wisedit - Deactivation of User Accounts" value={exitClearanceData.wisedit_deactivation}
+                onChange={(e) => setExitClearanceData({ ...exitClearanceData, wisedit_deactivation: e.target.value })} />
+                </div>
+
+                <div className="column">
+                    <label>Division Code:</label>
+                    <input type="text" value={issueExitClearanceEmployee.division_code} readOnly />
+                    <label>Department Code:</label>
+                    <input type="text" value={issueExitClearanceEmployee.department_code} readOnly />
+                    <label>Section Code:</label>
+                    <input type="text" value={issueExitClearanceEmployee.section_code} readOnly />
+                    <label>Assigned Devices:</label>
+                <div className="assigned-devices-input">{issueExitClearanceEmployee.assigned_devices && issueExitClearanceEmployee.assigned_devices.length > 0 ? (
+                    <ul>
+                        {issueExitClearanceEmployee.assigned_devices.map((device, idx) => (
+                            <li key={idx}>{device}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No Device Assigned</p>
+                )}
+                </div>
+                <label>Wiseda - Exit Clearance:</label>
+              <input type="text" placeholder="Enter Wiseda - Exit Clearance" value={exitClearanceData.wiseda_exit_clearance}
+                onChange={(e) => setExitClearanceData({ ...exitClearanceData, wiseda_exit_clearance: e.target.value })} />
+
+              <label>Remarks:</label>
+              <textarea placeholder="Enter Remarks" value={exitClearanceData.remarks}
+                onChange={(e) => setExitClearanceData({ ...exitClearanceData, remarks: e.target.value })} />
+
+                </div>
+            </div>
+              <button className="save-button" onClick={handleSaveExitClearance}>Save & Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default InventoryUserList;
+export default ExitUserList;
