@@ -6,22 +6,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::create('issued_e_clearances', function (Blueprint $table) {
+        Schema::create('issued_eclearance', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('employee_id');
+            $table->string('employee_number');
+            $table->string('first_name');
+            $table->string('middle_initial')->nullable();
+            $table->string('last_name');
+            $table->string('position');
+            $table->string('division_department');
+            $table->string('division_code');
+            $table->string('department_code');
+            $table->string('section_code');
+            $table->string('employee_type');
+            $table->date('effectivity_date');
+            $table->string('advise_of_hr');
+            $table->string('wisedit_deactivation');
+            $table->string('wiseda_exit_clearance');
+            $table->text('remarks')->nullable();
             $table->timestamps();
+
+            $table->foreign('employee_id')->references('employee_id')->on('employees')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('issued_e_clearances');
+        Schema::dropIfExists('issued_eclearance');
     }
 };
