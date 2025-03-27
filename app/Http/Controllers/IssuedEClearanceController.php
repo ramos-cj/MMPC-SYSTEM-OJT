@@ -6,7 +6,7 @@ use App\Models\IssuedEClearance;
 use App\Models\Employee; // Import your Employee model if needed
 use Illuminate\Http\Request;
 
-class ExitClearanceController extends Controller
+class IssuedEClearanceController extends Controller
 {
     public function issueExitClearance(Request $request, $id)
     {
