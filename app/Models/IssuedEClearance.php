@@ -28,5 +28,6 @@ class IssuedEClearance extends Model
         'wisedit_deactivation',
         'wiseda_exit_clearance',
         'remarks'
-    ];
+    ];    
+    
 }

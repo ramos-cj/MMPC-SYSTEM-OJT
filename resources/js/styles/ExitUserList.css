@@ -1,3 +1,4 @@
+
 /* Adjust layout container to push content down */
 .inventory-userlist-container {
   display: flex;
@@ -254,22 +255,24 @@ text-align: left; /* Ensures text is aligned to the left */
   align-items: center;
   justify-content: center;
   z-index: 999;
+  margin-left: 2%;
 }
 
 /* Modal Content */
-.modal-content {
+.clearance-modal-content {
   background: white;
   padding: 20px;
-  width: 600px;
+  width: 1000px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
   position: relative;
   margin-top: 5%;
+  height: 87.5%;
 }
 
 /* Modal Header */
-.modal-header {
+.exit-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -277,9 +280,9 @@ text-align: left; /* Ensures text is aligned to the left */
   border-bottom: 2px solid #d32f2f;
 }
 
-.modal-header h2{
+.exit-modal-header h2{
   position: absolute;
-  margin-left: 150px;
+  margin-left: 350px;
   font-size: 25px;
 
 }
@@ -298,32 +301,47 @@ text-align: left; /* Ensures text is aligned to the left */
 }
 
 /* Close Button */
-.close-icon {
+.exit-close-icon {
   font-size: 20px;
   cursor: pointer;
   color: red;
-  margin-right: 5%;
-  margin-top: 3%;
+  margin-right: 3%;
+  
 }
-
-/* Profile Section */
-.profile-section {
-  margin-top: 10px;
-}
-
-.user-icon {
-  font-size: 40px;
+/* Close Button */
+.edit-close-icon {
+  font-size: 20px;
+  cursor: pointer;
   color: red;
-  margin-bottom: 5px;
-  margin-left: 230px;
-  width: 50px;
-  height: 50px;
+  margin-right: 3%;
+  
 }
 
-.employee-name {
+.exit-profile-section {
+  display: flex;
+  flex-direction: column; /* Stacks items vertically */
+  align-items: center; /* Centers items horizontally */
+  justify-content: center; /* Centers content */
+  text-align: center; /* Ensures text is centered */
+  margin-bottom: 20px; /* Adds spacing below */
+}
+
+.exit-user-icon {
+  font-size: 50px !important; /* Ensures the icon is large */
+  color: red !important; /* Makes the icon red */
+  border-radius: 50% !important; /* Makes it circular */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 80px !important;
+  height: 80px !important;
+}
+
+.exit-employee-name {
   font-weight: bold;
   font-size: 18px;
 }
+
 
 /* Employee Details (2 Columns) */
 .employee-details {
@@ -404,7 +422,7 @@ text-align: left; /* Ensures text is aligned to the left */
   color: white;
 }
 
-.save-button {
+.exit-save-button {
   grid-column: span 2; /* Make button span both columns */
     background-color:#d32f2f;
     color: white;
@@ -414,7 +432,6 @@ text-align: left; /* Ensures text is aligned to the left */
     cursor: pointer;
     font-weight: bold;
     width: 30%;
-    margin-top: 20px;
 }
 
 .save-button:hover {
@@ -469,4 +486,56 @@ text-align: left; /* Ensures text is aligned to the left */
   border-radius: 4px;
   font-size: 14px;
   background-color: #f9f9f9;
+}
+.exit-clearance-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.exit-profile-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exit-employee-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+  gap: 1rem;
+}
+
+.exit-column-one, .exit-column-two, .exit-column-three {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.exit-user-icon {
+  font-size: 24px;
+  color: #333;
+}
+
+.exit-employee-name {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.exit-assigned-devices {
+  background: #f9f9f9;
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.exit-employee-details label {
+  display: block; /* Makes sure label is on its own line */
+  text-align: left; /* Aligns text to the left */
+  font-weight: bold; /* Optional: Makes labels stand out */
+  margin-bottom: 5px; /* Adds spacing below labels */
 }

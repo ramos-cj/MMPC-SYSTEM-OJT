@@ -9,6 +9,10 @@ class Employee extends Model
 {
     use HasFactory;
 
+    protected $table = 'employees';
+
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'employee_number',
         'first_name',
@@ -19,6 +23,6 @@ class Employee extends Model
         'section_code',
         'division_code',
         'department_code',
-        'employee_type',
+        'employee_type'
     ];
 }

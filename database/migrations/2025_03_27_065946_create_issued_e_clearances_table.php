@@ -21,10 +21,10 @@ return new class extends Migration
             $table->string('department_code');
             $table->string('section_code');
             $table->string('employee_type');
-            $table->date('effectivity_date');
-            $table->string('advise_of_hr');
-            $table->string('wisedit_deactivation');
-            $table->string('wiseda_exit_clearance');
+            $table->date('effectivity_date')->nullable();
+            $table->string('advise_of_hr')->nullable();
+            $table->string('wisedit_deactivation')->nullable();
+            $table->string('wiseda_exit_clearance')->nullable();
             $table->text('remarks')->nullable();
             $table->timestamps();
 

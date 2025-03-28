@@ -24,7 +24,7 @@
 
   
   .exit-clearance-content::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
   
   .exit-clearance-content::-webkit-scrollbar-thumb {
@@ -39,7 +39,7 @@
   
   .exit-clearance-table-container th,
   .exit-clearance-table-container td {
-    padding: 12px;
+    padding: 6px;
     text-align: center;
     border: none;
     white-space: normal;

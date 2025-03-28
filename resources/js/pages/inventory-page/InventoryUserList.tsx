@@ -4,6 +4,8 @@ import { FaEdit, FaTrash, FaSearch, FaTimes, FaUsers } from "react-icons/fa";
 import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
 import SidebarInventory from "@/components/sidebar-inventory";
 import "@/styles/userlist.css";
+import "@/styles/ExitUserList.css";
+
 
 interface Employee {
   employee_id: number;
@@ -471,6 +473,7 @@ const handleDelete = async (id: number) => {
           value={editEmployee.department_code || ""}
           onChange={(e) => setEditEmployee({ ...editEmployee, department_code: e.target.value })}
         />
+        </div>
       <div className="form-group2">
         <label>Employee Type:</label>
             <select 
@@ -482,7 +485,6 @@ const handleDelete = async (id: number) => {
               ))}
             </select>
             </div>
-      </div>
     </>
   )}
 </div>

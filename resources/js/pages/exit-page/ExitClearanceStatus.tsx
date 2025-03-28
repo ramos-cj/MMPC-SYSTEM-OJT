@@ -65,7 +65,7 @@ const ClearanceStatus: React.FC = () => {
       <h2>Exit Clearance List</h2>
 
       <div className="status-tabs">
-          <button className={activeTab === 'pending' ? 'active' : ''} onClick={() => setActiveTab('pending')}>Pending</button>
+          <button className={activeTab === 'pending' ? 'active' : ''} onClick={() => setActiveTab('pending')}>For Deletion</button>
           <button className={activeTab === 'completed' ? 'active' : ''} onClick={() => setActiveTab('completed')}>Completed</button>
         </div>
         <div className="filter-container">

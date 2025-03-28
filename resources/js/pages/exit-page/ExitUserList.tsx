@@ -5,6 +5,7 @@ import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
 import SidebarExit from "@/components/sidebar-exitclearance";
 import { FcLeave } from "react-icons/fc";
 import "@/styles/userlist.css";
+import "@/styles/ExitUserList.css"
 
 interface Employee {
   employee_id: number;
@@ -25,10 +26,8 @@ interface Employee {
 const ExitUserList: React.FC = () => {
   const [users, setUsers] = useState<Employee[]>([]);
   const [divisions, setDivisions] = useState<string[]>([]);
-  const [departments, setDepartments] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDivision, setSelectedDivision] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedEmployeeType, setSelectedEmployeeType] = useState("");
   const [entriesPerPage, setEntriesPerPage] = useState(15);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -37,14 +36,18 @@ const ExitUserList: React.FC = () => {
   const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
   const [issueExitClearanceEmployee, setIssueExitClearanceEmployee] = useState<Employee | null>(null);
   const [showExitClearanceModal, setShowExitClearanceModal] = useState(false);
-  const [exitClearanceData, setExitClearanceData] = useState({
-    effectivity_date: "",
-    advise_of_hr: "",
-    wisedit_deactivation: "",
-    wiseda_exit_clearance: "",
-    immediate_superior: "",
-    remarks: ""
-  });
+  const [exitClearanceData, setExitClearanceData] = useState<{
+    effectivity_date: string | null;
+    advise_of_hr: string | null;
+    wisedit_deactivation: string | null;
+    remarks: string | null;
+}>({
+    effectivity_date: null,
+    advise_of_hr: null,
+    wisedit_deactivation: null,
+    remarks: null
+});
+
   const employeeTypes: string[] = [
     "Regular Employee",
     "Third-Party",
@@ -73,35 +76,65 @@ const ExitUserList: React.FC = () => {
   }, []);
 
   const handleIssueExitClearance = (employee: Employee) => {
-    setIssueExitClearanceEmployee(employee);  // Set this employee for issuing exit clearance
+    setSelectedEmployee(null); // Ensure employee info modal is closed
+    setIssueExitClearanceEmployee(employee);
     setShowExitClearanceModal(true);
-  };
+};
 
-  const handleSaveExitClearance = async () => {
-    if (!issueExitClearanceEmployee) return;
+const handleSaveExitClearance = async () => {
+  if (!issueExitClearanceEmployee) return;
 
-    try {
-      const response = await fetch(`/exit-clearance/issue/${issueExitClearanceEmployee.employee_id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(exitClearanceData)
-      });
+  try {
+    const response = await fetch(`/exit-clearance/issue/${issueExitClearanceEmployee.employee_id}`, {  // Use employee_id here
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        employee_id: issueExitClearanceEmployee.employee_id,  // Make sure this is included
+        employee_number: issueExitClearanceEmployee.employee_number,
+        first_name: issueExitClearanceEmployee.first_name,
+        middle_initial: issueExitClearanceEmployee.middle_initial,
+        last_name: issueExitClearanceEmployee.last_name,
+        position: issueExitClearanceEmployee.position,
+        division_department: issueExitClearanceEmployee.division_department,
+        division_code: issueExitClearanceEmployee.division_code,
+        department_code: issueExitClearanceEmployee.department_code,
+        section_code: issueExitClearanceEmployee.section_code,
+        employee_type: issueExitClearanceEmployee.employee_type,
+        effectivity_date: exitClearanceData.effectivity_date || null,
+        advise_of_hr: exitClearanceData.advise_of_hr || null,
+        wisedit_deactivation: exitClearanceData.wisedit_deactivation || null,
 
-      if (!response.ok) throw new Error("Failed to issue exit clearance.");
+        remarks: exitClearanceData.remarks || null
+      })
+    });
 
-      alert("Exit clearance issued successfully!");
-      setShowExitClearanceModal(false);
-      setIssueExitClearanceEmployee(null);
-    } catch (error) {
-      console.error("Error issuing exit clearance:", error);
-      alert("Error issuing exit clearance.");
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      console.error("Server Error:", errorResponse);
+      throw new Error("Failed to issue exit clearance.");
     }
-  };
+
+    alert("Exit clearance issued successfully!");
+    setShowExitClearanceModal(false);
+    setIssueExitClearanceEmployee(null);
+  } catch (error) {
+    console.error("Error issuing exit clearance:", error);
+    alert("Error issuing exit clearance.");
+  }
+};
+
 
   const closeExitClearanceModal = () => {
     setShowExitClearanceModal(false);
     setIssueExitClearanceEmployee(null);
-  };
+    setExitClearanceData({
+      effectivity_date: "",
+      advise_of_hr: "",
+      wisedit_deactivation: "",
+      remarks: ""
+    });
+};
+
 
   // Sorting function
   const sortedUsers = [...users].sort((a, b) => {
@@ -425,7 +458,7 @@ const handleDelete = async (id: number) => {
       <div className="modal-header">
         <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
         <h3>Edit Profile</h3>
-        <FaTimes className="close-icon" onClick={() => setEditEmployee(null)} />
+        <FaTimes className="edit-close-icon" onClick={() => setEditEmployee(null)} />
       </div>
 
       <div className="modal-form">
@@ -513,6 +546,7 @@ const handleDelete = async (id: number) => {
           value={editEmployee.department_code || ""}
           onChange={(e) => setEditEmployee({ ...editEmployee, department_code: e.target.value })}
         />
+         </div>
       <div className="form-group2">
         <label>Employee Type:</label>
             <select 
@@ -524,7 +558,6 @@ const handleDelete = async (id: number) => {
               ))}
             </select>
             </div>
-      </div>
     </>
   )}
 </div>
@@ -538,21 +571,23 @@ const handleDelete = async (id: number) => {
 {/* Issue Exit Clearance Modal */}
 {showExitClearanceModal && issueExitClearanceEmployee && (
         <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
+          <div className="clearance-modal-content">
+            <div className="exit-modal-header">
               <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
               <h2>Issue Exit Clearance</h2>
-              <FaTimes className="close-icon" onClick={closeExitClearanceModal} />
+              <FaTimes className="exit-close-icon" onClick={closeExitClearanceModal} />
             </div>
             <div>
+
+            <div className="exit-clearance-wrapper">
               {/* Profile Picture & Name */}
-            <div className="profile-section">
-                <FaUsers className="user-icon" />
-                <p className="employee-name">{issueExitClearanceEmployee.first_name} {issueExitClearanceEmployee.middle_initial ?? ""} {issueExitClearanceEmployee.last_name}</p>
+            <div className="exit-profile-section">
+                <FaUsers className="exit-user-icon" />
+                <p className="exit-employee-name">{issueExitClearanceEmployee.first_name} {issueExitClearanceEmployee.middle_initial ?? ""} {issueExitClearanceEmployee.last_name}</p>
             </div>
             {/* Employee Details (2 Columns) */}
-            <div className="employee-details">
-                <div className="column">
+            <div className="exit-employee-details">
+                <div className="exit-column-one">
                     <label>Division/Department:</label>
                     <input type="text" value={issueExitClearanceEmployee.division_department} readOnly />
                     <label>Position:</label>
@@ -560,19 +595,17 @@ const handleDelete = async (id: number) => {
                     <label>Employee Type</label>
                     <input type="text" value={issueExitClearanceEmployee.employee_type} readOnly/>
                     <label>Effectivity Date:</label>
-              <input type="date" value={exitClearanceData.effectivity_date}
-                onChange={(e) => setExitClearanceData({ ...exitClearanceData, effectivity_date: e.target.value })} />
-
-              <label>Advise of HR:</label>
-              <input type="date" value={exitClearanceData.advise_of_hr}
-                onChange={(e) => setExitClearanceData({ ...exitClearanceData, advise_of_hr: e.target.value })} />
-
-              <label>Wisedit - Deactivation of User Accounts:</label>
-              <input type="text" placeholder="Enter Wisedit - Deactivation of User Accounts" value={exitClearanceData.wisedit_deactivation}
-                onChange={(e) => setExitClearanceData({ ...exitClearanceData, wisedit_deactivation: e.target.value })} />
+<input 
+    type="date" 
+    value={exitClearanceData.effectivity_date || ""}
+    onChange={(e) => setExitClearanceData({ 
+        ...exitClearanceData, 
+        effectivity_date: e.target.value || null 
+    })} 
+/>
                 </div>
 
-                <div className="column">
+                <div className="exit-column-two">
                     <label>Division Code:</label>
                     <input type="text" value={issueExitClearanceEmployee.division_code} readOnly />
                     <label>Department Code:</label>
@@ -589,19 +622,52 @@ const handleDelete = async (id: number) => {
                 ) : (
                     <p>No Device Assigned</p>
                 )}
-                </div>
-                <label>Wiseda - Exit Clearance:</label>
-              <input type="text" placeholder="Enter Wiseda - Exit Clearance" value={exitClearanceData.wiseda_exit_clearance}
-                onChange={(e) => setExitClearanceData({ ...exitClearanceData, wiseda_exit_clearance: e.target.value })} />
+                 </div>
+                 </div>
 
+                 <div className="exit-column-three">
+                 <label>Advise of HR:</label>
+<input 
+    type="date" 
+    value={exitClearanceData.advise_of_hr || ""}
+    onChange={(e) => setExitClearanceData({ 
+        ...exitClearanceData, 
+        advise_of_hr: e.target.value || null 
+    })} 
+/>
+<label>Wisedit - Deactivation of User Accounts:</label>
+<input 
+    type="text" 
+    placeholder="Enter Wisedit - Deactivation of User Accounts URL (e.g., https://example.com)"
+    value={exitClearanceData.wisedit_deactivation || ""}
+    onChange={(e) => setExitClearanceData({ 
+        ...exitClearanceData, 
+        wisedit_deactivation: e.target.value.trim() || null 
+    })}
+    style={{ width: '100%' }}
+    onDoubleClick={() => {
+        const url = exitClearanceData.wisedit_deactivation?.trim();
+        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    }}
+/>
               <label>Remarks:</label>
-              <textarea placeholder="Enter Remarks" value={exitClearanceData.remarks}
-                onChange={(e) => setExitClearanceData({ ...exitClearanceData, remarks: e.target.value })} />
-
+<textarea 
+    placeholder="Enter Remarks"
+    value={exitClearanceData.remarks || ""}
+    onChange={(e) => setExitClearanceData({ 
+        ...exitClearanceData, 
+        remarks: e.target.value.trim() || null 
+    })} 
+/>
                 </div>
             </div>
-              <button className="save-button" onClick={handleSaveExitClearance}>Save & Close</button>
             </div>
+
+              <button className="exit-save-button" onClick={handleSaveExitClearance}>Save & Close</button>
+            </div>
+            
           </div>
         </div>
       )}

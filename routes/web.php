@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\InventoryAuthController;
 use App\Http\Controllers\Auth\ExitClearanceAuthController;
+use App\Http\Controllers\ExitClearanceController;
 use App\Http\Controllers\InventoryDashboardController;
 use App\Http\Controllers\InventoryDeviceManagementController;
 use App\Http\Controllers\InventoryUserManagementController;
@@ -152,5 +153,6 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/inventory-user-management/delete/{id}', [InventoryUserManagementController::class, 'delete']);
 
     Route::post('/exit-clearance/issue/{id}', [ExitClearanceController::class, 'issueExitClearance']);
+    Route::get('/exit-clearance/list', [ExitClearanceController::class, 'listIssuedClearances']);
 
 });

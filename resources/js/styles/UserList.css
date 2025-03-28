@@ -1,3 +1,5 @@
+
+
 /* Adjust layout container to push content down */
 .inventory-userlist-container {
   display: flex;
@@ -476,4 +478,12 @@ text-align: left; /* Ensures text is aligned to the left */
   border-radius: 4px;
   font-size: 14px;
   background-color: #f9f9f9;
+}
+
+.exit-assigned-devices{
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #ffffff;
 }

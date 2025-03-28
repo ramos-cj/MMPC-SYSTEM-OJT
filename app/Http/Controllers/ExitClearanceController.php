@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\IssuedEClearance;
+use App\Models\Employee; // Import your Employee model if needed
+use Illuminate\Http\Request;
+
+class ExitClearanceController extends Controller
+{
+    public function issueExitClearance(Request $request, $id)
+{
+    $employee = Employee::where('id', $id)->first();
+
+    if (!$employee) {
+        return response()->json(['message' => 'Employee not found.'], 404);
+    }
+
+    // Validate incoming request
+    $validatedData = $request->validate([
+        'effectivity_date' => 'nullable|date',
+        'advise_of_hr' => 'nullable|date',
+        'wisedit_deactivation' => 'nullable|string',
+        'remarks' => 'nullable|string'
+    ]);
+
+    try {
+        // Save the exit clearance to the database
+        $exitClearance = IssuedEClearance::create([
+            'employee_id' => $employee->id,
+            'employee_number' => $employee->employee_number,
+            'first_name' => $employee->first_name,
+            'middle_initial' => $employee->middle_initial,
+            'last_name' => $employee->last_name,
+            'position' => $employee->position,
+            'division_department' => $employee->division_department,
+            'division_code' => $employee->division_code,
+            'department_code' => $employee->department_code,
+            'section_code' => $employee->section_code,
+            'employee_type' => $employee->employee_type,
+            'effectivity_date' => $validatedData['effectivity_date'] ?? null,
+            'advise_of_hr' => $validatedData['advise_of_hr'] ?? null,
+            'wisedit_deactivation' => $validatedData['wisedit_deactivation'] ?? null,
+            'remarks' => $validatedData['remarks'] ?? null,
+        ]);        
+        
+        return response()->json(['message' => 'Exit clearance issued successfully!', 'data' => $exitClearance], 200);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'An error occurred while saving exit clearance.', 'error' => $e->getMessage()], 500);
+    }
+}
+
+public function listIssuedClearances()
+{
+    try {
+        $issuedClearances = \App\Models\IssuedEClearance::all();
+
+        return response()->json($issuedClearances, 200);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error fetching issued clearances.', 'error' => $e->getMessage()], 500);
+    }
+}
+
+public function getDivisions()
+{
+    $divisions = Employee::distinct()->pluck('division_department');
+    return response()->json($divisions);
+}
+}    
