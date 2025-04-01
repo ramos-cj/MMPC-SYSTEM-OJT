@@ -36,10 +36,10 @@
     width: 100%;
     border-collapse: collapse;
   }
-  
+
   .exit-clearance-table-container th,
   .exit-clearance-table-container td {
-    padding: 6px;
+    padding: 4px;
     text-align: center;
     border: none;
     white-space: normal;

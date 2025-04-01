@@ -60,6 +60,75 @@ public function listIssuedClearances()
         return response()->json(['message' => 'Error fetching issued clearances.', 'error' => $e->getMessage()], 500);
     }
 }
+public function updateWisedaLink(Request $request, $id)
+{
+    $validated = $request->validate([
+        'wiseda_exit_clearance' => 'nullable|string'
+    ]);
+
+    try {
+        $clearance = IssuedEClearance::findOrFail($id);
+        $clearance->wiseda_exit_clearance = $validated['wiseda_exit_clearance'];
+        $clearance->save();
+
+        return response()->json($clearance);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to update'], 500);
+    }
+}
+
+public function deleteIssuedClearance($id)
+{
+    try {
+        $clearance = IssuedEClearance::findOrFail($id);
+        $clearance->delete();
+
+        return response()->json(['message' => 'Exit clearance deleted successfully.']);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Failed to delete exit clearance.', 'error' => $e->getMessage()], 500);
+    }
+}
+
+public function listClearanceStatus(Request $request)
+{
+    $status = $request->query('status');
+
+    if ($status === 'pending') {
+        $employees = IssuedEClearance::whereNotNull('wiseda_exit_clearance')
+            ->get()
+            ->map(function ($emp) {
+                return [
+                    'user_id' => $emp->id,
+                    'employee_number' => $emp->employee_number,
+                    'employee_name' => "{$emp->first_name} {$emp->middle_initial} {$emp->last_name}",
+                    'division_department' => $emp->division_department,
+                    'position' => $emp->position,
+                    'effectivity_date' => $emp->effectivity_date,
+                    'advise_of_hr' => $emp->advise_of_hr,
+                    'wisedit_deactivation' => $emp->wisedit_deactivation,
+                    'wiseda_exit_clearance' => $emp->wiseda_exit_clearance
+                ];
+            });
+
+        return response()->json($employees);
+    }
+
+    // Add logic for 'completed' if needed
+}
+
+public function markAsApproved($id)
+{
+    try {
+        $clearance = IssuedEClearance::findOrFail($id);
+        $clearance->remarks = 'Approved';
+        $clearance->save();
+
+        return response()->json(['message' => 'Marked as approved successfully.']);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Failed to mark as approved.', 'error' => $e->getMessage()], 500);
+    }
+}
+
 
 public function getDivisions()
 {

@@ -154,5 +154,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/exit-clearance/issue/{id}', [ExitClearanceController::class, 'issueExitClearance']);
     Route::get('/exit-clearance/list', [ExitClearanceController::class, 'listIssuedClearances']);
+    Route::put('/exit-clearance/update-wiseda/{id}', [ExitClearanceController::class, 'updateWisedaLink']);
+    Route::delete('/exit-clearance/delete/{id}', [ExitClearanceController::class, 'deleteIssuedClearance']);
+    Route::get('/clearance-status/list', [ExitClearanceController::class, 'listClearanceStatus']);
+    Route::put('/clearance-status/approve/{id}', [ExitClearanceController::class, 'markAsApproved']);
 
 });

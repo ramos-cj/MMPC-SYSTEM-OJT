@@ -41,6 +41,10 @@ const ExitClearance: React.FC = () => {
   const [entriesPerPage, setEntriesPerPage] = useState(15);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>("asc");
+  const [selectedEmployeeForUpdate, setSelectedEmployeeForUpdate] = useState<Employee | null>(null);
+  const [wisedaLink, setWisedaLink] = useState<string>("");
+  const [showWisedaModal, setShowWisedaModal] = useState(false);
+
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -73,12 +77,13 @@ const ExitClearance: React.FC = () => {
 
   const filteredEmployees = sortedEmployees.filter(
     (employee) =>
+      (!employee.wiseda_exit_clearance || employee.wiseda_exit_clearance.trim() === "") && 
       (employee.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.employee_number.includes(searchTerm)) &&
       (selectedDivision === "" || employee.division_department === selectedDivision) &&
       (selectedEmployeeType === "" || employee.employee_type === selectedEmployeeType)
-  );
+  );  
 
   const totalPages = Math.ceil(filteredEmployees.length / entriesPerPage);
   const paginatedEmployees = filteredEmployees.slice(
@@ -96,6 +101,61 @@ const ExitClearance: React.FC = () => {
     }
   };
 
+  const handleWisedaClick = (employee: Employee) => {
+    setSelectedEmployeeForUpdate(employee);
+    setWisedaLink(employee.wiseda_exit_clearance || ""); // preload if available
+    setShowWisedaModal(true);
+  };  
+
+  const handleSaveWisedaLink = async () => {
+    if (!selectedEmployeeForUpdate) return;
+  
+    try {
+      const response = await fetch(`/exit-clearance/update-wiseda/${selectedEmployeeForUpdate.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wiseda_exit_clearance: wisedaLink || null }),
+      });
+  
+      if (!response.ok) throw new Error("Failed to update WISEDA link");
+  
+      alert("Wiseda link updated successfully!");
+      setShowWisedaModal(false);
+      setSelectedEmployeeForUpdate(null);
+      setWisedaLink("");
+  
+      // Refresh data
+      const updated = await response.json();
+      setEmployees(prev => prev.map(emp => 
+        emp.id === updated.id ? { ...emp, wiseda_exit_clearance: updated.wiseda_exit_clearance } : emp
+      ));
+    } catch (error) {
+      alert("Error updating wiseda_exit_clearance");
+      console.error(error);
+    }
+  };  
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Are you sure you want to delete this employee's exit clearance record?")) return;
+  
+    try {
+      const response = await fetch(`/exit-clearance/delete/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      if (!response.ok) throw new Error("Failed to delete employee.");
+  
+      // Remove the employee from state without reloading
+      setEmployees(prev => prev.filter(emp => emp.id !== id));
+  
+      alert("Exit clearance deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting exit clearance:", error);
+      alert("Error deleting exit clearance.");
+    }
+  };
+  
   return (
     <div className="exit-clearance-container">
       <SidebarExit />
@@ -164,8 +224,7 @@ const ExitClearance: React.FC = () => {
                 <th>Position</th>
                 <th>Effectivity Date</th>
                 <th>Advise of HR</th>
-                <th>WISESDIT - Deactivation of User Accunts</th>
-                <th>Remarks</th>
+                <th>WISESDIT</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -199,10 +258,13 @@ const ExitClearance: React.FC = () => {
             "No Link Provided"
           )}
         </td>
-        <td>{employee.remarks}</td>
         <td className="userlist-actions">
-          <FcLeave className="file-icon" />
-          <FaTrash className="delete-icon" />
+        <FaEdit
+  className="edit-icon"
+  title="Update WISEDA"
+  onClick={() => handleWisedaClick(employee)}
+/>
+          <FaTrash className="delete-icon" onClick={() => handleDelete(employee.id)} />
         </td>
       </tr>
     );
@@ -226,6 +288,31 @@ const ExitClearance: React.FC = () => {
           ))}
           <button disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)}>Next</button>
         </div>
+
+
+        {showWisedaModal && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h3>Update WISEDA - Exit Clearance</h3>
+      <label>Choose or input a link:</label>
+      <input
+        type="text"
+        placeholder="https://example.com/..."
+        value={wisedaLink}
+        onChange={(e) => setWisedaLink(e.target.value.trim())}
+        style={{ width: "100%", marginBottom: "10px" }}
+      />
+
+      <button onClick={() => setWisedaLink("Clearance Document")}>Employee's Document Cleared</button>
+
+      <div style={{ marginTop: "15px" }}>
+        <button onClick={handleSaveWisedaLink}>Save</button>
+        <button onClick={() => setShowWisedaModal(false)} style={{ marginLeft: "10px" }}>Cancel</button>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );
