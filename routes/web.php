@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Auth\InventoryAuthController;
 use App\Http\Controllers\Auth\ExitClearanceAuthController;
+use App\Http\Controllers\ClearanceStatusController;
 use App\Http\Controllers\ExitClearanceController;
+use App\Http\Controllers\ExitClearanceDashboardController;
 use App\Http\Controllers\InventoryDashboardController;
 use App\Http\Controllers\InventoryDeviceManagementController;
 use App\Http\Controllers\InventoryUserManagementController;
@@ -56,8 +58,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory-user-management/list', [InventoryUserManagementController::class, 'list']);
     Route::get('/inventory-user-management/get/{id}', [InventoryUserManagementController::class, 'getEmployee']);
     Route::post('/inventory-user-management/save', [InventoryUserManagementController::class, 'store']);
+    Route::match(['PUT', 'POST'], '/inventory-user-management/update/{id}', [InventoryUserManagementController::class, 'update']);
 
-    Route::put('/inventory-user-management/update/{id}', [InventoryUserManagementController::class, 'update']);
     Route::delete('/inventory-user-management/delete/{id}', [InventoryUserManagementController::class, 'delete']);
 
 
@@ -156,7 +158,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/exit-clearance/list', [ExitClearanceController::class, 'listIssuedClearances']);
     Route::put('/exit-clearance/update-wiseda/{id}', [ExitClearanceController::class, 'updateWisedaLink']);
     Route::delete('/exit-clearance/delete/{id}', [ExitClearanceController::class, 'deleteIssuedClearance']);
-    Route::get('/clearance-status/list', [ExitClearanceController::class, 'listClearanceStatus']);
-    Route::put('/clearance-status/approve/{id}', [ExitClearanceController::class, 'markAsApproved']);
-
+    Route::get('/clearance-status/list', [ClearanceStatusController::class, 'index']);
+    Route::put('/clearance-status/approve/{id}', [ClearanceStatusController::class, 'approve']);
+    Route::get('/exit-dashboard/stats', [ExitClearanceDashboardController::class, 'stats']);
 });

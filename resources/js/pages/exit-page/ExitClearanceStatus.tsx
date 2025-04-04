@@ -3,7 +3,8 @@ import SidebarExit from '@/components/sidebar-exitclearance';
 import '@/styles/ExitClearanceStatus.css';
 import '@/styles/userlist.css';
 import { FaSearch } from 'react-icons/fa';
-import { MdArrowDropUp, MdArrowDropDown } from 'react-icons/md';
+import ForDeletionTable from './ForDeletionTable';
+import CompletedTable from './CompletedTable';
 
 interface Employee {
   user_id: number;
@@ -36,23 +37,23 @@ const ClearanceStatus: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [activeTab, setActiveTab] = useState<'pending' | 'completed'>('pending');
 
+  // 🚀 Fetch data immediately when tab changes
   useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const response = await fetch(`/clearance-status/list?status=${activeTab}`);
-        const data = await response.json();
-        setEmployees(data);
-
-        // Get unique divisions from the fetched data
-        const uniqueDivisions = Array.from(new Set(data.map((emp: Employee) => emp.division_department)));
-        setDivisions(uniqueDivisions as string[]);  // Ensure TypeScript knows this is an array of strings
-  
-      } catch (error) {
-        console.error('Error fetching employee data:', error);
-      }
-    };
-    fetchEmployees();
+    fetchEmployees(activeTab);
   }, [activeTab]);
+
+  const fetchEmployees = async (tab: 'pending' | 'completed') => {
+    try {
+      const res = await fetch(`/clearance-status/list?status=${tab}`);
+      const data = await res.json();
+      setEmployees(data);
+
+      const uniqueDivisions = Array.from(new Set(data.map((emp: Employee) => emp.division_department)));
+      setDivisions(uniqueDivisions as string[]);  // Ensure TypeScript knows this is an array of strings
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    }
+  };
 
   const sortedEmployees = [...employees].sort((a, b) => {
     return sortOrder === 'asc'
@@ -68,8 +69,11 @@ const ClearanceStatus: React.FC = () => {
         (selectedEmployeeType === "" || employee.employee_type === selectedEmployeeType)
   );
 
-  const totalPages = Math.ceil(filteredEmployees.length / entriesPerPage);
-  const paginatedEmployees = filteredEmployees.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
+  const filteredByTab = filteredEmployees;
+
+const totalPages = Math.ceil(filteredByTab.length / entriesPerPage);
+const paginatedEmployees = filteredByTab.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
+
 
   const handleSort = () => {
     setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
@@ -138,98 +142,17 @@ const ClearanceStatus: React.FC = () => {
 
 
         <div className="clearance-status-table-container">
-          <table>
-            <thead>
-              <tr>
-                <th onClick={handleSort} className="sortable-header">
-                  User ID {sortOrder === 'asc' ? <MdArrowDropUp /> : <MdArrowDropDown />}
-                </th>
-                <th>Employee Number</th>
-                <th>Employee Name</th>
-                <th>Department</th>
-                <th>Division</th>
-                <th>Effectivity Date</th>
-                <th>Advise of HR</th>
-                <th>WISESDIT</th>
-                <th>WISEDA</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-  {paginatedEmployees.map((employee) => {
-    const value = (employee as any).wiseda_exit_clearance;
-    const isLink = value?.startsWith("http://") || value?.startsWith("https://");
-    const displayText = isLink ? `WISESDIT-${value?.slice(-5)}` : value;
-    const lastFive = employee.wisedit_deactivation
-      ? employee.wisedit_deactivation.slice(-5)
-      : "";
-
-    // For Deletion tab (must have wiseda value)
-    if (activeTab === 'pending') {
-      if (!value || value.trim() === "") return null;
-
-      return (
-        <tr key={employee.user_id}>
-          <td>{employee.user_id}</td>
-          <td>{employee.employee_number}</td>
-          <td>{employee.employee_name}</td>
-          <td>{employee.division_department}</td>
-          <td>{employee.position}</td>
-          <td>{employee.effectivity_date}</td>
-          <td>{employee.advise_of_hr}</td>
-          <td>{employee.wisedit_deactivation ? (
-            <a
-              href={employee.wisedit_deactivation}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "blue", textDecoration: "underline" }}
-            >
-              WISEDIT-{lastFive}
-            </a>
-          ) : (
-            "No Link Provided"
-          )}</td>
-          <td>
-  {isLink ? (
-    <a href={value} target="_blank" rel="noopener noreferrer" style={{ color: 'blue', textDecoration: 'underline' }}>
-      {displayText}
-    </a>
+  {activeTab === 'pending' ? (
+    <ForDeletionTable
+      data={paginatedEmployees}
+      sortOrder={sortOrder}
+      handleSort={handleSort}
+      handleConfirmDeletion={handleConfirmDeletion}
+    />
   ) : (
-    <span className="completed-status">{displayText}</span>
+    <CompletedTable data={paginatedEmployees} />
   )}
-</td>
-<td>
-  <button
-    style={{ padding: '5px 10px', backgroundColor: '#43a047', color: 'white', border: 'none', borderRadius: '4px' }}
-    onClick={() => handleConfirmDeletion(employee.user_id)}
-  >
-    Confirm Deletion
-  </button>
-</td>
-        </tr>
-      );
-    }
-
-    // Completed tab (remarks must be 'Approved')
-    if (activeTab === 'completed' && employee.remarks === 'Approved') {
-      return (
-        <tr key={employee.user_id}>
-          <td>{employee.user_id}</td>
-          <td>{employee.employee_number}</td>
-          <td>{employee.employee_name}</td>
-          <td>{employee.division_department}</td>
-          <td>{employee.position}</td>
-          <td><span className="completed-status">Approved</span></td>
-        </tr>
-      );
-    }
-
-    return null;
-  })}
-</tbody>
-
-          </table>
-        </div>
+</div>
 
         <div className="pagination">
           <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Previous</button>

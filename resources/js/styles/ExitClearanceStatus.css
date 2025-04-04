@@ -21,10 +21,6 @@
     padding-bottom: 10px;
 }
 
-
-
-
-
   .status-tabs {
     display: flex;
   }
@@ -57,25 +53,36 @@
     width: 100%;
     border-collapse: collapse;
   }
+
+  .clearance-status-table-container table thead th{
+    height: 70px;
+  }
   
   .clearance-status-table-container th,
   .clearance-status-table-container td {
-    padding: 6px;
+    padding-left: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     text-align: center;
     border: none;
-    white-space: normal;
-    word-break: break-word;
-    max-width: 200px;
+    white-space: normal; /* Allow text to wrap to the next line */
+    word-break: break-word; /* Break long words to prevent overflow */
+    max-width: 110px;
+    
   }
   
   .clearance-status-table-container th {
-    background-color: #d32f2f;
-    color: white;
-    font-weight: bold;
+    background-color: #d32f2f; /* Red background for headers */
+    color: white; /* White text color */
+    font-weight: bold; /* Make header text bold */
   }
   
-  .clearance-status-table-container tbody tr:nth-child(even) {
-    background-color: #f8f8f8;
+  .clearance-status-table-container tr:nth-child(even) {
+    background-color: #f8f8f8; /* Light grey background for even rows */
+  }
+  
+  .clearance-status-table-container tr:nth-child(odd) {
+    background-color: white; /* White background for odd rows */
   }
   
   .status-tabs {

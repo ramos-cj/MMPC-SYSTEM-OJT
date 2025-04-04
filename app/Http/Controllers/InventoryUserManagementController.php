@@ -119,7 +119,10 @@ class InventoryUserManagementController extends Controller
         'employee_type' => 'required|string',
     ]);
 
-    $employee->update($request->all());
+    $employee->update(array_merge($request->all(), [
+        'employee_type' => $request->employee_type ?? 'N/A',
+    ]));
+    
 
     return response()->json($employee);
 }

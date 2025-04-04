@@ -48,12 +48,14 @@ const ExitUserList: React.FC = () => {
     remarks: null
 });
 
-  const employeeTypes: string[] = [
-    "Regular Employee",
-    "Third-Party",
-    "Hourly Personnel",
-    "Japanese Executives"
-  ];
+const employeeTypes: string[] = [
+  "Regular Employee",
+  "Third-Party",
+  "Hourly Personnel",
+  "Japanese Executives",
+  "N/A"
+];
+
 
   // Fetch employees
   useEffect(() => {
@@ -123,7 +125,6 @@ const handleSaveExitClearance = async () => {
   }
 };
 
-
   const closeExitClearanceModal = () => {
     setShowExitClearanceModal(false);
     setIssueExitClearanceEmployee(null);
@@ -155,12 +156,16 @@ const handleSaveExitClearance = async () => {
   );
 
   const getFullName = (user: Employee) => {
-    // Only show middle initial if it's not "N/A" or "-"
-    const middleInitial = user.middle_initial && user.middle_initial !== "N/A" && user.middle_initial !== "-" 
-      ? user.middle_initial + " " 
-      : "";
+    const middleInitial =
+      user.middle_initial &&
+      user.middle_initial !== "N/A" &&
+      user.middle_initial !== "-" &&
+      user.middle_initial.trim() !== ""
+        ? `${user.middle_initial.replace(".", "")}. `
+        : "";
     return `${user.first_name} ${middleInitial}${user.last_name}`;
-  }
+  };
+  
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredUsers.length / entriesPerPage);
@@ -190,75 +195,76 @@ const handleSaveExitClearance = async () => {
 
   const handleEditClick = async (employee: Employee) => {
     try {
-        const response = await fetch(`/inventory-user-management/get/${employee.employee_id}`);
-        if (!response.ok) throw new Error("Failed to fetch employee details.");
-
-        const employeeData = await response.json();
-
-        setEditEmployee({
-            employee_id: employee.employee_id,
-            employee_number: employeeData.employee_number,
-            first_name: employeeData.first_name,
-            middle_initial: employeeData.middle_initial,
-            last_name: employeeData.last_name,
-            employee_type: employeeData.employee_type || "N/A", // Default to N/A if null
-            position: employeeData.position,
-            division_department: employeeData.division_department,
-            division_code: employeeData.division_code,
-            department_code: employeeData.department_code,
-            section_code: employeeData.section_code,
-            assigned_devices: employee.assigned_devices || [] 
-        });
+      const response = await fetch(`/inventory-user-management/get/${employee.employee_id}`);
+      if (!response.ok) throw new Error("Failed to fetch employee details.");
+  
+      const employeeData = await response.json();
+  
+      // Remove the dot if middle_initial has one
+      const cleanedMiddleInitial = employeeData.middle_initial?.replace(".", "") || "";
+  
+      setEditEmployee({
+        employee_id: employee.employee_id,
+        employee_number: employeeData.employee_number,
+        first_name: employeeData.first_name,
+        middle_initial: cleanedMiddleInitial, // ✅ no dot
+        last_name: employeeData.last_name,
+        employee_type: employeeData.employee_type || "N/A",
+        position: employeeData.position,
+        division_department: employeeData.division_department,
+        division_code: employeeData.division_code,
+        department_code: employeeData.department_code,
+        section_code: employeeData.section_code,
+        assigned_devices: employee.assigned_devices || []
+      });
     } catch (error) {
-        console.error("Error fetching employee details:", error);
-        alert("Error fetching employee details.");
+      console.error("Error fetching employee details:", error);
+      alert("Error fetching employee details.");
     }
-};
+  };  
 
 const handleSaveChanges = async () => {
   if (!editEmployee || !editEmployee.employee_id) {
-      alert("Failed to find employee ID. Please try again.");
-      return;
+    alert("Failed to find employee ID. Please try again.");
+    return;
   }
 
   try {
-      const response = await fetch(`/inventory-user-management/update/${editEmployee.employee_id}`, { 
-          method: "PUT", 
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-              employee_number: editEmployee.employee_number,
-              first_name: editEmployee.first_name,
-              middle_initial: editEmployee.middle_initial,
-              last_name: editEmployee.last_name,
-              employee_type: editEmployee.employee_type === "N/A" ? null : editEmployee.employee_type, // Save as null if set to N/A
-              position: editEmployee.position,
-              division_department: editEmployee.division_department,
-              division_code: editEmployee.division_code,
-              department_code: editEmployee.department_code,
-              section_code: editEmployee.section_code
-          }),
-      });
+    const response = await fetch(`/inventory-user-management/update/${editEmployee.employee_id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        employee_number: editEmployee.employee_number,
+        first_name: editEmployee.first_name,
+        middle_initial: editEmployee.middle_initial,
+        last_name: editEmployee.last_name,
+        employee_type: editEmployee.employee_type || "N/A", // ✅ Always send as string
+        position: editEmployee.position,
+        division_department: editEmployee.division_department,
+        division_code: editEmployee.division_code,
+        department_code: editEmployee.department_code,
+        section_code: editEmployee.section_code,
+      }),
+    });
 
-      if (!response.ok) {
-          const errorMessage = await response.text();
-          console.error("Error updating employee:", errorMessage);
-          throw new Error("Failed to update employee.");
-      }
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Failed to update employee.");
+    }
 
-      const updatedEmployee = await response.json();
-      alert("Employee details updated successfully!");
+    alert("Employee details updated successfully!");
 
-      setUsers(prevUsers => prevUsers.map(user => 
-          user.employee_id === editEmployee.employee_id ? { ...user, ...editEmployee } : user
-      ));
+    const refreshed = await fetch("/inventory-user-management/list");
+    const updatedUsers = await refreshed.json();
+    setUsers(updatedUsers);
 
-      setEditEmployee(null); // Close the edit form
+    setEditEmployee(null); // Close modal
+
   } catch (error) {
-      console.error("Error updating employee:", error);
-      alert("Error updating employee.");
+    console.error("Error updating employee:", error);
+    alert("Error updating employee.");
   }
 };
-
 
 const handleDelete = async (id: number) => {
   if (!window.confirm("Are you sure you want to delete this employee?")) return;
@@ -561,8 +567,6 @@ const handleDelete = async (id: number) => {
     </>
   )}
 </div>
-
-
       <button className="save-button" onClick={handleSaveChanges}>Save & Close</button>
     </div>
   </div>

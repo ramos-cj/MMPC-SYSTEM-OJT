@@ -106,3 +106,108 @@
     background-color: #d32f2f;
     color: white;
   }
+  .exit-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #d32f2f;
+}
+
+.exit-modal-header h3 {
+  position: absolute;
+  margin-left: 95px;
+  font-size: 25px;
+}
+
+.input-label {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+  margin-top: 3%;
+  
+}
+
+.input-field {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.save-button {
+  background-color: #d32f2f;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  width: 30%;
+}
+
+.save-button:hover {
+  background: #b71c1c;
+  transform: scale(1.05);
+}
+
+.cancel-button {
+  background-color: gray;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  width: 30%;
+}
+
+.cancel-button:hover {
+  background: #444;
+}
+
+.exit-close-icon {
+  font-size: 20px;
+  cursor: pointer;
+  color: red;
+  margin-right: 5%;
+
+}
+.employee-docu{
+  cursor: pointer;
+  margin-top: 3%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 160px;
+  width: 100%;  /* Ensures it spans full width */
+  font-size: 14px;
+  background-color: #f9f9f9;
+  outline: none;
+  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+ 
+}
+
+.styled-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 160px;
+  width: 100%;  /* Ensures it spans full width */
+  font-size: 14px;
+  background-color: #f9f9f9;
+  outline: none;
+  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+

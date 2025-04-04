@@ -10,10 +10,6 @@ import "chart.js/auto";
 import "@/styles/ExitDashboard.css";
 import "@/styles/inventoryDashboard.css";
 
-
-
-
-
 const ExitDashboard: React.FC = () => {
     const [stats, setStats] = useState({
         totalEmployees: 0,
@@ -78,22 +74,31 @@ const ExitDashboard: React.FC = () => {
                         <div className="chart-box1">
                             <h3>Monthly Clearance</h3>
                             <Bar
-                                data={{
-                                    labels: stats.clearanceData.map((item) => item.month),
-                                    datasets: [
-                                        {
-                                            label: "Pending",
-                                            backgroundColor: "#007bff",
-                                            data: stats.clearanceData.map((item) => item.pending),
-                                        },
-                                        {
-                                            label: "Completed",
-                                            backgroundColor: "#28a745",
-                                            data: stats.clearanceData.map((item) => item.completed),
-                                        },
-                                    ],
-                                }}
-                            />
+  data={{
+    labels: stats.clearanceData?.map((item) => item.month) || [],
+    datasets: [
+      {
+        label: "Pending",
+        backgroundColor: "#007bff",
+        data: stats.clearanceData?.map((item) => item.pending) || [],
+      },
+      {
+        label: "Completed",
+        backgroundColor: "#28a745",
+        data: stats.clearanceData?.map((item) => item.completed) || [],
+      },
+    ],
+  }}
+  options={{
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+    },
+  }}
+/>
+
                         </div>
 
                         
@@ -101,16 +106,25 @@ const ExitDashboard: React.FC = () => {
                         <div className="chart-box2">
                             <h3>Departmental Employees</h3>
                             <Pie
-                                data={{
-                                    labels: stats.departmentData.map((item) => item.department),
-                                    datasets: [
-                                        {
-                                            data: stats.departmentData.map((item) => item.count),
-                                            backgroundColor: ["#f39c12", "#e74c3c", "#3498db", "#2ecc71"],
-                                        },
-                                    ],
-                                }}
-                            />
+  data={{
+    labels: stats.departmentData?.map((item) => item.department) || [],
+    datasets: [
+      {
+        data: stats.departmentData?.map((item) => item.count) || [],
+        backgroundColor: ["#f39c12", "#e74c3c", "#3498db", "#2ecc71"],
+      },
+    ],
+  }}
+  options={{
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "right",
+      },
+    },
+  }}
+/>
+
                         </div>
                     </div>
                 </div>

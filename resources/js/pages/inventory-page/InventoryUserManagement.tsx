@@ -161,7 +161,7 @@ export default function InventoryUserManagement() {
                                     )}
                                 </div>
                             </div>
-                            <button type="submit" className="save-btn">Save Device</button>
+                            <button type="submit" className="save-btn">Save Employee</button>
                         </form>
                     </div>
                 </div>

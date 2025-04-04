@@ -99,9 +99,12 @@ text-align: left; /* Ensures text is aligned to the left */
   border: none;
   white-space: normal; /* Allow text to wrap to the next line */
   word-break: break-word; /* Break long words to prevent overflow */
-  max-width: 150px; /* Limit the width of the cell to make text wrap */
+  max-width: 120px; /* Limit the width of the cell to make text wrap */
 }
 
+.userlist-table-container table thead th{
+  height: 70px;
+}
 
 .userlist-table-container th {
   background-color: #d32f2f;
@@ -224,6 +227,18 @@ text-align: left; /* Ensures text is aligned to the left */
   color: white;
 }
 
+.cancel-button {
+  background-color: #999;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background-color: #777;
+}
 
 
 /* Responsive Design */

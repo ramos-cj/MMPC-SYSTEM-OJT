@@ -41,8 +41,6 @@
   background-color: #f0f0f0; /* Optional: Change track background */
 }
 
-
-
 /* Filters */
 .repair-filter-container {
   display: flex;
@@ -84,9 +82,16 @@
 
 .repair-table-container th,
 .repair-table-container td {
-  padding: 12px;
+  padding: 8px;
   text-align: center;
   border: none;
+  white-space: normal; /* Allow text to wrap to the next line */
+  word-break: break-word; /* Break long words to prevent overflow */
+  max-width: 120px; /* Limit the width of the cell to make text wrap */
+}
+
+.repair-table-container table thead th{
+  height: 70px;
 }
 
 .repair-table-container th {

@@ -5,6 +5,7 @@ import "@/styles/userlist.css";
 import { FaSearch, FaEdit, FaTimes, FaTrash } from "react-icons/fa";
 import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
 import { FcLeave } from 'react-icons/fc';
+import mmpcLogo from '@/assets/mmpc-logo1.png';
 
 interface Employee {
   id: number;
@@ -211,7 +212,7 @@ const ExitClearance: React.FC = () => {
         </div>
 
         {/* Table */}
-        <div className="exit-clearance-table-container">
+        <div className="userlist-table-container">
           <table>
             <thead>
               <tr style={{ backgroundColor: "#c62828", color: "white" }}>
@@ -291,26 +292,38 @@ const ExitClearance: React.FC = () => {
 
 
         {showWisedaModal && (
-  <div className="modal-overlay">
+          <div className="modal-overlay">
     <div className="modal-content">
-      <h3>Update WISEDA - Exit Clearance</h3>
-      <label>Choose or input a link:</label>
-      <input
-        type="text"
-        placeholder="https://example.com/..."
-        value={wisedaLink}
-        onChange={(e) => setWisedaLink(e.target.value.trim())}
-        style={{ width: "100%", marginBottom: "10px" }}
-      />
+        {/* Header */}
+        <div className="exit-modal-header">
+            <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+            <h3>Update WISEDA - Exit Clearance</h3>
+            <FaTimes className="exit-close-icon" onClick={() => setShowWisedaModal(false)} />
+        </div>
 
-      <button onClick={() => setWisedaLink("Clearance Document")}>Employee's Document Cleared</button>
+        {/* Body */}
+        <label className="input-label">Choose or input a link:</label>
+        <input
+            type="text"
+            placeholder="https://example.com/..."
+            value={wisedaLink}
+            onChange={(e) => setWisedaLink(e.target.value.trim())}
+            className="styled-input"
+        />
 
-      <div style={{ marginTop: "15px" }}>
-        <button onClick={handleSaveWisedaLink}>Save</button>
-        <button onClick={() => setShowWisedaModal(false)} style={{ marginLeft: "10px" }}>Cancel</button>
-      </div>
+        <button className="employee-docu" onClick={() => setWisedaLink("Clearance Document")}>
+            Employee's Document Cleared
+        </button>
+
+        {/* Footer */}
+        <div style={{ marginTop: "15px" }}>
+            <button className="save-button" onClick={handleSaveWisedaLink}>Save</button>
+            <button className="cancel-button" onClick={() => setShowWisedaModal(false)} style={{ marginLeft: "10px" }}>
+                Cancel
+            </button>
+        </div>
     </div>
-  </div>
+</div>
 )}
 
       </div>
