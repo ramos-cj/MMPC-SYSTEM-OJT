@@ -10,12 +10,10 @@ import "@/styles/userlist.css";
 interface Device {
     id: number;
     tag_no: string;
-    general_name: string;
     classification: string;
-    model: string;
+    brand_model: string;
     condition: string;
     remarks: string;
-    brand_name: string;
     location: string;
     serial_number: string;
     estimated_acquisition_year: string;
@@ -24,10 +22,9 @@ interface Device {
     qr_code: string;
     need_to_be_repair: string;
     pi_guard: string;
-    property_tag: string;
     activation_updates: string;
     image_file?: string;
-    employee_name?: string; // ✅ New field for Employee Name
+    employee_name?: string;
 }
 
 export default function InventoryDeviceList() {
@@ -45,6 +42,7 @@ export default function InventoryDeviceList() {
     // Dynamic Filter Options
     const [classifications, setClassifications] = useState<string[]>([]);
     const [brands, setBrands] = useState<string[]>([]);
+    
 
     // Fetch devices from API
     useEffect(() => {
@@ -55,7 +53,7 @@ export default function InventoryDeviceList() {
 
                 // Extract unique classifications and brands for filters
                 const uniqueClassifications = [...new Set(data.map(device => device.classification))];
-                const uniqueBrands = [...new Set(data.map(device => device.brand_name))];
+                const uniqueBrands = [...new Set(data.map(device => device.brand_model))];
 
                 setClassifications(uniqueClassifications);
                 setBrands(uniqueBrands);
@@ -65,13 +63,12 @@ export default function InventoryDeviceList() {
 
     // Filtering logic
     const filteredDevices = devices.filter(device =>
-        (device.general_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        device.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (device.brand_model.toLowerCase().includes(searchTerm.toLowerCase()) ||
         device.computer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         device.employee_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         device.tag_no.includes(searchTerm)) &&
         (selectedClassification === "" || device.classification === selectedClassification) &&
-        (selectedBrand === "" || device.brand_name === selectedBrand)
+        (selectedBrand === "" || device.brand_model === selectedBrand)
     );
 
     // Pagination logic
@@ -240,12 +237,12 @@ export default function InventoryDeviceList() {
             <th>Device ID</th>
             <th>Host Name</th>
             <th>Tag No.</th>
-            <th>Brand Name</th>
+            <th>Serial Number</th>
+            <th>Brand / Model</th>
             <th>Classification</th>
-            <th>Model</th>
             <th>Condition</th>
             <th>Remarks</th>
-            <th>Assigned To</th> {/* New column for Employee Name */}
+            <th>Assigned To</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -255,9 +252,9 @@ export default function InventoryDeviceList() {
                 <td>{device.id}</td>
                 <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.computer_name || "N/A"}</td>
                 <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.tag_no}</td>
-                <td>{device.brand_name}</td>
+                <td>{device.serial_number}</td>
+                <td>{device.brand_model}</td>
                 <td>{device.classification}</td>
-                <td>{device.model}</td>
                 <td>{device.condition}</td>
                 <td>{device.remarks}</td>
                 <td>{device.employee_name || "Unassigned"}</td> {/* Display Employee Name */}
@@ -320,11 +317,6 @@ export default function InventoryDeviceList() {
     </div>
 
     <div className="input-group">
-        <label>General Name:</label>
-        <input type="text" value={selectedDevice.general_name || ''} readOnly />
-    </div>
-
-    <div className="input-group">
         <label>With Activation Updates:</label>
         <input type="text" value={selectedDevice.activation_updates || ''} readOnly />
     </div>
@@ -335,13 +327,8 @@ export default function InventoryDeviceList() {
     </div>
 
     <div className="input-group">
-        <label>Brand Name:</label>
-        <input type="text" value={selectedDevice.brand_name || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Model Name:</label>
-        <input type="text" value={selectedDevice.model || ''} readOnly />
+        <label>Brand / Model:</label>
+        <input type="text" value={selectedDevice.brand_model || ''} readOnly />
     </div>
 
     <div className="input-group">
@@ -352,11 +339,6 @@ export default function InventoryDeviceList() {
     <div className="input-group">
         <label>Have QR Code:</label>
         <input type="text" value={selectedDevice.qr_code || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Property Tag:</label>
-        <input type="text" value={selectedDevice.property_tag || ''} readOnly />
     </div>
 
     <div className="input-group">
@@ -391,12 +373,10 @@ export default function InventoryDeviceList() {
     </div>
  </div>
 
-
-    <div className="defects">
+    <div className="input-group">
         <label>Defects/Issues:</label>
         <input type="text" value={selectedDevice.need_to_be_repair || ''} readOnly />
     </div>
-
 
                     </div>
                 </div>
@@ -436,11 +416,6 @@ export default function InventoryDeviceList() {
             </div>
 
             <div className="field">
-                <label>General Name:</label>
-                <input type="text" name="general_name" value={editDevice.general_name} onChange={handleInputChange} />
-            </div>
-
-            <div className="field">
                 <label>Classification:</label>
                 <select name="classification" value={editDevice.classification} onChange={handleInputChange}>
                     <option value="Laptop">Laptop</option>
@@ -450,18 +425,13 @@ export default function InventoryDeviceList() {
             </div>
 
             <div className="field">
-                <label>Model:</label>
-                <input type="text" name="model" value={editDevice.model} onChange={handleInputChange} />
+                <label>Brand / Model:</label>
+                <input type="text" name="model" value={editDevice.brand_model} onChange={handleInputChange} />
             </div>
 
             <div className="field">
                 <label>Serial Number:</label>
                 <input type="text" name="serial_number" value={editDevice.serial_number} onChange={handleInputChange} />
-            </div>
-
-            <div className="field">
-                <label>Property Tag:</label>
-                <input type="text" name="property_tag" value={editDevice.property_tag || ""} onChange={handleInputChange} />
             </div>
 
             <div className="field">

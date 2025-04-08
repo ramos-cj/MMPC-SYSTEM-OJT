@@ -8,39 +8,39 @@ use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Row;
 use Illuminate\Support\Facades\Log;
+use App\Models\DeviceAssignment;
 
 class YourImportClass implements OnEachRow, WithHeadingRow
 {
-    public function onRow(Row $row)
-    {
-        $row = $row->toArray();
+    public function onRow(Row $row): void
+{
+    $row = $row->toArray();
 
-        Log::info('Processing Row Data: ', $row);
+    Log::info('Processing Row Data: ', $row);
 
-        try {
-            if (isset($row['employee_number'])) {
-                $this->importEmployeeData($row);
-            }
-            
-            if (isset($row['tag_no'])) {
-                $this->importDeviceData($row);
-            }
-        } catch (\Exception $e) {
-            Log::error("Error processing row: " . $e->getMessage());
+    try {
+        if (isset($row['employee_number'])) {
+            $this->importEmployeeData($row);
         }
-    }
 
-    // ✅ Save Employee Data to Database
+        if (isset($row['tag_no'])) {
+            $this->importDeviceData($row); // ✅ No assignment needed
+        }
+    } catch (\Exception $e) {
+        Log::error("Error processing row: " . $e->getMessage());
+    }
+}
+
     private function importEmployeeData(array $row)
     {
         try {
             Employee::updateOrCreate(
                 ['employee_number' => $row['employee_number']],
                 [
-                    'first_name' => $row['name'] ?? 'N/A',
+                    'first_name' => $row['first_name'] ?? 'N/A',
                     'middle_initial' => $row['mi'] ?? '-',
                     'last_name' => $row['surname'] ?? 'N/A',
-                    'employee_type' => $row['employee_type'] ?? 'N/A',
+                    'employee_type' => $row['user_type'] ?? 'N/A',
                     'division_department' => $row['division_department'] ?? 'N/A',
                     'position' => $row['position'] ?? 'N/A',
                     'section_code' => $row['section_code'] ?? 'N/A',
@@ -49,42 +49,117 @@ class YourImportClass implements OnEachRow, WithHeadingRow
                 ]
             );
 
-            Log::info("Employee Data Saved: " . $row['employee_number']);
-
+            Log::info("Employee Saved: " . $row['employee_number']);
         } catch (\Exception $e) {
-            Log::error("Error saving Employee Data: " . $e->getMessage());
+            Log::error("Error saving employee: " . $e->getMessage());
         }
     }
 
-    // ✅ Save Device Data to Database
     private function importDeviceData(array $row)
-    {
-        try {
-            Device::updateOrCreate(
-                ['tag_no' => $row['tag_no']],
+{
+    try {
+        $employee = null;
+
+        // Try to find the employee by employee_number
+        if (!empty($row['employee_number'])) {
+            $employee = Employee::where('employee_number', $row['employee_number'])->first();
+        }
+
+        // Normalize condition
+        $rawCondition = $row['condition'] ?? null;
+        $normalizedCondition = match (strtolower(trim((string) $rawCondition))) {
+            'good' => 'Good Condition',
+            'bad' => 'Bad Condition',
+            default => 'N/A'
+        };
+
+        // Determine remarks
+        $remarks = 'Free';
+        if ($employee) {
+            $remarks = 'Assigned';
+        } elseif (!empty($row['remarks'])) {
+            $remarks = $row['remarks'];
+        }
+
+        // Save/update the device
+        $device = Device::updateOrCreate(
+            ['tag_no' => $row['tag_no']],
+            [
+                'pi_guard' => $row['with_ipguard'] ?? 'N/A',
+                'activation_updates' => $row['activation_updates'] ?? 'N/A',
+                'classification' => $row['classification'] ?? 'N/A',
+                'estimated_acquisition_year' => $row['estimated_acquisition_year'] ?? 'N/A',
+                'brand_model' => $row['brand_model'] ?? 'N/A',
+                'location' => $row['location'] ?? 'N/A',
+                'serial_number' => $row['serial_number'] ?? 'N/A',
+                'qr_code' => $row['qr_code'] ?? 'N/A',
+                'with_warranty' => $row['warranty'] ?? 'N/A',
+                'computer_name' => $row['computer_name'] ?? 'N/A',
+                'remarks' => $remarks,
+                'condition' => $normalizedCondition
+            ]
+        );
+
+        // If device and employee both exist → assign device
+        if ($employee && $device) {
+            DeviceAssignment::updateOrCreate(
                 [
-                    'pi_guard' => $row['with_ipguard'] ?? 'N/A',
-                    'general_name' => $row['general_name'] ?? 'N/A',
-                    'activation_updates' => $row['activation_updates'] ?? 'N/A',
-                    'brand_name' => $row['brand_name'] ?? 'N/A',
-                    'classification' => $row['classification'] ?? 'N/A',
-                    'estimated_acquisition_year' => $row['estimated_acquisition_year'] ?? 'N/A',
-                    'model' => $row['model'] ?? 'N/A',
-                    'location' => $row['location'] ?? 'N/A',
-                    'serial_number' => $row['serial_number'] ?? 'N/A',
-                    'qr_code' => $row['qr_code'] ?? 'N/A',
-                    'property_tag' => $row['property_tag'] ?? 'N/A',
-                    'with_warranty' => $row['warranty'] ?? 'N/A',
-                    'computer_name' => $row['computer_name'] ?? 'N/A',
-                    'remarks' => $row['remarks'] ?? 'N/A',
-                    'condition' => ($row['remarks'] ?? '') === 'Free' ? 'Good' : 'Bad',
+                    'employee_id' => $employee->id,
+                    'device_id' => $device->id
+                ],
+                [
+                    'employee_name' => $employee->first_name . ' ' . $employee->last_name,
+                    'classification' => $device->classification ?? 'N/A',
+                    'brand_model' => $device->brand_model ?? 'N/A',
+                    'model' => $device->model ?? 'N/A',
+                    'serial_number' => $device->serial_number ?? 'N/A',
+                    'computer_name' => $device->computer_name ?? 'N/A',
+                    'accessories' => $row['accessories'] ?? 'N/A'
                 ]
             );
-
-            Log::info("Device Data Saved: " . $row['tag_no']);
-
-        } catch (\Exception $e) {
-            Log::error("Error saving Device Data: " . $e->getMessage());
         }
+
+        Log::info("Device processed: " . $row['tag_no']);
+
+    } catch (\Exception $e) {
+        Log::error("Error saving Device Data: " . $e->getMessage());
+    }
+}
+
+
+
+    private function assignDeviceToEmployee(array $row, $device)
+    {
+        if (!$device) return;
+
+        $employee = Employee::where('employee_number', $row['employee_number'])->first();
+        if (!$employee) {
+            Log::warning("No employee found for device assignment: " . $row['employee_number']);
+            return;
+        }
+
+        // Avoid duplicate assignments
+        $existing = DeviceAssignment::where('employee_id', $employee->id)
+                                    ->where('device_id', $device->id)
+                                    ->first();
+        if ($existing) return;
+
+        DeviceAssignment::updateOrCreate(
+            [
+                'employee_id' => $employee->id,
+                'device_id' => $device->id
+            ],
+            [
+                'employee_name' => $employee->first_name . ' ' . $employee->last_name,
+                'classification' => $device->classification ?? 'N/A',
+                'brand_model' => $device->brand_model ?? 'N/A',
+                'serial_number' => $device->serial_number ?? 'N/A',
+                'computer_name' => $device->computer_name ?? 'N/A',
+                'accessories' => $row['accessories'] ?? 'N/A'
+            ]
+        );
+        
+
+        Log::info("Device Assigned: Employee {$employee->employee_number} to Device {$device->tag_no}");
     }
 }

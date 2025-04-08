@@ -139,7 +139,7 @@ export default function InventoryUserManagement() {
                                 </div>
                                 <div className="form-group">
                                     <label>Choose Division:</label>
-                                    <select name="division_department" value={formData.division_department} onChange={handleChange} required>
+                                    <select name="division_department" value={formData.division_department} onChange={handleChange}>
                                         <option value="">Select Division</option>
                                         {divisions.map((division) => (
                                             <option key={division} value={division}>{division}</option>

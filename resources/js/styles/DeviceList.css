@@ -467,7 +467,7 @@ img, video {
 .input-group {
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Aligns label to the left */
+    align-items: flex-start;
 }
 
 .input-group label {
@@ -484,29 +484,7 @@ img, video {
     border-radius: 5px;
     background-color: #f9f9f9;
 }
-.defects {
-    width: 100.7%;
-    padding: 8px;
-    border-radius: 5px;
-    display: flex;
-    margin-top: 15px;
-}
 
-.defects label {
-    font-weight: 600;
-    color: #333;
-    margin-top: 1%;
-    margin-right: 1%;
-    text-align: left; /* Ensures text stays left-aligned */
-
-}
-.defects input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-}
 .image-device-details {
     margin-top: 1%;
     margin-bottom: .5%;

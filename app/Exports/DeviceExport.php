@@ -11,8 +11,8 @@ class DeviceExport implements FromCollection, WithHeadings
     public function collection()
     {
         return Device::select(
-            'tag_no', 'general_name', 'brand_name', 'serial_number', 'property_tag',
-            'computer_name', 'pi_guard', 'activation_updates', 'estimated_acquisition_year',
+            'tag_no', 'brand_model', 'serial_number','computer_name', 'pi_guard', 
+            'activation_updates', 'estimated_acquisition_year',
             'location', 'with_warranty', 'remarks', 'condition'
         )->get();
     }
@@ -22,8 +22,7 @@ class DeviceExport implements FromCollection, WithHeadings
         return [
             ['Devices Data'],  // Title of the sheet
             [
-                'Tag No', 'General Name', 'Brand Name', 'Serial Number', 'Property Tag',
-                'Computer Name', 'IP-Guard', 'Activation Updates', 'Estimated Acquisition Year',
+                'Tag No', 'Brand / Model', 'Serial Number','Computer Name', 'IP-Guard', 'Activation Updates', 'Estimated Acquisition Year',
                 'Location', 'Warranty', 'Remarks', 'Condition'
             ]
         ];

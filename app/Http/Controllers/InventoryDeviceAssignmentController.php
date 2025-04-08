@@ -21,7 +21,7 @@ class InventoryDeviceAssignmentController extends Controller
     return response()->json(
         Device::where('condition', 'Good')
             ->whereIn('remarks', ['Available', 'Free'])
-            ->select('id', 'classification', 'brand_name', 'model', 'serial_number', 'computer_name', 'remarks')
+            ->select('id', 'classification', 'brand_model', 'serial_number', 'computer_name', 'remarks')
             ->get()
     );
     }
@@ -40,8 +40,7 @@ class InventoryDeviceAssignmentController extends Controller
             'employee_number' => $assignment->employee->employee_number ?? 'N/A',
             'previous_assignee' => $assignment->previous_assignee ? $assignment->previous_assignee : "",
             'classification' => $assignment->classification,
-            'brand_name' => $assignment->brand_name,
-            'model' => $assignment->model,
+            'brand_model' => $assignment->brand_model,
             'serial_number' => $assignment->serial_number,
             'computer_name' => $assignment->computer_name ?? 'N/A',
             'accessories' => $assignment->accessories
@@ -64,8 +63,7 @@ public function assignDevice(Request $request)
     }
 
     $device = Device::where('classification', $request->classification)
-        ->where('brand_name', $request->brand)
-        ->where('model', $request->model)
+        ->where('brand_model', $request->brand_model)
         ->where('computer_name', $request->computer_name)
         ->where('condition', 'Good')
         ->whereIn('remarks', ['Available', 'Free'])
@@ -80,8 +78,7 @@ public function assignDevice(Request $request)
         'employee_name' => $employee->first_name . ' ' . $employee->last_name, // Add this line to populate the column
         'device_id' => $device->id,
         'classification' => $device->classification,
-        'brand_name' => $device->brand_name,
-        'model' => $device->model,
+        'brand_model' => $device->brand_model,
         'serial_number' => $device->serial_number,
         'computer_name' => $device->computer_name,
         'accessories' => $request->accessories

@@ -7,16 +7,13 @@ const InventoryDeviceManagement: React.FC = () => {
     const [formData, setFormData] = useState({
         tag_no: "",
         pi_guard: "",
-        general_name: "",
         activation_updates: "",
-        brand_name: "",
         classification: "",
         estimated_acquisition_year: "",
-        model: "",
+        brand_model: "",
         location: "",
         serial_number: "",
         qr_code: "",
-        property_tag: "",
         with_warranty: "",
         computer_name: "",
         remarks: "",
@@ -71,12 +68,13 @@ const InventoryDeviceManagement: React.FC = () => {
                     <div className="form-grid">
                         <div className="form-group">
                             <label>Tag No.</label>
-                            <input type="text" name="tag_no" placeholder="Enter Tag Number" value={formData.tag_no} onChange={handleChange} />
+                            <input type="text" name="tag_no" placeholder="Enter Tag Number" value={formData.tag_no} onChange={handleChange} required />
+
                         </div>
 
                         <div className="form-group">
                             <label>With IP-Guard</label>
-                            <select name="pi_guard" value={formData.pi_guard} onChange={handleChange}>
+                            <select name="pi_guard" value={formData.pi_guard} onChange={handleChange} required>
                                 <option value="">Choose IP-Guard</option>
                                 <option value="Unauthorized">Unauthorized</option>
                                 <option value="Unclassified">Unclassified</option>
@@ -84,13 +82,8 @@ const InventoryDeviceManagement: React.FC = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>General Name</label>
-                            <input type="text" name="general_name" placeholder="Enter General Name" value={formData.general_name} onChange={handleChange} />
-                        </div>
-
-                        <div className="form-group">
                             <label>Activation Updates</label>
-                            <select name="activation_updates" value={formData.activation_updates} onChange={handleChange}>
+                            <select name="activation_updates" value={formData.activation_updates} onChange={handleChange} required>
                                 <option value="">Choose Activation Updates</option>
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
@@ -98,13 +91,8 @@ const InventoryDeviceManagement: React.FC = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Brand Name</label>
-                            <input type="text" name="brand_name" placeholder="Enter Brand Name" value={formData.brand_name} onChange={handleChange} />
-                        </div>
-
-                        <div className="form-group">
                             <label>Classification</label>
-                            <select name="classification" value={formData.classification} onChange={handleChange}>
+                            <select name="classification" value={formData.classification} onChange={handleChange} required>
                                 <option value="">Choose Classification</option>
                                 <option value="Laptop">Laptop</option>
                                 <option value="Tablet">Tablet</option>
@@ -114,27 +102,27 @@ const InventoryDeviceManagement: React.FC = () => {
 
                         <div className="form-group">
                             <label>Estimated Acquisition Year</label>
-                            <input type="text" name="estimated_acquisition_year" placeholder="Enter Estimated Acquisition Year" value={formData.estimated_acquisition_year} onChange={handleChange} />
+                            <input type="text" name="estimated_acquisition_year" placeholder="Enter Estimated Acquisition Year" value={formData.estimated_acquisition_year} onChange={handleChange} required/>
                         </div>
 
                         <div className="form-group">
-                            <label>Model</label>
-                            <input type="text" name="model" placeholder="Enter Model" value={formData.model} onChange={handleChange} />
+                            <label>Brand/Model</label>
+                            <input type="text" name="brand_model" placeholder="Enter Brand/Model" value={formData.brand_model} onChange={handleChange} required/>
                         </div>
 
                         <div className="form-group">
                             <label>Location</label>
-                            <input type="text" name="location" placeholder="Enter Location"value={formData.location} onChange={handleChange} />
+                            <input type="text" name="location" placeholder="Enter Location"value={formData.location} onChange={handleChange} required/>
                         </div>
 
                         <div className="form-group">
                             <label>Serial Number</label>
-                            <input type="text" name="serial_number" placeholder="Enter Serial Number"value={formData.serial_number} onChange={handleChange} />
+                            <input type="text" name="serial_number" placeholder="Enter Serial Number"value={formData.serial_number} onChange={handleChange} required/>
                         </div>
 
                         <div className="form-group">
                             <label>With QR Code</label>
-                            <select name="qr_code" value={formData.qr_code} onChange={handleChange}>
+                            <select name="qr_code" value={formData.qr_code} onChange={handleChange} required>
                                 <option value="">Have QR Code?</option>
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
@@ -142,13 +130,8 @@ const InventoryDeviceManagement: React.FC = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Property Tag</label>
-                            <input type="text" name="property_tag" placeholder="Enter Property Tag" value={formData.property_tag} onChange={handleChange} />
-                        </div>
-
-                        <div className="form-group">
                             <label>With Warranty</label>
-                            <select name="with_warranty" value={formData.with_warranty} onChange={handleChange}>
+                            <select name="with_warranty" value={formData.with_warranty} onChange={handleChange} required>
                                 <option value="">Have Warranty?</option>
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
@@ -157,12 +140,12 @@ const InventoryDeviceManagement: React.FC = () => {
 
                         <div className="form-group">
                             <label>Host Name</label>
-                            <input type="text" name="computer_name" placeholder="Enter Host Name" value={formData.computer_name} onChange={handleChange} />
+                            <input type="text" name="computer_name" placeholder="Enter Host Name" value={formData.computer_name} onChange={handleChange} required/>
                         </div>
 
                         <div className="form-group">
                             <label>Condition</label>
-                            <select name="condition" value={formData.condition} onChange={handleChange}>
+                            <select name="condition" value={formData.condition} onChange={handleChange} required>
                                 <option value="">Select Condition</option>
                                 <option value="Good">Good Condition</option>
                                 <option value="Bad">Bad Condition</option>
@@ -171,7 +154,7 @@ const InventoryDeviceManagement: React.FC = () => {
 
                         <div className="form-group">
                             <label>Remarks</label>
-                            <textarea name="remarks" placeholder="Enter Remarks"value={formData.remarks} onChange={handleChange}></textarea>
+                            <textarea name="remarks" placeholder="Enter Remarks"value={formData.remarks} onChange={handleChange} required></textarea>
                         </div>
 
                          {/* ✅ Show defect input only if "Bad Condition" is selected */}

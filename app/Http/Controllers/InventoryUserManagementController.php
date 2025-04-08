@@ -11,55 +11,55 @@ class InventoryUserManagementController extends Controller
     // Fetch employee list and return JSON
     // Fetch employee list and return JSON with assigned device computer_name
     public function list()
-{
-    $employees = Employee::leftJoin('device_assignments', 'employees.id', '=', 'device_assignments.employee_id')
-                        ->leftJoin('devices', 'device_assignments.device_id', '=', 'devices.id')
-                        ->select(
-                            'employees.id as employee_id',
-                            'employees.employee_number',
-                            'employees.first_name',
-                            'employees.middle_initial',
-                            'employees.last_name',
-                            'employees.position',
-                            'employees.division_department',
-                            'employees.division_code',
-                            'employees.department_code',
-                            'employees.section_code',
-                            'devices.general_name',
-                            'devices.model',
-                            'devices.computer_name',
-                            DB::raw('IFNULL(employees.employee_type, "N/A") as employee_type')
-                        )
-                        ->orderBy('employees.id', 'asc')
-                        ->get();
-
-    $groupedEmployees = $employees->groupBy('employee_id')->map(function ($devices, $employeeId) {
-        $employee = $devices->first();
-        
-        $deviceList = $devices->map(function ($device) {
-            return $device->general_name && $device->model && $device->computer_name 
-                ? "{$device->general_name} {$device->model} ({$device->computer_name})"
-                : null;
-        })->filter()->all(); // Filter out null entries
-
-        return [
-            'employee_id' => $employee->employee_id,
-            'employee_number' => $employee->employee_number,
-            'first_name' => $employee->first_name,
-            'middle_initial' => $employee->middle_initial,
-            'last_name' => $employee->last_name,
-            'position' => $employee->position,
-            'division_department' => $employee->division_department,
-            'division_code' => $employee->division_code,
-            'department_code' => $employee->department_code,
-            'section_code' => $employee->section_code,
-            'assigned_devices' => $deviceList,
-            'employee_type' => $employee->employee_type // Ensure it's being returned
-        ];
-    })->values();
-
-    return response()->json($groupedEmployees);
-}
+    {
+        $employees = Employee::leftJoin('device_assignments', 'employees.id', '=', 'device_assignments.employee_id')
+                            ->leftJoin('devices', 'device_assignments.device_id', '=', 'devices.id')
+                            ->select(
+                                'employees.id as employee_id',
+                                'employees.employee_number',
+                                'employees.first_name',
+                                'employees.middle_initial',
+                                'employees.last_name',
+                                'employees.position',
+                                'employees.division_department',
+                                'employees.division_code',
+                                'employees.department_code',
+                                'employees.section_code',
+                                'devices.brand_model',
+                                'devices.computer_name',
+                                DB::raw('IFNULL(employees.employee_type, "N/A") as employee_type')
+                            )
+                            ->orderBy('employees.id', 'asc')
+                            ->get();
+    
+        $groupedEmployees = $employees->groupBy('employee_id')->map(function ($devices, $employeeId) {
+            $employee = $devices->first();
+    
+            $deviceList = $devices->map(function ($device) {
+                return $device->brand_model && $device->computer_name
+                    ? "{$device->brand_model} ({$device->computer_name})"
+                    : null;
+            })->filter()->all();
+    
+            return [
+                'employee_id' => $employee->employee_id,
+                'employee_number' => $employee->employee_number,
+                'first_name' => $employee->first_name,
+                'middle_initial' => $employee->middle_initial,
+                'last_name' => $employee->last_name,
+                'position' => $employee->position,
+                'division_department' => $employee->division_department,
+                'division_code' => $employee->division_code,
+                'department_code' => $employee->department_code,
+                'section_code' => $employee->section_code,
+                'assigned_devices' => $deviceList,
+                'employee_type' => $employee->employee_type
+            ];
+        })->values();
+    
+        return response()->json($groupedEmployees);
+    }
+    
 
     
     public function getEmployee($id)

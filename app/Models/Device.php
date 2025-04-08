@@ -12,21 +12,18 @@ class Device extends Model
     protected $fillable = [
         'tag_no',
         'pi_guard',
-        'general_name',
         'activation_updates',
-        'brand_name',
         'accessories',
         'classification',
         'estimated_acquisition_year',
-        'model',
+        'brand_model',
         'location',
         'serial_number',
         'qr_code',
-        'property_tag',
         'with_warranty',
         'computer_name',
         'remarks',
-        'condition', // New condition field
+        'condition',
         'image_file',
     ];
 }

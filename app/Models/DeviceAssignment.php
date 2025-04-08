@@ -14,12 +14,12 @@ class DeviceAssignment extends Model
         'device_id',
         'employee_name',
         'classification',
-        'brand_name',
-        'model',
+        'brand_model',
         'serial_number',
         'computer_name',
         'accessories',
-    ];    
+    ];
+      
     
     public function employee()
     {

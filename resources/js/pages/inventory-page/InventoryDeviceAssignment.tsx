@@ -16,8 +16,7 @@ interface Employee {
 interface Device {
     id: number;
     classification: string;
-    brand_name: string;
-    model: string;
+    brand_model: string;
     serial_number: string;
     condition: string;
     remarks: string;
@@ -36,7 +35,6 @@ const InventoryDeviceAssignment: React.FC = () => {
     const [assignedDevices, setAssignedDevices] = useState<Device[]>([]);
     const [classifications, setClassifications] = useState<string[]>([]);
     const [brands, setBrands] = useState<string[]>([]);
-    const [models, setModels] = useState<string[]>([]);
     const [computers, setComputers] = useState<Device[]>([]);
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -46,7 +44,6 @@ const InventoryDeviceAssignment: React.FC = () => {
     const [selectedEmployee, setSelectedEmployee] = useState<string>("");
     const [selectedClassification, setSelectedClassification] = useState<string>("");
     const [selectedBrand, setSelectedBrand] = useState<string>("");
-    const [selectedModel, setSelectedModel] = useState<string>("");
     const [selectedComputer, setSelectedComputer] = useState<string>("");
     const [selectedAccessories, setSelectedAccessories] = useState<string>("");  // ✅ Add this
     const [showTransferModal, setShowTransferModal] = useState(false);
@@ -58,8 +55,7 @@ const InventoryDeviceAssignment: React.FC = () => {
     transferred_date: '',
     return_date: '',
     classification: '',
-    brand: '',
-    model: '',
+    brand_model: '',
     serial_number: '',
     accessories: '',
 });
@@ -96,49 +92,31 @@ const InventoryDeviceAssignment: React.FC = () => {
             console.log("Filtering brands for classification:", selectedClassification);
             const availableBrands = devices
                 .filter((device) => device.classification === selectedClassification)
-                .map((device) => device.brand_name);
+                .map((device) => device.brand_model);
             
             const uniqueBrands = [...new Set(availableBrands)];
             console.log("Filtered Brands:", uniqueBrands); // ✅ Debugging
             setBrands(uniqueBrands);
             setSelectedBrand("");  // Reset brand dropdown
-            setSelectedModel("");  // Reset model dropdown
         }
     }, [selectedClassification, devices]);    
     
 
     // Fetch models based on selected brand and classification
     useEffect(() => {
-        if (selectedBrand && devices.length > 0) {
-            console.log("Filtering models for brand:", selectedBrand);
-            const availableModels = devices
-                .filter((device) => 
-                    device.classification === selectedClassification && 
-                    device.brand_name === selectedBrand
-                )
-                .map((device) => device.model);
-            
-            const uniqueModels = [...new Set(availableModels)];
-            console.log("Filtered Models:", uniqueModels); // ✅ Debugging
-            setModels(uniqueModels);
-            setSelectedModel("");  // Reset model dropdown
-        }
-    }, [selectedBrand, devices]);
-
-	useEffect(() => {
-        if (selectedModel) {
+        if (selectedClassification && selectedBrand) {
             const availableComputers = devices
                 .filter(device =>
                     device.classification === selectedClassification &&
-                    device.brand_name === selectedBrand &&
-                    device.model === selectedModel &&
+                    device.brand_model === selectedBrand &&
                     device.remarks === 'Free'
                 );
-
+    
             setComputers(availableComputers);
             setSelectedComputer("");
         }
-    }, [selectedModel, devices]);
+    }, [selectedClassification, selectedBrand, devices]);
+    
     
     const filteredDevices = assignedDevices.filter(device => {
         const searchText = searchTerm.toLowerCase();
@@ -156,7 +134,7 @@ const InventoryDeviceAssignment: React.FC = () => {
     const totalPages = Math.ceil(filteredDevices.length / entriesPerPage);
 
     const handleAssignDevice = async () => {
-        if (!selectedEmployee || !selectedClassification || !selectedBrand || !selectedModel || !selectedComputer) {
+        if (!selectedEmployee || !selectedClassification || !selectedBrand || !selectedComputer) {
             alert("Please select all fields before assigning a device.");
             return;
         }
@@ -183,8 +161,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                 body: JSON.stringify({
                     employee_id: employeeId,
                     classification: selectedClassification,
-                    brand: selectedBrand,
-                    model: selectedModel,
+                    brand_model: selectedBrand,
                     accessories: selectedAccessories,
                     computer_name: selectedComputer,
                 }),
@@ -207,7 +184,6 @@ const InventoryDeviceAssignment: React.FC = () => {
             setSelectedEmployee("");
             setSelectedClassification("");
             setSelectedBrand("");
-            setSelectedModel("");
             setSelectedComputer("");
             setSelectedAccessories(""); 
         } catch (err) {
@@ -227,8 +203,7 @@ const InventoryDeviceAssignment: React.FC = () => {
             transferred_date: '',
             return_date: '',
             classification: device.classification || "", 
-            brand: device.brand_name || "", 
-            model: device.model || "", 
+            brand_model: device.brand_model || "", 
             serial_number: device.serial_number || "", 
             accessories: device.accessories || "", 
         });
@@ -267,8 +242,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                     transferred_date: transferData.transferred_date,
                     return_date: transferData.return_date,
                     classification: transferData.classification,
-                    brand: transferData.brand,
-                    model: transferData.model,
+                    brand_model: transferData.brand_model,
                     serial_number: transferData.serial_number,
                     accessories: transferData.accessories,
                 }),
@@ -327,8 +301,7 @@ const InventoryDeviceAssignment: React.FC = () => {
             transferred_date: '',
             return_date: '',
             classification: '',
-            brand: '',
-            model: '',
+            brand_model: '',
             serial_number: '',
             accessories: ''
         }); // Reset the form data
@@ -392,22 +365,6 @@ const InventoryDeviceAssignment: React.FC = () => {
             ))}
         </select>
     </div>
-
-    {/* Device Model */}
-    <div className="form-group">
-        <label>Device Model</label>
-        <select
-            className="dropdown"
-            value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
-            disabled={!selectedBrand}
-        > 
-            <option value="">Select Model</option>
-            {models.map((model) => (
-                <option key={model} value={model}>{model}</option>
-            ))}
-        </select>
-    </div> 
 
     <div className="form-group">
                         <label>Host Name</label>
@@ -482,8 +439,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                             <th>Computer Name</th>
                             <th>Accessories</th>
                             <th>Classification</th>
-                            <th>Brand</th>
-                            <th>Model</th>
+                            <th>Brand / Model</th>
                             <th>Serial Number</th>
                             <th>Actions</th>
                         </tr>
@@ -498,8 +454,7 @@ const InventoryDeviceAssignment: React.FC = () => {
                                 <td>{device.computer_name || "N/A"}</td>
                                 <td>{device.accessories || "N/A"}</td>
                                 <td>{device.classification}</td>
-                                <td>{device.brand_name}</td>
-                                <td>{device.model}</td>
+                                <td>{device.brand_model}</td>
                                 <td>{device.serial_number}</td>
             <td>
                     <button className="action-btn transfer-btn" onClick={() => openTransferModal(device)}>
@@ -610,13 +565,8 @@ const InventoryDeviceAssignment: React.FC = () => {
     </div>
 
     <div>
-        <label>Brand</label>
-        <input type="text" value={transferData.brand} readOnly />
-    </div>
-
-    <div>
-        <label>Model</label>
-        <input type="text" value={transferData.model} readOnly />
+        <label>Brand / Model</label>
+        <input type="text" value={transferData.brand_model} readOnly />
     </div>
 
     <div>
