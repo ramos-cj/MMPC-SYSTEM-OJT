@@ -23,7 +23,7 @@ class YourImportClass implements OnEachRow, WithHeadingRow
             $this->importEmployeeData($row);
         }
 
-        if (isset($row['tag_no'])) {
+        if (isset($row['computer_name'])) {
             $this->importDeviceData($row); // ✅ No assignment needed
         }
     } catch (\Exception $e) {
@@ -65,13 +65,21 @@ class YourImportClass implements OnEachRow, WithHeadingRow
             $employee = Employee::where('employee_number', $row['employee_number'])->first();
         }
 
-        // Normalize condition
-        $rawCondition = $row['condition'] ?? null;
-        $normalizedCondition = match (strtolower(trim((string) $rawCondition))) {
-            'good' => 'Good Condition',
-            'bad' => 'Bad Condition',
-            default => 'N/A'
-        };
+        // Normalize condition based on assignment and input
+$rawCondition = $row['condition'] ?? null;
+$hasCondition = !empty($rawCondition);
+$assigned = !empty($employee);
+
+if (!$hasCondition && $assigned) {
+    $normalizedCondition = 'Good'; // Auto assign if missing and assigned
+} else {
+    $normalizedCondition = match (strtolower(trim((string)$rawCondition))) {
+        'good' => 'Good Condition',
+        'bad' => 'Bad Condition',
+        default => 'N/A'
+    };
+}
+
 
         // Determine remarks
         $remarks = 'Free';
@@ -83,7 +91,7 @@ class YourImportClass implements OnEachRow, WithHeadingRow
 
         // Save/update the device
         $device = Device::updateOrCreate(
-            ['tag_no' => $row['tag_no']],
+            ['computer_name' => $row['computer_name']],
             [
                 'pi_guard' => $row['with_ipguard'] ?? 'N/A',
                 'activation_updates' => $row['activation_updates'] ?? 'N/A',
@@ -94,7 +102,7 @@ class YourImportClass implements OnEachRow, WithHeadingRow
                 'serial_number' => $row['serial_number'] ?? 'N/A',
                 'qr_code' => $row['qr_code'] ?? 'N/A',
                 'with_warranty' => $row['warranty'] ?? 'N/A',
-                'computer_name' => $row['computer_name'] ?? 'N/A',
+                'tag_no' => $row['tag_no'] ?? 'N/A',
                 'remarks' => $remarks,
                 'condition' => $normalizedCondition
             ]
@@ -119,7 +127,7 @@ class YourImportClass implements OnEachRow, WithHeadingRow
             );
         }
 
-        Log::info("Device processed: " . $row['tag_no']);
+        Log::info("Device processed: " . $row['computer_name']);
 
     } catch (\Exception $e) {
         Log::error("Error saving Device Data: " . $e->getMessage());
@@ -160,6 +168,6 @@ class YourImportClass implements OnEachRow, WithHeadingRow
         );
         
 
-        Log::info("Device Assigned: Employee {$employee->employee_number} to Device {$device->tag_no}");
+        Log::info("Device Assigned: Employee {$employee->employee_number} to Device {$device->computer_name}");
     }
 }

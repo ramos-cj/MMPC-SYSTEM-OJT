@@ -100,7 +100,7 @@ text-align: left; /* Ensures text is aligned to the left */
   border: none;
   white-space: normal; /* Allow text to wrap to the next line */
   word-break: break-word; /* Break long words to prevent overflow */
-  max-width: 150px; /* Limit the width of the cell to make text wrap */
+  max-width: 180px; /* Limit the width of the cell to make text wrap */
 }
 
 

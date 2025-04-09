@@ -13,9 +13,8 @@ return new class extends Migration {
             $table->unsignedBigInteger('employee_id');
             $table->string('employee_name');
             $table->string('classification');
-            $table->string('brand_name');
-            $table->string('model');
-            $table->string('serial_number')->unique();
+            $table->string('brand_model');
+            $table->string('serial_number');
             $table->timestamps();
 
             // Foreign key relationships

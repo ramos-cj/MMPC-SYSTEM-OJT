@@ -13,19 +13,16 @@ return new class extends Migration
     {
         Schema::create('devices', function (Blueprint $table) {
             $table->id();
-            $table->string('tag_no')->unique();
+            $table->string('tag_no');
             $table->string('pi_guard');
-            $table->string('general_name');
             $table->string('activation_updates');
-            $table->string('brand_name');
+            $table->string('brand_model');
             $table->string('accessories')->nullable();
             $table->string('classification');
             $table->string('estimated_acquisition_year');
-            $table->string('model');
             $table->string('location');
-            $table->string('serial_number')->unique();
+            $table->string('serial_number');
             $table->string('qr_code');
-            $table->string('property_tag')->nullable();
             $table->string('with_warranty');
             $table->string('computer_name')->nullable();
             $table->text('remarks')->nullable();
