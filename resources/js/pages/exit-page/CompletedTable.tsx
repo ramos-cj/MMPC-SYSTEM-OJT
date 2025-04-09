@@ -38,14 +38,14 @@ const CompletedTable: React.FC<Props> = ({ data }) => {
               <td>{employee.advise_of_hr}</td>
               <td>
                 {employee.wisedit_deactivation ? (
-                  <a href={employee.wisedit_deactivation} target="_blank" rel="noopener noreferrer">
+                  <a href={employee.wisedit_deactivation} target="_blank" rel="noopener noreferrer" style={{ color: "red", textDecoration: "underline" }}>
                     WISEDIT-{lastFiveEdit}
                   </a>
                 ) : "No Link"}
               </td>
               <td>
                 {isDaLink ? (
-                  <a href={employee.wiseda_exit_clearance} target="_blank" rel="noopener noreferrer">
+                  <a href={employee.wiseda_exit_clearance} target="_blank" rel="noopener noreferrer" style={{ color: "red", textDecoration: "underline" }}>
                     WISESDIT-{lastFiveDa}
                   </a>
                 ) : (

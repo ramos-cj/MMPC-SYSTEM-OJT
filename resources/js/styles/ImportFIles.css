@@ -14,8 +14,6 @@
     overflow-x: auto;
 }
 
-
-
 .inventory-import-container::-webkit-scrollbar {
     width: 10px; /* Adjust scrollbar width */
 }
@@ -28,7 +26,6 @@
 .inventory-import-container::-webkit-scrollbar-track {
     background-color: #f0f0f0; /* Optional: Change track background */
 }
-
 
 .import-header h2 {
     font-size: 24px;
@@ -220,6 +217,7 @@
 }
 .template-box input{
     width: 100%;
+    border: none;
 }
 
 /* Pagination */

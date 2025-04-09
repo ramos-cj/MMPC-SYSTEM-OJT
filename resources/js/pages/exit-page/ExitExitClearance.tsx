@@ -5,6 +5,7 @@ import "@/styles/userlist.css";
 import { FaSearch, FaEdit, FaTimes, FaTrash } from "react-icons/fa";
 import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
 import { FcLeave } from 'react-icons/fc';
+import { GoIssueTracks } from "react-icons/go";
 import mmpcLogo from '@/assets/mmpc-logo1.png';
 
 interface Employee {
@@ -19,6 +20,7 @@ interface Employee {
   division_code: string;
   department_code: string;
   employee_type: string;
+  assigned_devices: string[];
   effectivity_date: string;
   advise_of_hr: string;
   wisedit_deactivation: string;
@@ -223,6 +225,7 @@ const ExitClearance: React.FC = () => {
                 <th>Employee Name</th>
                 <th>Department</th>
                 <th>Position</th>
+                <th>Device Assigned</th>
                 <th>Effectivity Date</th>
                 <th>Advise of HR</th>
                 <th>WISESDIT</th>
@@ -240,9 +243,20 @@ const ExitClearance: React.FC = () => {
       <tr key={employee.id}>
         <td>{employee.id}</td>
         <td>{employee.employee_number}</td>
-        <td>{`${employee.first_name} ${employee.middle_initial} ${employee.last_name}`}</td>
+        <td>{employee.first_name}{" "}
+            {employee.middle_initial && employee.middle_initial !== '-' ? employee.middle_initial + ' ' : ''}
+            {employee.last_name}</td>
         <td>{employee.division_department}</td>
         <td>{employee.position}</td>
+        <td>
+  {employee.assigned_devices && employee.assigned_devices.trim() !== "" ? (
+    employee.assigned_devices.split(",").map((device: string, idx: number) => (
+      <div key={idx} style={{ whiteSpace: "pre-wrap" }}>{device.trim()}</div>
+    ))
+  ) : (
+    "No Device Assigned"
+  )}
+</td>
         <td>{employee.effectivity_date}</td>
         <td>{employee.advise_of_hr}</td>
         <td>
@@ -251,7 +265,7 @@ const ExitClearance: React.FC = () => {
               href={employee.wisedit_deactivation}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: "blue", textDecoration: "underline" }}
+              style={{ color: "red", textDecoration: "underline" }}
             >
               WISEDIT-{lastFive}
             </a>
@@ -260,7 +274,7 @@ const ExitClearance: React.FC = () => {
           )}
         </td>
         <td className="userlist-actions">
-        <FaEdit
+        <GoIssueTracks
   className="edit-icon"
   title="Update WISEDA"
   onClick={() => handleWisedaClick(employee)}

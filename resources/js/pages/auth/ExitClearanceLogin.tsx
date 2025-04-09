@@ -17,18 +17,34 @@ export default function ExitClearanceLogin() {
         email: '',
         password: '',
         password_confirmation: '',
-        system_type: 'exitclearance', // Save system type for exit clearance
+        auth_email: '',             // ← new
+        auth_password: '',          // ← new
+        system_type: 'inventory',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const routeName = isLogin ? 'exitclearance-login' : 'exitclearance-register';
+        const routeName = isLogin ? 'inventory-login' : 'inventory-register';
     
         post(route(routeName), {
-            onFinish: () => reset('password', 'password_confirmation'),
-        });
+            preserveScroll: true,
+            onSuccess: () => {
+                if (!isLogin) {
+                    alert('Account registered successfully! Please log in.');
+                    router.visit(route('inventory-login-page'));
+                }
+            },
+            onError: (errors) => {
+                if (errors.auth) alert(`Authentication Error: ${errors.auth}`);
+                if (errors.email) alert(`Email Error: ${errors.email}`);
+                if (errors.password) alert(`Password Error: ${errors.password}`);
+                if (errors.password_confirmation) alert(`Confirm Password Error: ${errors.password_confirmation}`);
+            },
+            onFinish: () => {
+                reset('password', 'password_confirmation', 'auth_email', 'auth_password');
+            },
+        });        
     };
-    
 
     const handleClose = () => {
         router.visit('/');
@@ -61,7 +77,6 @@ export default function ExitClearanceLogin() {
                                     onChange={(e) => setData('name', e.target.value)}
                                     placeholder="Full Name"
                                 />
-                                <InputError message={errors.name} />
                             </div>
                         )}
 
@@ -74,7 +89,6 @@ export default function ExitClearanceLogin() {
                                 onChange={(e) => setData('email', e.target.value)}
                                 placeholder="Email Address"
                             />
-                            <InputError message={errors.email} />
                         </div>
 
                         <div className="input-group">
@@ -86,7 +100,6 @@ export default function ExitClearanceLogin() {
                                 onChange={(e) => setData('password', e.target.value)}
                                 placeholder="Password"
                             />
-                            <InputError message={errors.password} />
                         </div>
 
                         {!isLogin && (
@@ -99,9 +112,33 @@ export default function ExitClearanceLogin() {
                                     onChange={(e) => setData('password_confirmation', e.target.value)}
                                     placeholder="Confirm Password"
                                 />
-                                <InputError message={errors.password_confirmation} />
                             </div>
                         )}
+
+{!isLogin && (
+  <>
+    <div className="input-group">
+        <Input
+            id="auth_email"
+            type="email"
+            required
+            value={data.auth_email}
+            onChange={(e) => setData('auth_email', e.target.value)}
+            placeholder="Authorized Email"
+        />
+    </div>
+    <div className="input-group">
+        <Input
+            id="auth_password"
+            type="password"
+            required
+            value={data.auth_password}
+            onChange={(e) => setData('auth_password', e.target.value)}
+            placeholder="Authorized Password"
+        />
+    </div>
+  </>
+)}
 
                         <Button type="submit" className="auth-submit" disabled={processing}>
                             {processing && <LoaderCircle className="loading-icon" />}

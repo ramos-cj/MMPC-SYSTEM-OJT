@@ -5,26 +5,39 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
 class ExitClearanceAuthController extends Controller
 {
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:6',
-        ]);
+{
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|min:6',
+    ]);
 
-        if (Auth::attempt(array_merge($credentials, ['system_type' => 'exitclearance']))) {
-            $request->session()->regenerate();
-            return redirect()->route('exitclearance-dashboard');
-        }
+    $user = User::where('email', $credentials['email'])->first();
 
+    // Check if user exists
+    if (!$user || $user->system_type !== 'inventory') {
         return back()->withErrors([
-            'email' => 'Invalid login credentials or system type.',
+            'email' => 'User not found or invalid system type.',
         ]);
     }
+
+    // Check password
+    if (!Hash::check($credentials['password'], $user->password)) {
+        return back()->withErrors([
+            'password' => 'Invalid password.',
+        ]);
+    }
+
+    Auth::login($user);
+    $request->session()->regenerate();
+
+    return redirect()->route('inventory-dashboard');
+}
 
     public function register(Request $request)
     {

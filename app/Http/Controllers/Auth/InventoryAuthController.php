@@ -12,37 +12,61 @@ class InventoryAuthController extends Controller
 {
 
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:6',
-        ]);
+{
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|min:6',
+    ]);
 
-        if (Auth::attempt(array_merge($credentials, ['system_type' => 'inventory']))) {
-            $request->session()->regenerate();
-            return redirect()->route('inventory-dashboard');
-        }
+    $user = User::where('email', $credentials['email'])->first();
 
+    // Check if user exists
+    if (!$user || $user->system_type !== 'inventory') {
         return back()->withErrors([
-            'email' => 'Invalid login credentials or system type.',
+            'email' => 'User not found or invalid system type.',
         ]);
     }
 
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    // Check password
+    if (!Hash::check($credentials['password'], $user->password)) {
+        return back()->withErrors([
+            'password' => 'Invalid password.',
         ]);
-
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'system_type' => 'inventory',
-        ]);
-
-        return redirect()->route('inventory-login-page')->with('success', 'Account created successfully. Please log in.');
     }
+
+    Auth::login($user);
+    $request->session()->regenerate();
+
+    return redirect()->route('inventory-dashboard');
+}
+
+
+public function register(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        'auth_email' => 'required|email',
+        'auth_password' => 'required',
+    ]);
+
+    $authUser = User::where('email', $request->auth_email)
+                    ->where('system_type', 'inventory')
+                    ->first();
+
+    if (!$authUser || !Hash::check($request->auth_password, $authUser->password)) {
+        return back()->withErrors(['auth' => 'Authentication failed. Authorized account not valid.']);
+    }
+
+    User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'system_type' => 'inventory',
+    ]);
+
+    return redirect()->route('inventory-login-page')->with('success', 'Account created successfully. Please log in.');
+}
+
 }

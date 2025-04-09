@@ -69,7 +69,6 @@ const InventoryDeviceManagement: React.FC = () => {
                         <div className="form-group">
                             <label>Tag No.</label>
                             <input type="text" name="tag_no" placeholder="Enter Tag Number" value={formData.tag_no} onChange={handleChange} required />
-
                         </div>
 
                         <div className="form-group">

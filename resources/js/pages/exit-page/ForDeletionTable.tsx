@@ -46,15 +46,22 @@ const ForDeletionTable: React.FC<Props> = ({ data, sortOrder, handleSort, handle
               <td>{employee.effectivity_date}</td>
               <td>{employee.advise_of_hr}</td>
               <td>
-                {employee.wisedit_deactivation ? (
-                  <a href={employee.wisedit_deactivation} target="_blank" rel="noopener noreferrer">
-                    WISEDIT-{lastFive}
-                  </a>
-                ) : "No Link"}
+              {employee.wisedit_deactivation ? (
+            <a
+              href={employee.wisedit_deactivation}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "red", textDecoration: "underline" }}
+            >
+              WISEDIT-{lastFive}
+            </a>
+          ) : (
+            "No Link Provided"
+          )}
               </td>
               <td>
                 {isLink ? (
-                  <a href={value} target="_blank" rel="noopener noreferrer">
+                  <a href={value} target="_blank" rel="noopener noreferrer" style={{ color: "red", textDecoration: "underline" }}>
                     {displayText}
                   </a>
                 ) : (

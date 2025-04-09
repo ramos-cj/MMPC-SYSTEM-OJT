@@ -58,6 +58,7 @@ const InventoryDeviceAssignment: React.FC = () => {
     brand_model: '',
     serial_number: '',
     accessories: '',
+    computer_name: ''
 });
 
     // Fetch employees, available devices, and assigned devices
@@ -206,6 +207,7 @@ const InventoryDeviceAssignment: React.FC = () => {
             brand_model: device.brand_model || "", 
             serial_number: device.serial_number || "", 
             accessories: device.accessories || "", 
+            computer_name: device.computer_name || ""
         });
     
         setShowTransferModal(true);
@@ -303,7 +305,8 @@ const InventoryDeviceAssignment: React.FC = () => {
             classification: '',
             brand_model: '',
             serial_number: '',
-            accessories: ''
+            accessories: '',
+            computer_name: '',
         }); // Reset the form data
     };     
 
@@ -549,12 +552,6 @@ const InventoryDeviceAssignment: React.FC = () => {
 </div>
 
                 {/* Editable Accessories Field */}
-                <div className="assignee-container">
-                    <label>Accessories</label>
-                    <input type="text" placeholder="Edit Accessories" 
-                        value={transferData.accessories}
-                        onChange={(e) => setTransferData({...transferData, accessories: e.target.value})} />
-                </div>
 
                 <label className="full-width">Device Information</label>
 
@@ -567,6 +564,11 @@ const InventoryDeviceAssignment: React.FC = () => {
     <div>
         <label>Brand / Model</label>
         <input type="text" value={transferData.brand_model} readOnly />
+    </div>
+
+    <div>
+        <label> Computer Name</label>
+        <input type="text" value={transferData.computer_name} readOnly/>
     </div>
 
     <div>

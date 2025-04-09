@@ -27,7 +27,9 @@ class IssuedEClearance extends Model
         'advise_of_hr',
         'wisedit_deactivation',
         'wiseda_exit_clearance',
-        'remarks'
-    ];    
+        'remarks',
+        'assigned_devices'
+    ];
+    
     
 }

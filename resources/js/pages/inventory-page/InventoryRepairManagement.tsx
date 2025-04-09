@@ -8,10 +8,8 @@ import "@/styles/DeviceRepairManagement.css";
 interface RepairItem {
   id: number;
   tag_no: string;
-  general_name: string;
-  brand_name: string;
+  brand_model: string;
   classification: string;
-  model: string;
   computer_name: string;
   with_warranty: string;
   location: string;
@@ -40,7 +38,7 @@ const RepairManagement: React.FC = () => {
         const badDevices = data.filter((item) => item.condition === "Bad");
         setItems(badDevices);
         const uniqueClassifications = [...new Set(data.map(device => device.classification))];
-                const uniqueBrands = [...new Set(data.map(device => device.brand_name))];
+                const uniqueBrands = [...new Set(data.map(device => device.brand_model))];
 
                 setClassifications(uniqueClassifications);
                 setBrands(uniqueBrands);
@@ -51,12 +49,11 @@ const RepairManagement: React.FC = () => {
   // Filtering logic
   const filteredItems = items.filter(
     (item) =>
-      (item.general_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.brand_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.brand_model.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.computer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.tag_no.includes(searchTerm)) &&
         (selectedClassification === "" || item.classification === selectedClassification) &&
-        (selectedBrand === "" || item.brand_name === selectedBrand)
+        (selectedBrand === "" || item.brand_model === selectedBrand)
   );
 
   // Pagination logic
@@ -152,9 +149,8 @@ const RepairManagement: React.FC = () => {
               <tr>
                 <th>Host Name</th>
                 <th>Tag No.</th>
-                <th>Brand</th>
                 <th>Classification</th>
-                <th>Model</th>
+                <th>Brand / Model</th>
                 <th>Warranty</th>
                 <th>Location</th>
                 <th>Defects/Issues</th>
@@ -166,9 +162,8 @@ const RepairManagement: React.FC = () => {
                 <tr key={item.id}>
                   <td>{item.computer_name}</td>
                   <td>{item.tag_no}</td>
-                  <td>{item.general_name}</td>
                   <td>{item.classification}</td>
-                  <td>{item.model}</td>
+                  <td>{item.brand_model}</td>
                   <td>{item.with_warranty}</td>
                   <td>{item.location}</td>
                   <td>{item.need_to_be_repair || "N/A"}</td>

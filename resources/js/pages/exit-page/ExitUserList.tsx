@@ -159,7 +159,7 @@ const handleSaveExitClearance = async () => {
     const middleInitial =
       user.middle_initial &&
       user.middle_initial !== "N/A" &&
-      user.middle_initial !== "-" &&
+      user.middle_initial === '-' ? '' : user.middle_initial &&
       user.middle_initial.trim() !== ""
         ? `${user.middle_initial.replace(".", "")}. `
         : "";
@@ -413,7 +413,7 @@ const handleDelete = async (id: number) => {
             {/* Profile Picture & Name */}
             <div className="profile-section">
                 <FaUsers className="user-icon" />
-                <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial ?? ""} {selectedEmployee.last_name}</p>
+                <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial === "-" ? "" : selectedEmployee.middle_initial} {selectedEmployee.last_name}</p>
             </div>
 
             {/* Employee Details (2 Columns) */}

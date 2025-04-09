@@ -25,4 +25,11 @@ class Employee extends Model
         'department_code',
         'employee_type'
     ];
+
+    public function deviceAssignments()
+{
+    return $this->hasMany(\App\Models\DeviceAssignment::class, 'employee_id');
 }
+
+}
+

@@ -25,13 +25,14 @@ class ClearanceStatusController extends Controller
     public function getPending()
     {
         $employees = IssuedEClearance::whereNotNull('wiseda_exit_clearance')
-            ->whereNull('remarks') // only those not yet approved
+            ->whereNull('remarks')
             ->get()
             ->map(function ($emp) {
+                $middle = ($emp->middle_initial && $emp->middle_initial !== '-') ? $emp->middle_initial . ' ' : '';
                 return [
                     'user_id' => $emp->id,
                     'employee_number' => $emp->employee_number,
-                    'employee_name' => "{$emp->first_name} {$emp->middle_initial} {$emp->last_name}",
+                    'employee_name' => "{$emp->first_name} {$middle}{$emp->last_name}",
                     'division_department' => $emp->division_department,
                     'position' => $emp->position,
                     'effectivity_date' => $emp->effectivity_date,
@@ -51,10 +52,11 @@ class ClearanceStatusController extends Controller
         $employees = IssuedEClearance::where('remarks', 'Approved')
             ->get()
             ->map(function ($emp) {
+                $middle = ($emp->middle_initial && $emp->middle_initial !== '-') ? $emp->middle_initial . ' ' : '';
                 return [
                     'user_id' => $emp->id,
                     'employee_number' => $emp->employee_number,
-                    'employee_name' => "{$emp->first_name} {$emp->middle_initial} {$emp->last_name}",
+                    'employee_name' => "{$emp->first_name} {$middle}{$emp->last_name}",
                     'division_department' => $emp->division_department,
                     'position' => $emp->position,
                     'effectivity_date' => $emp->effectivity_date,

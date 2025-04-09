@@ -3,29 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\IssuedEClearance;
-use App\Models\Employee; // Import your Employee model if needed
+use App\Models\Employee; 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class ExitClearanceController extends Controller
 {
     public function issueExitClearance(Request $request, $id)
 {
-    $employee = Employee::where('id', $id)->first();
+    $employee = Employee::with('deviceAssignments.device')->find($id);
 
     if (!$employee) {
         return response()->json(['message' => 'Employee not found.'], 404);
     }
 
-    // Validate incoming request
     $validatedData = $request->validate([
         'effectivity_date' => 'nullable|date',
         'advise_of_hr' => 'nullable|date',
         'wisedit_deactivation' => 'nullable|string',
-        'remarks' => 'nullable|string'
+        'remarks' => 'nullable|string',
     ]);
 
     try {
-        // Save the exit clearance to the database
+        // 🔄 Convert assigned devices to string (comma-separated or JSON)
+        $assignedDevices = $employee->deviceAssignments->map(function ($assignment) {
+            $device = $assignment->device;
+            return $device ? "{$device->brand_model} ({$device->computer_name})" : null;
+        })->filter()->implode(', ');
+        
+
         $exitClearance = IssuedEClearance::create([
             'employee_id' => $employee->id,
             'employee_number' => $employee->employee_number,
@@ -42,10 +48,12 @@ class ExitClearanceController extends Controller
             'advise_of_hr' => $validatedData['advise_of_hr'] ?? null,
             'wisedit_deactivation' => $validatedData['wisedit_deactivation'] ?? null,
             'remarks' => $validatedData['remarks'] ?? null,
-        ]);        
-        
+            'assigned_devices' => $assignedDevices // ✅ Store device names
+        ]);
+
         return response()->json(['message' => 'Exit clearance issued successfully!', 'data' => $exitClearance], 200);
     } catch (\Exception $e) {
+        Log::error('Exit Clearance Error: ' . $e->getMessage());
         return response()->json(['message' => 'An error occurred while saving exit clearance.', 'error' => $e->getMessage()], 500);
     }
 }

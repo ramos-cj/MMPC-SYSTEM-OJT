@@ -10,6 +10,9 @@ interface Employee {
   user_id: number;
   employee_number: string;
   employee_name: string;
+  first_name: string;
+  middle_initial?: string;
+  last_name: string;
   division_department: string;
   position: string;
   employee_type: string;

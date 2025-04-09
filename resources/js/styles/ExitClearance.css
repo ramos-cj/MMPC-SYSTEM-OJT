@@ -21,7 +21,21 @@
     margin-bottom: 15px;
     padding-bottom: 10px;
 }
+.exit-table-container {
+  margin-top: 10px;
+  background: white;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-y: auto;
+}
 
+.clearance-status-table-container {
+  margin-top: 10px;
+  background: white;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-y: auto;
+}
   
   .exit-clearance-content::-webkit-scrollbar {
     width: 6px;
@@ -32,22 +46,22 @@
     border-radius: 4px;
   }
   
-  .exit-clearance-table-container table {
+  .clearance-status-table-container table {
     width: 100%;
     border-collapse: collapse;
   }
 
-  .exit-clearance-table-container th,
-  .exit-clearance-table-container td {
-    padding: 4px;
+  .clearance-status-table-container th,
+  .clearance-status-table-container td {
+    padding: 1px;
     text-align: center;
     border: none;
     white-space: normal;
     word-break: break-word;
-    max-width: 200px;
+    max-width: 120px;
   }
   
-  .exit-clearance-table-container th {
+  .clearance-status-table-container th {
     background-color: #d32f2f;
     color: white;
     font-weight: bold;

@@ -340,7 +340,7 @@ const handleDelete = async (id: number) => {
             {/* Profile Picture & Name */}
             <div className="profile-section">
                 <FaUsers className="user-icon" />
-                <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial ?? ""} {selectedEmployee.last_name}</p>
+                <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial === "-" ? "" : selectedEmployee.middle_initial} {selectedEmployee.last_name}</p>
             </div>
 
             {/* Employee Details (2 Columns) */}
@@ -349,7 +349,7 @@ const handleDelete = async (id: number) => {
                     <label>First Name:</label>
                     <input type="text" value={selectedEmployee.first_name} readOnly />
                     <label>Middle Initial:</label>
-                    <input type="text" value={selectedEmployee.middle_initial ?? "-"} readOnly />
+                    <input type="text" value={selectedEmployee.middle_initial ?? ""} readOnly />
                     <label>Last Name:</label>
                     <input type="text" value={selectedEmployee.last_name} readOnly />
                     <label>Position:</label>
