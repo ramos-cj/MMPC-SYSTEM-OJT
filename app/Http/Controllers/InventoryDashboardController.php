@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Device;
+use App\Models\DeviceAssignment;
 use App\Models\Employee;
 use App\Models\FileLog;
 use App\Models\ImportedFile;
@@ -17,7 +18,13 @@ class InventoryDashboardController extends Controller
         $totalLaptops = Device::where('classification', 'Laptop')->count();
         $totalTablets = Device::where('classification', 'Tablet')->count();
         $totalPhones = Device::where('classification', 'Phone')->count();
-        $totalAccessories = Device::whereNotNull('accessories')->count();
+        $totalAccessories = DeviceAssignment::whereNotNull('accessories')
+    ->where('accessories', '!=', 'N/A')
+    ->pluck('accessories')
+    ->flatMap(function ($accessory) {
+        return array_filter(array_map('trim', explode(',', $accessory)));
+    })
+    ->count();      
         $totalGoodCondition = Device::where('condition', 'Good')->count();
         $totalBadCondition = Device::where('condition', 'Bad')->count();
         $totalImportedFiles = FileLog::count();

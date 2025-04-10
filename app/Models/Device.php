@@ -11,7 +11,6 @@ class Device extends Model
 
     protected $fillable = [
         'tag_no',
-        'pi_guard',
         'activation_updates',
         'accessories',
         'classification',

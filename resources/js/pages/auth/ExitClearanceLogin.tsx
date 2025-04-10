@@ -19,19 +19,19 @@ export default function ExitClearanceLogin() {
         password_confirmation: '',
         auth_email: '',             // ← new
         auth_password: '',          // ← new
-        system_type: 'inventory',
+        system_type: 'exitclearance',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const routeName = isLogin ? 'inventory-login' : 'inventory-register';
+        const routeName = isLogin ? 'exitclearance-login' : 'exitclearance-register';
     
         post(route(routeName), {
             preserveScroll: true,
             onSuccess: () => {
                 if (!isLogin) {
                     alert('Account registered successfully! Please log in.');
-                    router.visit(route('inventory-login-page'));
+                    router.visit(route('exitclearance-login-page'));
                 }
             },
             onError: (errors) => {

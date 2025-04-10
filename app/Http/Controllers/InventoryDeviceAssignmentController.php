@@ -43,7 +43,8 @@ class InventoryDeviceAssignmentController extends Controller
             'brand_model' => $assignment->brand_model,
             'serial_number' => $assignment->serial_number,
             'computer_name' => $assignment->computer_name ?? 'N/A',
-            'accessories' => $assignment->accessories
+            'accessories' => $assignment->accessories,
+            'remarks' => $assignment->remarks,
         ];
     });
 
@@ -75,14 +76,16 @@ public function assignDevice(Request $request)
 
     $assignment = DeviceAssignment::create([
         'employee_id' => $employee->id,
-        'employee_name' => $employee->first_name . ' ' . $employee->last_name, // Add this line to populate the column
+        'employee_name' => $employee->first_name . ' ' . $employee->last_name,
         'device_id' => $device->id,
         'classification' => $device->classification,
         'brand_model' => $device->brand_model,
         'serial_number' => $device->serial_number,
         'computer_name' => $device->computer_name,
-        'accessories' => $request->accessories
+        'accessories' => $request->accessories,
+        'remarks' => implode(', ', $request->remarks ?? []),
     ]);
+    
 
     $device->remarks = 'Assigned';
     $device->save();

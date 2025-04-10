@@ -47,25 +47,25 @@ const ExitDashboard: React.FC = () => {
                             <div className="icon"><FaUsers /></div>
                             <h3>{stats.totalEmployees}</h3>
                             <p>Total Employees</p>
-                            <div className="more-info" onClick={() => Inertia.visit('/inventory-devicelist')}>More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => Inertia.visit('/exit-userlist')}>More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
                             <div className="icon"><FaListAlt /></div>
                             <h3>{stats.issuedClearances}</h3>
                             <p>Issued Exit Clearances</p>
-                            <div className="more-info" onClick={() => Inertia.visit('/inventory-devicelist')}>More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => Inertia.visit('/exit-exitclearance')}>More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
                             <div className="icon"><FaCheckCircle /></div>
                             <h3>{stats.completedClearances}</h3>
                             <p>Completed Clearances</p>
-                            <div className="more-info" onClick={() => Inertia.visit('/inventory-devicelist')}>More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => Inertia.visit('/exit-clearancestatus')}>More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
                             <div className="icon"><FaFileImport /></div>
                             <h3>{stats.totalImportedFiles}</h3>
                             <p>Imported Files</p>
-                            <div className="more-info" onClick={() => Inertia.visit('/inventory-devicelist')}>More Info <FaArrowRight /></div>
+                            <div className="more-info" onClick={() => Inertia.visit('/exit-importfiles')}>More Info <FaArrowRight /></div>
                         </div>
                     </div>
                     

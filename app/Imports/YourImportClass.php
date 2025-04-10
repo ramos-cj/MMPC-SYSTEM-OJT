@@ -122,7 +122,8 @@ if (!$hasCondition && $assigned) {
                     'model' => $device->model ?? 'N/A',
                     'serial_number' => $device->serial_number ?? 'N/A',
                     'computer_name' => $device->computer_name ?? 'N/A',
-                    'accessories' => $row['accessories'] ?? 'N/A'
+                    'accessories' => $row['accessories'] ?? 'N/A',
+                    'remarks' => $row['remarks'] ?? 'N/A'
                 ]
             );
         }

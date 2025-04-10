@@ -38,7 +38,6 @@ public function store(Request $request)
 {
     $request->validate([
         'tag_no' => 'required|string|unique:devices',
-        'pi_guard' => 'required|string',
         'activation_updates' => 'required|string',
         'classification' => 'required|string',
         'estimated_acquisition_year' => 'required|string',
@@ -56,7 +55,6 @@ public function store(Request $request)
 
     $device = new Device();
     $device->tag_no = $request->tag_no;
-    $device->pi_guard = $request->pi_guard;
     $device->activation_updates = $request->activation_updates;
     $device->classification = $request->classification;
     $device->estimated_acquisition_year = $request->estimated_acquisition_year;
@@ -105,7 +103,6 @@ public function update(Request $request, $id)
 
         $request->validate([
             'tag_no' => 'required|string|unique:devices,tag_no,' . $id,
-            'pi_guard' => 'required|string',
             'activation_updates' => 'required|string',
             'accessories' => 'nullable|string',
             'classification' => 'required|string',
@@ -124,7 +121,6 @@ public function update(Request $request, $id)
 
         // ✅ Assign new values (excluding image)
         $device->tag_no = $request->tag_no;
-        $device->pi_guard = $request->pi_guard;
         $device->activation_updates = $request->activation_updates;
         $device->accessories = $request->accessories;
         $device->classification = $request->classification;

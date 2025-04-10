@@ -6,7 +6,6 @@ import "@/styles/DeviceManagement.css";
 const InventoryDeviceManagement: React.FC = () => {
     const [formData, setFormData] = useState({
         tag_no: "",
-        pi_guard: "",
         activation_updates: "",
         classification: "",
         estimated_acquisition_year: "",
@@ -69,15 +68,6 @@ const InventoryDeviceManagement: React.FC = () => {
                         <div className="form-group">
                             <label>Tag No.</label>
                             <input type="text" name="tag_no" placeholder="Enter Tag Number" value={formData.tag_no} onChange={handleChange} required />
-                        </div>
-
-                        <div className="form-group">
-                            <label>With IP-Guard</label>
-                            <select name="pi_guard" value={formData.pi_guard} onChange={handleChange} required>
-                                <option value="">Choose IP-Guard</option>
-                                <option value="Unauthorized">Unauthorized</option>
-                                <option value="Unclassified">Unclassified</option>
-                            </select>
                         </div>
 
                         <div className="form-group">
@@ -175,7 +165,7 @@ const InventoryDeviceManagement: React.FC = () => {
                         </div>
                     </div>
 
-                    <button type="submit" className="save-btn">Save Device</button>
+                    <button type="submit" className="device-management-save-btn">Save Device</button>
                 </form>
             </div>
 

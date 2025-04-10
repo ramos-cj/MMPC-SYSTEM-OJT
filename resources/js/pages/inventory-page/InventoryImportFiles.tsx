@@ -181,7 +181,7 @@ const InventoryImportFiles = () => {
                     </div>
                     
                     <div className="import-table">
-                    <h3>Recently Upload</h3>
+                    <h3>Recently Managed Files</h3>
                     <table>
                         <thead>
                             <tr>

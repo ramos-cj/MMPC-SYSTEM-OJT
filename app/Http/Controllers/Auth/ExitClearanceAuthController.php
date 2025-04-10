@@ -20,7 +20,7 @@ class ExitClearanceAuthController extends Controller
     $user = User::where('email', $credentials['email'])->first();
 
     // Check if user exists
-    if (!$user || $user->system_type !== 'inventory') {
+    if (!$user || $user->system_type !== 'exitclearance') {
         return back()->withErrors([
             'email' => 'User not found or invalid system type.',
         ]);
@@ -36,7 +36,7 @@ class ExitClearanceAuthController extends Controller
     Auth::login($user);
     $request->session()->regenerate();
 
-    return redirect()->route('inventory-dashboard');
+    return redirect()->route('exitclearance-dashboard');
 }
 
     public function register(Request $request)

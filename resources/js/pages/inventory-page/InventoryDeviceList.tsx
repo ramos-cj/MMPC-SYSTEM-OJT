@@ -21,7 +21,6 @@ interface Device {
     computer_name?: string;
     qr_code: string;
     need_to_be_repair: string;
-    pi_guard: string;
     activation_updates: string;
     image_file?: string;
     employee_name?: string;
@@ -312,11 +311,6 @@ export default function InventoryDeviceList() {
     </div>
 
     <div className="input-group">
-        <label>IP Guard:</label>
-        <input type="text" value={selectedDevice.pi_guard || ''} readOnly />
-    </div>
-
-    <div className="input-group">
         <label>With Activation Updates:</label>
         <input type="text" value={selectedDevice.activation_updates || ''} readOnly />
     </div>
@@ -445,14 +439,6 @@ export default function InventoryDeviceList() {
             <div className="field">
                 <label>Computer Name:</label>
                 <input type="text" name="computer_name" value={editDevice.computer_name || ""} onChange={handleInputChange} />
-            </div>
-
-            <div className="field">
-                <label>With IP-Guard:</label>
-                <select name="pi_guard" value={editDevice.pi_guard} onChange={handleInputChange}>
-                    <option value="Unauthorized">Unauthorized</option>
-                    <option value="Unclassified">Unclassified</option>
-                </select>
             </div>
 
             <div className="field">

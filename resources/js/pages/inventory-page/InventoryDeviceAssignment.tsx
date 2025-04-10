@@ -19,7 +19,7 @@ interface Device {
     brand_model: string;
     serial_number: string;
     condition: string;
-    remarks: string;
+    remarks?: string;
     accessories?: string; 
     employee_id?: number | null;
     employee_name?: string;
@@ -29,6 +29,7 @@ interface Device {
 }
 
 
+
 const InventoryDeviceAssignment: React.FC = () => {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [devices, setDevices] = useState<Device[]>([]);
@@ -36,6 +37,7 @@ const InventoryDeviceAssignment: React.FC = () => {
     const [classifications, setClassifications] = useState<string[]>([]);
     const [brands, setBrands] = useState<string[]>([]);
     const [computers, setComputers] = useState<Device[]>([]);
+    const [selectedRemarks, setSelectedRemarks] = useState<string[]>([]);
 
     const [searchTerm, setSearchTerm] = useState("");
     const [entriesPerPage, setEntriesPerPage] = useState(15);
@@ -58,8 +60,16 @@ const InventoryDeviceAssignment: React.FC = () => {
     brand_model: '',
     serial_number: '',
     accessories: '',
-    computer_name: ''
+    computer_name: '',
 });
+
+    const handleRemarksChange = (remark: string) => {
+        setSelectedRemarks((prev) =>
+            prev.includes(remark)
+            ? prev.filter((r) => r !== remark)
+            : [...prev, remark]
+        );
+    };
 
     // Fetch employees, available devices, and assigned devices
     useEffect(() => {
@@ -165,7 +175,8 @@ const InventoryDeviceAssignment: React.FC = () => {
                     brand_model: selectedBrand,
                     accessories: selectedAccessories,
                     computer_name: selectedComputer,
-                }),
+                    remarks: selectedRemarks, 
+                  }),
                 credentials: "include",
             });
     
@@ -393,6 +404,25 @@ const InventoryDeviceAssignment: React.FC = () => {
         />
     </div>
 
+    <div className="form-group">
+  <label>Remarks</label>
+  
+  <div className="check-box">
+    {["Installed IP-Guard", "Installed Canon Printer", "Installed Trend Micro"].map((option) => (
+      <label key={option}>
+        <input
+          type="checkbox"
+          value={option}
+          checked={selectedRemarks.includes(option)}
+          onChange={() => handleRemarksChange(option)}
+        />
+        {option}
+      </label>
+    ))}
+  </div>
+</div>
+
+
     {/* Assign Device Button Below */}
     <button className="assign-button" onClick={handleAssignDevice}>
         Assign Device
@@ -435,7 +465,6 @@ const InventoryDeviceAssignment: React.FC = () => {
                 <table>
                     <thead>
                         <tr>
-                            <th>User ID</th>
                             <th>Employee No.</th>
                             <th>Assigned Employee</th>
                             <th>Previous Assignee</th>
@@ -444,13 +473,13 @@ const InventoryDeviceAssignment: React.FC = () => {
                             <th>Classification</th>
                             <th>Brand / Model</th>
                             <th>Serial Number</th>
+                            <th>Assigned Device Remarks</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {currentDevices.map(device => (
                             <tr key={device.id}>
-                                <td>{device.id}</td>
                                 <td>{device.employee_number}</td>
                                 <td>{device.employee_name}</td>
                                 <td>{device.previous_assignee}</td>
@@ -459,6 +488,12 @@ const InventoryDeviceAssignment: React.FC = () => {
                                 <td>{device.classification}</td>
                                 <td>{device.brand_model}</td>
                                 <td>{device.serial_number}</td>
+                                <td>
+  {device.remarks
+    ? device.remarks.split(',').map((r, i) => <div key={i}>{r.trim()}</div>)
+    : 'None'}
+</td>
+
             <td>
                     <button className="action-btn transfer-btn" onClick={() => openTransferModal(device)}>
                         <FaExchangeAlt />
