@@ -152,9 +152,11 @@ export default function InventoryDeviceList() {
             // ✅ Update the state with the new device details
             setDevices((prevDevices) =>
                 prevDevices.map((device) =>
-                    device.id === updatedDevice.device.id ? updatedDevice.device : device
+                  device.id === updatedDevice.device.id
+                    ? { ...device, ...updatedDevice.device } // this keeps employee_name
+                    : device
                 )
-            );
+              );              
     
             closeEditModal(); // ✅ Close modal after saving
         } catch (error) {
@@ -420,7 +422,7 @@ export default function InventoryDeviceList() {
 
             <div className="field">
                 <label>Brand / Model:</label>
-                <input type="text" name="model" value={editDevice.brand_model} onChange={handleInputChange} />
+                <input type="text" name="brand_model" value={editDevice.brand_model} onChange={handleInputChange} />
             </div>
 
             <div className="field">

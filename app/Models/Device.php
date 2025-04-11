@@ -25,4 +25,11 @@ class Device extends Model
         'condition',
         'image_file',
     ];
+
+    public function employeeAssignments()
+{
+    return $this->hasMany(DeviceAssignment::class);
 }
+
+}
+

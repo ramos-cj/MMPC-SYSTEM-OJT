@@ -99,10 +99,10 @@ public function getDeviceImage($filename)
 public function update(Request $request, $id)
 {
     try {
-        $device = Device::findOrFail($id);
+        $device = Device::with('employeeAssignments.employee')->findOrFail($id);
 
         $request->validate([
-            'tag_no' => 'required|string|unique:devices,tag_no,' . $id,
+            'tag_no' => 'nullable|string|max:255',
             'activation_updates' => 'required|string',
             'accessories' => 'nullable|string',
             'classification' => 'required|string',
@@ -134,6 +134,7 @@ public function update(Request $request, $id)
         $device->condition = $request->condition;
         $device->remarks = $request->remarks;
         $device->need_to_be_repair = ($request->condition === "Bad") ? $request->need_to_be_repair : null;
+        
 
         // ✅ Handle image replacement
         if ($request->hasFile('image_file')) {
@@ -151,12 +152,21 @@ public function update(Request $request, $id)
             $device->image_file = $filename;
         }
 
-        // ✅ Save changes
         $device->save();
 
-        return response()->json(['success' => true, 'message' => 'Device updated successfully!', 'device' => $device]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Device updated successfully!',
+            'device' => [
+                ...$device->toArray(),
+                'employee_name' => $device->employeeAssignments->first()?->employee?->first_name . ' ' . $device->employeeAssignments->first()?->employee?->last_name ?? 'Unassigned',
+            ]
+        ]);
     } catch (\Exception $e) {
-        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
     }
 }
 
