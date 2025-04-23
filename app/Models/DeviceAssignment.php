@@ -18,7 +18,7 @@ class DeviceAssignment extends Model
         'serial_number',
         'computer_name',
         'accessories',
-        'remarks',
+        'device_remarks',
     ];
     
     public function employee()

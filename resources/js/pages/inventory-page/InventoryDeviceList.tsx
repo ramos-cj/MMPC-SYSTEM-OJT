@@ -362,18 +362,21 @@ export default function InventoryDeviceList() {
         <input type="text" value={selectedDevice.condition || ''} readOnly />
     </div>
 
-
     <div className="input-group">
         <label>Remarks:</label>
         <input type="text" value={selectedDevice.remarks || ''} readOnly />
     </div>
- </div>
+
+    <div className="input-group">
+        <label>Assigned to:</label>
+        <input type="text" value={selectedDevice.employee_name || ''} readOnly />
+    </div>
 
     <div className="input-group">
         <label>Defects/Issues:</label>
         <input type="text" value={selectedDevice.need_to_be_repair || ''} readOnly />
     </div>
-
+ </div>
                     </div>
                 </div>
             )}

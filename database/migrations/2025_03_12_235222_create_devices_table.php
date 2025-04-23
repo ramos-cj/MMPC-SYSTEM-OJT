@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('devices', function (Blueprint $table) {
             $table->id();
             $table->string('tag_no');
-            $table->string('pi_guard');
             $table->string('activation_updates');
             $table->string('brand_model');
             $table->string('accessories')->nullable();

@@ -94,8 +94,8 @@ export default function InventoryUserManagement() {
                                     <input type="text" name="employee_number" placeholder="Enter Employee Number" value={formData.employee_number} onChange={handleChange} required />
                                 </div>
                                 <div className="form-group">
-                                    <label>Department:</label>
-                                    <input type="text" name="position" placeholder="Enter Employee's Department" value={formData.position} onChange={handleChange} required />
+                                    <label>Position:</label>
+                                    <input type="text" name="position" placeholder="Enter Employee's Position" value={formData.position} onChange={handleChange} required />
                                 </div>
                             </div>
                             <div className="form-row">

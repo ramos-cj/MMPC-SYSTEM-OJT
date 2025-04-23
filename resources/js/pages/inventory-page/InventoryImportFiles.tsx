@@ -17,8 +17,10 @@ const InventoryImportFiles = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const filteredFiles = importedFiles.filter(file =>
-        file.file_name.toLowerCase().includes(searchTerm.toLowerCase())
+        file.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        file.action.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    
 
     const totalPages = Math.ceil(filteredFiles.length / entriesPerPage);
 

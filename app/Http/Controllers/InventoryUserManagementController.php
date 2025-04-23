@@ -109,7 +109,7 @@ class InventoryUserManagementController extends Controller
     $request->validate([
         'employee_number' => 'required|string|unique:employees,employee_number,' . $id,
         'first_name' => 'required|string',
-        'middle_initial' => 'nullable|string|max:1',
+        'middle_initial' => 'nullable|string|max:3',
         'last_name' => 'required|string',
         'division_department' => 'required|string',
         'position' => 'required|string',

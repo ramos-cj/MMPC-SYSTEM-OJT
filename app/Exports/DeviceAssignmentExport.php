@@ -12,7 +12,7 @@ class DeviceAssignmentExport implements FromCollection, WithHeadings
     {
         return DeviceAssignment::select(
             'id', 'employee_id', 'device_id', 'classification', 'brand_model', 
-            'serial_number', 'accessories', 'remarks', 'created_at', 'updated_at', 
+            'serial_number', 'accessories', 'device_remarks', 'created_at', 'updated_at', 
             'previous_assignee', 'transferred_date'
         )->get();
     }

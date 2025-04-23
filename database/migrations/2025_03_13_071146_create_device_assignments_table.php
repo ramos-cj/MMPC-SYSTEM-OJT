@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('classification');
             $table->string('brand_model');
             $table->string('serial_number');
+            $table->string('device_remarks');
             $table->timestamps();
 
             // Foreign key relationships

@@ -183,9 +183,13 @@ const handleSaveChanges = async () => {
       const updatedEmployee = await response.json();
       alert("Employee details updated successfully!");
 
-      setUsers(prevUsers => prevUsers.map(user => 
-          user.employee_id === editEmployee.employee_id ? { ...user, ...editEmployee } : user
-      ));
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user.employee_id === editEmployee.employee_id
+            ? { ...user, ...editEmployee, assigned_devices: user.assigned_devices }
+            : user
+        )
+      );      
 
       setEditEmployee(null); // Close the edit form
   } catch (error) {
@@ -279,7 +283,7 @@ const handleDelete = async (id: number) => {
                 <th>Full Name</th>
                 <th>Employee Type</th>
                 <th>Division</th>
-                <th>Department</th>
+                <th>Position</th>
                 <th>Assigned Devices</th>
                 <th>Actions</th>
               </tr>
@@ -340,7 +344,17 @@ const handleDelete = async (id: number) => {
             {/* Profile Picture & Name */}
             <div className="profile-section">
                 <FaUsers className="user-icon" />
-                <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial === "-" ? "" : selectedEmployee.middle_initial} {selectedEmployee.last_name}</p>
+                <p className="employee-name">
+  {selectedEmployee.first_name}{" "}
+  {(selectedEmployee.middle_initial &&
+    selectedEmployee.middle_initial !== "N/A" &&
+    selectedEmployee.middle_initial !== "-" &&
+    selectedEmployee.middle_initial.trim() !== "")
+    ? `${selectedEmployee.middle_initial.replace(".", "")}. `
+    : ""}
+  {selectedEmployee.last_name}
+</p>
+
             </div>
 
             {/* Employee Details (2 Columns) */}

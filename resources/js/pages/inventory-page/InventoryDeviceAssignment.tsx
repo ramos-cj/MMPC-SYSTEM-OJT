@@ -19,7 +19,8 @@ interface Device {
     brand_model: string;
     serial_number: string;
     condition: string;
-    remarks?: string;
+    remarks: string;
+    device_remarks?: string; 
     accessories?: string; 
     employee_id?: number | null;
     employee_name?: string;
@@ -27,8 +28,6 @@ interface Device {
     previous_assignee?: string;
     computer_name?: string;
 }
-
-
 
 const InventoryDeviceAssignment: React.FC = () => {
     const [employees, setEmployees] = useState<Employee[]>([]);
@@ -117,11 +116,12 @@ const InventoryDeviceAssignment: React.FC = () => {
     useEffect(() => {
         if (selectedClassification && selectedBrand) {
             const availableComputers = devices
-                .filter(device =>
-                    device.classification === selectedClassification &&
-                    device.brand_model === selectedBrand &&
-                    device.remarks === 'Free'
-                );
+    .filter(device =>
+        device.classification === selectedClassification &&
+        device.brand_model === selectedBrand &&
+        device.remarks === 'Free' // ✅ CORRECT
+    );
+
     
             setComputers(availableComputers);
             setSelectedComputer("");
@@ -318,7 +318,7 @@ const InventoryDeviceAssignment: React.FC = () => {
             serial_number: '',
             accessories: '',
             computer_name: '',
-        }); // Reset the form data
+        });
     };     
 
     return (
@@ -489,8 +489,8 @@ const InventoryDeviceAssignment: React.FC = () => {
                                 <td>{device.brand_model}</td>
                                 <td>{device.serial_number}</td>
                                 <td>
-  {device.remarks
-    ? device.remarks.split(',').map((r, i) => <div key={i}>{r.trim()}</div>)
+  {device.device_remarks
+    ? device.device_remarks.split(',').map((r, i) => <div key={i}>{r.trim()}</div>)
     : 'None'}
 </td>
 

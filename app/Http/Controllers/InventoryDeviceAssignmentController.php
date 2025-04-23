@@ -44,7 +44,7 @@ class InventoryDeviceAssignmentController extends Controller
             'serial_number' => $assignment->serial_number,
             'computer_name' => $assignment->computer_name ?? 'N/A',
             'accessories' => $assignment->accessories,
-            'remarks' => $assignment->remarks,
+            'device_remarks' => $assignment->device_remarks,
         ];
     });
 
@@ -83,7 +83,7 @@ public function assignDevice(Request $request)
         'serial_number' => $device->serial_number,
         'computer_name' => $device->computer_name,
         'accessories' => $request->accessories,
-        'remarks' => implode(', ', $request->remarks ?? []),
+        'device_remarks' => implode(', ', $request->remarks ?? []),
     ]);
     
 

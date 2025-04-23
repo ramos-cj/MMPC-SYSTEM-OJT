@@ -79,8 +79,6 @@ if (!$hasCondition && $assigned) {
         default => 'N/A'
     };
 }
-
-
         // Determine remarks
         $remarks = 'Free';
         if ($employee) {
@@ -123,7 +121,7 @@ if (!$hasCondition && $assigned) {
                     'serial_number' => $device->serial_number ?? 'N/A',
                     'computer_name' => $device->computer_name ?? 'N/A',
                     'accessories' => $row['accessories'] ?? 'N/A',
-                    'remarks' => $row['remarks'] ?? 'N/A'
+                    'device_remarks' => $row['device_remarks'] ?? 'N/A'
                 ]
             );
         }
