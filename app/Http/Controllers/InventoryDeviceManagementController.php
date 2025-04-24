@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Device;
+use App\Models\DeviceAssignment;
 use Illuminate\Support\Facades\Storage;
 
 class InventoryDeviceManagementController extends Controller
@@ -15,6 +16,7 @@ class InventoryDeviceManagementController extends Controller
         ->leftJoin('employees', 'device_assignments.employee_id', '=', 'employees.id')
         ->select(
             'devices.*',
+            'device_assignments.device_remarks',
             'employees.first_name',
             'employees.last_name',
             'device_assignments.employee_id'
@@ -154,14 +156,25 @@ public function update(Request $request, $id)
 
         $device->save();
 
+        if ($request->has('device_remarks')) {
+            $assignment = DeviceAssignment::where('device_id', $device->id)->first();
+            if ($assignment) {
+                $assignment->device_remarks = $request->device_remarks;
+                $assignment->save();
+            }
+        }        
+
         return response()->json([
             'success' => true,
             'message' => 'Device updated successfully!',
             'device' => [
                 ...$device->toArray(),
-                'employee_name' => $device->employeeAssignments->first()?->employee?->first_name . ' ' . $device->employeeAssignments->first()?->employee?->last_name ?? 'Unassigned',
+                'employee_name' => ($device->employeeAssignments->first()?->employee 
+                    ? $device->employeeAssignments->first()->employee->first_name . ' ' . $device->employeeAssignments->first()->employee->last_name 
+                    : 'Unassigned'),
+                'device_remarks' => $assignment ? $assignment->device_remarks : null,
             ]
-        ]);
+        ]);        
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,

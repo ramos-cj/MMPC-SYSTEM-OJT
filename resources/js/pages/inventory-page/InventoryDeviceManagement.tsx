@@ -142,7 +142,7 @@ const InventoryDeviceManagement: React.FC = () => {
                         </div>
 
                         <div className="form-group">
-                            <label>Remarks</label>
+                            <label>Remarks (Status if "Free" or "Assigned")</label>
                             <textarea name="remarks" placeholder="Enter Remarks"value={formData.remarks} onChange={handleChange} required></textarea>
                         </div>
 

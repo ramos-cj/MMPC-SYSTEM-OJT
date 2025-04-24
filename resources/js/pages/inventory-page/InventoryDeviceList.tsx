@@ -6,7 +6,6 @@ import { FaSearch, FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 import "@/styles/DeviceList.css";
 import "@/styles/userlist.css";
 
-// Define the Device structure
 interface Device {
     id: number;
     tag_no: string;
@@ -14,6 +13,7 @@ interface Device {
     brand_model: string;
     condition: string;
     remarks: string;
+    device_remarks?: string;
     location: string;
     serial_number: string;
     estimated_acquisition_year: string;
@@ -125,6 +125,10 @@ export default function InventoryDeviceList() {
                 formData.append(key, value.toString());
             }
         });
+
+        if (editDevice.device_remarks) {
+            formData.append("device_remarks", editDevice.device_remarks);
+        }        
     
         if (selectedFile) {
             formData.append("image_file", selectedFile); // ✅ Send new image only if selected
@@ -363,7 +367,7 @@ export default function InventoryDeviceList() {
     </div>
 
     <div className="input-group">
-        <label>Remarks:</label>
+        <label>Remarks (Status):</label>
         <input type="text" value={selectedDevice.remarks || ''} readOnly />
     </div>
 
@@ -371,6 +375,16 @@ export default function InventoryDeviceList() {
         <label>Assigned to:</label>
         <input type="text" value={selectedDevice.employee_name || ''} readOnly />
     </div>
+
+    <div className="input-group">
+        <label>Installed Software (Remarks):</label>
+        <textarea
+            value={selectedDevice.device_remarks}
+            readOnly
+            className="remarks-textarea"
+        />
+    </div>
+
 
     <div className="input-group">
         <label>Defects/Issues:</label>
@@ -484,6 +498,17 @@ export default function InventoryDeviceList() {
                 <label>Remarks:</label>
                 <input type="text" name="remarks" value={editDevice.remarks || ""} onChange={handleInputChange} />
             </div>
+
+            <div className="field">
+                <label>Installed Software (Device Remarks):</label>
+                <textarea 
+                    name="device_remarks" 
+                    value={editDevice.device_remarks || ""} 
+                    onChange={handleInputChange}
+                    placeholder="E.g., Installed IP-Guard, Canon Printer"
+                />
+            </div>
+
             </div>
 
                     {/* Save & Close Button */}

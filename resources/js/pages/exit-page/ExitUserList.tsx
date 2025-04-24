@@ -159,7 +159,7 @@ const handleSaveExitClearance = async () => {
     const middleInitial =
       user.middle_initial &&
       user.middle_initial !== "N/A" &&
-      user.middle_initial === '-' ? '' : user.middle_initial &&
+      user.middle_initial !== "-" &&
       user.middle_initial.trim() !== ""
         ? `${user.middle_initial.replace(".", "")}. `
         : "";
@@ -399,7 +399,7 @@ const handleDelete = async (id: number) => {
                     </div>
       </div>
 
-      {/* Employee Info Modal */}
+     {/* Employee Info Modal */}
 {selectedEmployee && (
     <div className="modal-overlay">
         <div className="modal-content">
@@ -413,7 +413,17 @@ const handleDelete = async (id: number) => {
             {/* Profile Picture & Name */}
             <div className="profile-section">
                 <FaUsers className="user-icon" />
-                <p className="employee-name">{selectedEmployee.first_name} {selectedEmployee.middle_initial === "-" ? "" : selectedEmployee.middle_initial} {selectedEmployee.last_name}</p>
+                <p className="employee-name">
+  {selectedEmployee.first_name}{" "}
+  {(selectedEmployee.middle_initial &&
+    selectedEmployee.middle_initial !== "N/A" &&
+    selectedEmployee.middle_initial !== "-" &&
+    selectedEmployee.middle_initial.trim() !== "")
+    ? `${selectedEmployee.middle_initial.replace(".", "")}. `
+    : ""}
+  {selectedEmployee.last_name}
+</p>
+
             </div>
 
             {/* Employee Details (2 Columns) */}
@@ -422,7 +432,7 @@ const handleDelete = async (id: number) => {
                     <label>First Name:</label>
                     <input type="text" value={selectedEmployee.first_name} readOnly />
                     <label>Middle Initial:</label>
-                    <input type="text" value={selectedEmployee.middle_initial ?? "-"} readOnly />
+                    <input type="text" value={selectedEmployee.middle_initial ?? ""} readOnly />
                     <label>Last Name:</label>
                     <input type="text" value={selectedEmployee.last_name} readOnly />
                     <label>Position:</label>
