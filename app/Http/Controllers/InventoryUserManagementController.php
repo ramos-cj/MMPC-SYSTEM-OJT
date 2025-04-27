@@ -32,35 +32,46 @@ class InventoryUserManagementController extends Controller
                             ->orderBy('employees.id', 'asc')
                             ->get();
     
-        $groupedEmployees = $employees->groupBy('employee_id')->map(function ($devices, $employeeId) {
-            $employee = $devices->first();
-    
-            $deviceList = $devices->map(function ($device) {
-                return $device->brand_model && $device->computer_name
-                    ? "{$device->brand_model} ({$device->computer_name})"
-                    : null;
-            })->filter()->all();
-    
-            return [
-                'employee_id' => $employee->employee_id,
-                'employee_number' => $employee->employee_number,
-                'first_name' => $employee->first_name,
-                'middle_initial' => $employee->middle_initial,
-                'last_name' => $employee->last_name,
-                'position' => $employee->position,
-                'division_department' => $employee->division_department,
-                'division_code' => $employee->division_code,
-                'department_code' => $employee->department_code,
-                'section_code' => $employee->section_code,
-                'assigned_devices' => $deviceList,
-                'employee_type' => $employee->employee_type
-            ];
-        })->values();
+                            $groupedEmployees = $employees->groupBy('employee_id')->map(function ($devices, $employeeId) {
+                                $employee = $devices->first();
+                            
+                                $deviceList = $devices->map(function ($device) {
+                                    return $device->brand_model && $device->computer_name
+                                        ? "{$device->brand_model} ({$device->computer_name})"
+                                        : null;
+                                })->filter()->all();
+                            
+                                return [
+                                    'employee_id' => $employee->employee_id,
+                                    'employee_number' => $employee->employee_number,
+                                    'first_name' => $employee->first_name,
+                                    'middle_initial' => $employee->middle_initial,
+                                    'last_name' => $employee->last_name,
+                                    'position' => $employee->position,
+                                    'division_department' => $employee->division_department,
+                                    'division_code' => $employee->division_code,
+                                    'department_code' => $employee->department_code,
+                                    'section_code' => $employee->section_code,
+                                    'assigned_devices' => $deviceList,
+                                    'employee_type' => $this->formatEmployeeType($employee->employee_type)
+                                ];
+                            })->values();                            
     
         return response()->json($groupedEmployees);
     }
     
+    private function formatEmployeeType($type)
+{
+    $type = strtolower(trim($type));
 
+    return match($type) {
+        'regular employee' => 'Regular Employee',
+        'third-party', 'third party' => 'Third-Party',
+        'hourly personnel' => 'Hourly Personnel',
+        'japanese executives' => 'Japanese Executives',
+        default => 'N/A'
+    };
+}   
     
     public function getEmployee($id)
     {

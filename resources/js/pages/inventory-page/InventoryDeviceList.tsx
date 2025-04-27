@@ -252,9 +252,9 @@ export default function InventoryDeviceList() {
         </tr>
     </thead>
     <tbody>
-        {currentDevices.map((device) => (
-            <tr key={device.id}>
-                <td>{device.id}</td>
+        {currentDevices.map((device, index) => (
+              <tr key={device.id}>
+                <td>{indexOfFirstEntry + index + 1}</td> {/* Sequential Number */}
                 <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.computer_name || "N/A"}</td>
                 <td className="clickable" onClick={() => handleDeviceClick(device)}>{device.tag_no}</td>
                 <td>{device.serial_number}</td>

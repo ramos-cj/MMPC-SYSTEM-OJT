@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Device;
 use App\Models\DeviceAssignment;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class InventoryDeviceManagementController extends Controller
 {
@@ -187,6 +188,10 @@ public function delete($id)
 {
     $device = Device::findOrFail($id);
     $device->delete();
+
+    // Reset AUTO_INCREMENT to the next available value (Optional)
+    $maxId = Device::max('id');
+    DB::statement("ALTER TABLE devices AUTO_INCREMENT = " . ($maxId + 1));
 
     return response()->json(['message' => 'Device deleted successfully']);
 }

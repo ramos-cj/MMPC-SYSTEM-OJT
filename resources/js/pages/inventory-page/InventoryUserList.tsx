@@ -79,9 +79,11 @@ const InventoryUserList: React.FC = () => {
       (user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.employee_number.includes(searchTerm)) &&
-        (selectedDivision === "" || user.division_department === selectedDivision) &&
-        (selectedEmployeeType === "" || user.employee_type === selectedEmployeeType)
-  );
+      (selectedDivision === "" || user.division_department === selectedDivision) &&
+      (selectedEmployeeType === "" || 
+        user.employee_type?.toLowerCase().trim() === selectedEmployeeType.toLowerCase().trim()
+      )
+  );  
 
   const getFullName = (user: Employee) => {
     const middleInitial =

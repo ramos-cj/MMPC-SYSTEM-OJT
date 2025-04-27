@@ -23,13 +23,15 @@ class YourImportClass implements OnEachRow, WithHeadingRow
             $this->importEmployeeData($row);
         }
 
-        if (isset($row['computer_name'])) {
-            $this->importDeviceData($row); // ✅ No assignment needed
+        // ✅ Check for devices more flexibly
+        if (isset($row['classification'])) {
+            $this->importDeviceData($row);
         }
     } catch (\Exception $e) {
         Log::error("Error processing row: " . $e->getMessage());
     }
 }
+
 
     private function importEmployeeData(array $row)
     {
@@ -60,36 +62,42 @@ class YourImportClass implements OnEachRow, WithHeadingRow
     try {
         $employee = null;
 
-        // Try to find the employee by employee_number
         if (!empty($row['employee_number'])) {
             $employee = Employee::where('employee_number', $row['employee_number'])->first();
         }
 
-        // Normalize condition based on assignment and input
-$rawCondition = $row['condition'] ?? null;
-$hasCondition = !empty($rawCondition);
-$assigned = !empty($employee);
-
-if (!$hasCondition && $assigned) {
-    $normalizedCondition = 'Good'; // Auto assign if missing and assigned
-} else {
-    $normalizedCondition = match (strtolower(trim((string)$rawCondition))) {
-        'good' => 'Good Condition',
-        'bad' => 'Bad Condition',
-        default => 'N/A'
-    };
-}
-        // Determine remarks
-        $remarks = 'Free';
-        if ($employee) {
-            $remarks = 'Assigned';
-        } elseif (!empty($row['remarks'])) {
-            $remarks = $row['remarks'];
+        // Determine Unique Identifier
+        $uniqueKey = [];
+        if (!empty($row['computer_name'])) {
+            $uniqueKey = ['computer_name' => $row['computer_name']];
+        } elseif (!empty($row['tag_no'])) {
+            $uniqueKey = ['tag_no' => $row['tag_no']];
+        } elseif (!empty($row['serial_number'])) {
+            $uniqueKey = ['serial_number' => $row['serial_number']];
+        } else {
+            Log::warning("Skipping device, no unique identifier found.");
+            return;
         }
 
-        // Save/update the device
+        // Normalize condition
+        $rawCondition = $row['condition'] ?? null;
+        $assigned = !empty($employee);
+
+        if (!$rawCondition && $assigned) {
+            $normalizedCondition = 'Good';
+        } else {
+            $normalizedCondition = match (strtolower(trim((string)$rawCondition))) {
+                'good' => 'Good Condition',
+                'bad' => 'Bad Condition',
+                default => 'N/A'
+            };
+        }
+
+        $remarks = $employee ? 'Assigned' : ($row['remarks'] ?? 'Free');
+
+        // Save or Update Device
         $device = Device::updateOrCreate(
-            ['computer_name' => $row['computer_name']],
+            $uniqueKey,
             [
                 'pi_guard' => $row['with_ipguard'] ?? 'N/A',
                 'activation_updates' => $row['activation_updates'] ?? 'N/A',
@@ -101,12 +109,13 @@ if (!$hasCondition && $assigned) {
                 'qr_code' => $row['qr_code'] ?? 'N/A',
                 'with_warranty' => $row['warranty'] ?? 'N/A',
                 'tag_no' => $row['tag_no'] ?? 'N/A',
+                'computer_name' => $row['computer_name'] ?? null,
                 'remarks' => $remarks,
                 'condition' => $normalizedCondition
             ]
         );
 
-        // If device and employee both exist → assign device
+        // Assign if applicable
         if ($employee && $device) {
             DeviceAssignment::updateOrCreate(
                 [
@@ -126,14 +135,12 @@ if (!$hasCondition && $assigned) {
             );
         }
 
-        Log::info("Device processed: " . $row['computer_name']);
+        Log::info("Device processed: " . ($row['computer_name'] ?? $row['tag_no'] ?? $row['serial_number']));
 
     } catch (\Exception $e) {
         Log::error("Error saving Device Data: " . $e->getMessage());
     }
 }
-
-
 
     private function assignDeviceToEmployee(array $row, $device)
     {
