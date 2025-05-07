@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import mmpcLogo from '@/assets/mmpc-logo1.png'; 
 import { FaEdit, FaTrash, FaSearch, FaTimes, FaUsers } from "react-icons/fa";
+import { IoDocumentText } from "react-icons/io5";
 import { MdArrowDropUp, MdArrowDropDown } from "react-icons/md";
 import SidebarInventory from "@/components/sidebar-inventory";
 import "@/styles/userlist.css";
@@ -220,6 +221,29 @@ const handleDelete = async (id: number) => {
       alert("Error deleting employee."); // ✅ Alert for errors
   }
 };
+
+const handlePrintAAR = async (employeeId: number) => {
+  try {
+    const response = await fetch(`/inventory-user-management/print-aar/${employeeId}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) throw new Error("Failed to generate AAR.");
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `AAR_${employeeId}.docx`); // Change extension to .docx
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    console.error("Error generating AAR:", error);
+    alert("Failed to generate AAR.");
+  }
+};
+
   
   return (
     <div className={`inventory-userlist-container ${selectedEmployee ? "blurred" : ""}`}>
@@ -311,9 +335,11 @@ const handleDelete = async (id: number) => {
         )}
       </td>
       <td className="userlist-actions">
-        <FaEdit className="edit-icon" onClick={() => handleEditClick(user)} />
-        <FaTrash className="delete-icon" onClick={() => handleDelete(user.employee_id)} />
-      </td>
+      <FaEdit className="edit-icon" onClick={() => handleEditClick(user)} />
+      <FaTrash className="delete-icon" onClick={() => handleDelete(user.employee_id)} />
+      <IoDocumentText className="edit-icon" onClick={() => handlePrintAAR(user.employee_id)} />
+    </td>
+
     </tr>
   ))}
 </tbody>

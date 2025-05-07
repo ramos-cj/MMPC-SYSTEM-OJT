@@ -5,6 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Employee;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\Style\Table;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
+use TCPDF;
 
 class InventoryUserManagementController extends Controller
 {
@@ -147,5 +153,123 @@ class InventoryUserManagementController extends Controller
 
     return response()->json(['message' => 'Employee deleted successfully']);
     }
+
+     // Generate the AAR in a table format
+     public function generateAAR($id)
+{
+    // Fetch the employee data from the database
+    $employee = Employee::findOrFail($id);
+
+    // Create a new PHPWord object
+    $phpWord = new PhpWord();
+
+    // Add a new section
+    $section = $phpWord->addSection();
+    
+    // Add title
+    $section->addText('ASSET ACCOUNTABILITY RECORD', array('bold' => true, 'size' => 16, 'align' => 'center'));
+    $section->addText('Mitsubishi Motors Philippines Corp.', array('bold' => true, 'size' => 12, 'align' => 'center'));
+    $section->addTextBreak(1); // Blank line
+
+    // Add the "FROM" and "TO" table structure
+    $tableStyle = array(
+        'borderColor' => '000000',
+        'borderSize' => 6,
+        'cellMargin' => 50,
+        'alignment' => 'center',
+        'width' => 100
+    );
+    
+    // Add the table to the section with style
+    $table = $section->addTable($tableStyle);
+
+    // Add the "FROM" and "TO" sections in merged format
+    $table->addRow();
+    $table->addCell(6000)->addText('FROM:', array('bold' => true, 'size' => 12));
+    $table->addCell(6000)->addText('', array('bold' => true, 'size' => 12));
+    $table->addCell(6000)->addText('TO:', array('bold' => true, 'size' => 12));
+    $table->addCell(6000)->addText('', array('bold' => true, 'size' => 12));
+    
+    // Employee name and number (FROM / TO)
+    $table->addRow();
+    $table->addCell(3000)->addText('NAME OF ASSIGNEE:');
+    $table->addCell(3000)->addText('EMPLOYEE NO:');
+    $cell = $table->addCell(6000);
+    $cell->addText('NAME OF ASSIGNEE: ' . $employee->first_name . ' ' . $employee->middle_initial . ' ' . $employee->last_name);
+    $cell = $table->addCell(6000);
+    $cell->addText('EMPLOYEE NO: ' . $employee->employee_number);
+
+    $table->addRow();
+    $table->addCell(3000)->addText('DEPT/SECTION:');
+    $table->addCell(3000)->addText('LOCATION:');
+    $cell = $table->addCell(6000);
+    $cell->addText('DEPT/SECTION: ' . $employee->division_department);
+    $cell = $table->addCell(6000);
+    $cell->addText('LOCATION: BGC');  // Static value for location
+
+    
+    // Add a blank line after the table
+    $section->addTextBreak(1);
+
+    // Add the "TRANSACTION TYPE" table
+    $transactionTypeTable = $section->addTable($tableStyle);
+    
+    // Add the "TRANSACTION TYPE" header row
+    $transactionTypeTable->addRow();
+    $transactionTypeTable->addCell(12000)->addText('TRANSACTION TYPE:', array('bold' => true, 'size' => 12, 'underline' => true));
+
+    // Add the checkboxes for transaction types
+    $transactionTypeTable->addRow();
+    $transactionTypeTable->addCell(12000)->addText('[] EMPLOYEE TRANSFER' . ' ' . '[] EMPLOYEE SEPARATION' . ' ' . '[] OEFF ACQUISITION' . ' ' . '[] OEFF DISPOSAL');
+
+    // Add "ASSET DETAILS" section for asset tags, etc.
+    $section->addText('ASSET DETAILS:', array('bold' => true));
+    
+    // Static data for Asset Example (Replace with real dynamic values)
+    $section->addText('Asset Tag: N/A'); // Replace with actual asset tag data
+    $section->addText('Name of Asset: Laptop'); // Replace with actual asset data
+    $section->addText('Brand/Model/Serial #: HP EliteBook 850 G7 / ABC123456'); // Replace with actual asset data
+    $section->addText('Remarks/Condition: New'); // Replace with actual remarks data
+
+    // Save the generated file
+    $outputPath = storage_path('app/generated/aar_' . $employee->employee_number . '.docx');
+    $phpWord->save($outputPath);
+
+    // Return the file as a download response
+    return response()->download($outputPath)->deleteFileAfterSend(true);
+}
+
+    
+    private function getNameOfOeff($classification)
+    {
+        // Map the classification to name_of_oeff
+        return match(strtolower(trim($classification))) {
+            'laptop' => 'Laptop',
+            'phone' => 'Mobile Phone',
+            'tablet' => 'Tablet',
+            'desktop' => 'Desktop Computer',
+            'printer' => 'Printer',
+            'other' => 'Other Equipment',
+            default => 'N/A'
+        };
+    }
+
+public function createTemplatesFolder()
+{
+    // Define the path to the templates folder
+    $templatesPath = resource_path('templates');
+
+    // Check if the folder exists, if not create it
+    if (!File::exists($templatesPath)) {
+        // Create the directory with 775 permissions
+        File::makeDirectory($templatesPath, 0775, true);
+
+        Log::info('Templates folder created at: ' . $templatesPath);
+        return response()->json(['message' => 'Templates folder created successfully.'], 200);
+    }
+
+    return response()->json(['message' => 'Templates folder already exists.'], 200);
+}
+
 
 }

@@ -59,6 +59,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory-user-management/get/{id}', [InventoryUserManagementController::class, 'getEmployee']);
     Route::post('/inventory-user-management/save', [InventoryUserManagementController::class, 'store']);
     Route::match(['PUT', 'POST'], '/inventory-user-management/update/{id}', [InventoryUserManagementController::class, 'update']);
+    Route::get('/inventory-user-management/print-aar/{id}', [InventoryUserManagementController::class, 'generateAAR']);
+    Route::get('/create-templates-folder', [InventoryUserManagementController::class, 'createTemplatesFolder']);
 
     Route::delete('/inventory-user-management/delete/{id}', [InventoryUserManagementController::class, 'delete']);
 
@@ -105,6 +107,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/inventory/export/devices', [InventoryFileController::class, 'exportDevices']);
     Route::post('/inventory/export/device-assignments', [InventoryFileController::class, 'exportDeviceAssignments']);
     Route::post('/inventory/export', [InventoryFileController::class, 'exportFile']);
+    Route::get('/inventory-user-management/print-aar/{id}', [InventoryUserManagementController::class, 'generateAAR']);
+
 
 
     Route::post('/logout', function () {

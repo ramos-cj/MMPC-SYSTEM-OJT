@@ -8,6 +8,7 @@ use App\Models\DeviceAssignment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
+
 class InventoryDeviceManagementController extends Controller
 {
 
