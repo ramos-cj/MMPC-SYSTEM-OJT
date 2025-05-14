@@ -37,11 +37,40 @@ export default function InventoryDeviceList() {
     const [editDevice, setEditDevice] = useState<Device | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [brandMap, setBrandMap] = useState<{ [key: string]: string[] }>({});
+    const [brandsAll, setBrandsAll] = useState<string[]>([]);
 
     // Dynamic Filter Options
     const [classifications, setClassifications] = useState<string[]>([]);
     const [brands, setBrands] = useState<string[]>([]);
+    const [selectedRemarks, setSelectedRemarks] = useState("");
+
+
+    useEffect(() => {
+        fetch("/devices")
+            .then((res) => res.json())
+            .then((data: Device[]) => {
+                setDevices(data);
     
+                const uniqueClassifications = [...new Set(data.map(device => device.classification))];
+                setClassifications(uniqueClassifications);
+    
+                const brandMapping: { [key: string]: Set<string> } = {};
+                data.forEach(device => {
+                    const cls = device.classification;
+                    if (!brandMapping[cls]) brandMapping[cls] = new Set();
+                    brandMapping[cls].add(device.brand_model);
+                });
+    
+                const convertedMap: { [key: string]: string[] } = {};
+                Object.keys(brandMapping).forEach(cls => {
+                    convertedMap[cls] = Array.from(brandMapping[cls]);
+                });
+    
+                setBrandMap(convertedMap);
+            })
+            .catch(err => console.error("Error fetching devices:", err));
+    });
 
     // Fetch devices from API
     useEffect(() => {
@@ -67,8 +96,9 @@ export default function InventoryDeviceList() {
         device.employee_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         device.tag_no.includes(searchTerm)) &&
         (selectedClassification === "" || device.classification === selectedClassification) &&
-        (selectedBrand === "" || device.brand_model === selectedBrand)
-    );
+        (selectedBrand === "" || device.brand_model === selectedBrand) &&
+        (selectedRemarks === "" || device.remarks === selectedRemarks)
+    );    
 
     // Pagination logic
     const indexOfLastEntry = currentPage * entriesPerPage;
@@ -116,58 +146,76 @@ export default function InventoryDeviceList() {
     };
 
     // Submit updated device
-    const handleSaveChanges = async () => {
-        if (!editDevice) return;
-    
-        const formData = new FormData();
-        Object.entries(editDevice).forEach(([key, value]) => {
-            if (value !== null && key !== "image_file") { // ✅ Exclude image file unless changed
-                formData.append(key, value.toString());
-            }
+    // Handle Save Changes
+const handleSaveChanges = async () => {
+    if (!editDevice) return;
+
+    // If the condition is set to "Bad", we need to remove the assignee, update remarks, and set to "Free"
+    if (editDevice.condition === "Bad") {
+        // Remove the employee assignment
+        editDevice.employee_name = "Unassigned";  // Mark as unassigned
+        editDevice.remarks = "Free";  // Update the remarks to "Free"
+
+        // Optionally, you may also need to delete the device assignment in the database
+        try {
+            await fetch(`/inventory-deviceassignment/remove-assignment/${editDevice.id}`, {
+                method: "DELETE",
+            });
+        } catch (error) {
+            console.error("Error removing device assignment:", error);
+        }
+    }
+
+    const formData = new FormData();
+    Object.entries(editDevice).forEach(([key, value]) => {
+        if (value !== null && key !== "image_file") { // Exclude image file unless changed
+            formData.append(key, value.toString());
+        }
+    });
+
+    if (editDevice.device_remarks) {
+        formData.append("device_remarks", editDevice.device_remarks);
+    }
+
+    if (selectedFile) {
+        formData.append("image_file", selectedFile); // Send new image only if selected
+    }
+
+    formData.append("_method", "PUT"); // Laravel expects PUT request, but FormData requires POST
+
+    try {
+        const response = await fetch(`/inventory-devicemanagement/update/${editDevice.id}`, {
+            method: "POST", // Must be POST due to FormData
+            body: formData,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest", // Laravel expects AJAX
+            },
         });
 
-        if (editDevice.device_remarks) {
-            formData.append("device_remarks", editDevice.device_remarks);
-        }        
-    
-        if (selectedFile) {
-            formData.append("image_file", selectedFile); // ✅ Send new image only if selected
+        if (!response.ok) {
+            const errorText = await response.text(); // Capture error details
+            throw new Error(errorText);
         }
-    
-        formData.append("_method", "PUT"); // ✅ Laravel expects PUT request, but FormData requires POST
-    
-        try {
-            const response = await fetch(`/inventory-devicemanagement/update/${editDevice.id}`, {
-                method: "POST", // ✅ Must be POST due to FormData
-                body: formData,
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest", // ✅ Laravel expects AJAX
-                },
-            });
-    
-            if (!response.ok) {
-                const errorText = await response.text(); // ✅ Capture error details
-                throw new Error(errorText);
-            }
-    
-            const updatedDevice = await response.json();
-            alert("Device details updated successfully!");
-    
-            // ✅ Update the state with the new device details
-            setDevices((prevDevices) =>
-                prevDevices.map((device) =>
-                  device.id === updatedDevice.device.id
-                    ? { ...device, ...updatedDevice.device } // this keeps employee_name
+
+        const updatedDevice = await response.json();
+        alert("Device details updated successfully!");
+
+        // Update the state with the new device details
+        setDevices((prevDevices) =>
+            prevDevices.map((device) =>
+                device.id === updatedDevice.device.id
+                    ? { ...device, ...updatedDevice.device }
                     : device
-                )
-              );              
-    
-            closeEditModal(); // ✅ Close modal after saving
-        } catch (error) {
-            console.error("Error updating device:", error);
-            alert("Error updating device. Check console for details.");
-        }
-    };
+            )
+        );
+
+        closeEditModal(); // Close modal after saving
+    } catch (error) {
+        console.error("Error updating device:", error);
+        alert("Error updating device. Check console for details.");
+    }
+};
+
        
 
     const handleDelete = async (id: number) => {
@@ -225,13 +273,21 @@ export default function InventoryDeviceList() {
 
                         {/* Brand Dropdown */}
                         <select value={selectedBrand} onChange={(e) => setSelectedBrand(e.target.value)}>
-                            <option value="">Select Brand</option>
-                            {brands.map(brand => (
-                                <option key={brand} value={brand}>
-                                    {brand}
-                                </option>
-                            ))}
-                        </select>
+    <option value="">Select Brand</option>
+    {(selectedClassification 
+        ? brandMap[selectedClassification] || [] 
+        : []).map((brand) => (
+            <option key={brand} value={brand}>{brand}</option>
+        ))
+    }
+</select>
+
+<select value={selectedRemarks} onChange={(e) => setSelectedRemarks(e.target.value)}>
+    <option value="">Select Device Status</option>
+    <option value="Free">Free</option>
+    <option value="Assigned">Assigned</option>
+</select>
+
                     </div>
 
                     {/* Table */}
@@ -508,6 +564,19 @@ export default function InventoryDeviceList() {
                     placeholder="E.g., Installed IP-Guard, Canon Printer"
                 />
             </div>
+
+            {/* ✅ Show defect input only if "Bad Condition" is selected */}
+            {editDevice.condition === "Bad" && (
+                                        <div className="form-group">
+                                            <label>Defects/Issues</label>
+                                            <textarea
+                                                name="need_to_be_repair"
+                                                placeholder="List the defects/issues..."
+                                                value={editDevice.need_to_be_repair}
+                                                onChange={handleInputChange}
+                                            ></textarea>
+                                        </div>
+                                    )}
 
             </div>
 

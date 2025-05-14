@@ -23,29 +23,30 @@ class ClearanceStatusController extends Controller
     }
 
     public function getPending()
-    {
-        $employees = IssuedEClearance::whereNotNull('wiseda_exit_clearance')
-            ->whereNull('remarks')
-            ->get()
-            ->map(function ($emp) {
-                $middle = ($emp->middle_initial && $emp->middle_initial !== '-') ? $emp->middle_initial . ' ' : '';
-                return [
-                    'user_id' => $emp->id,
-                    'employee_number' => $emp->employee_number,
-                    'employee_name' => "{$emp->first_name} {$middle}{$emp->last_name}",
-                    'division_department' => $emp->division_department,
-                    'position' => $emp->position,
-                    'effectivity_date' => $emp->effectivity_date,
-                    'advise_of_hr' => $emp->advise_of_hr,
-                    'employee_type' => $emp->employee_type,
-                    'wisedit_deactivation' => $emp->wisedit_deactivation,
-                    'wiseda_exit_clearance' => $emp->wiseda_exit_clearance,
-                    'remarks' => $emp->remarks,
-                ];
-            });
+{
+    $employees = IssuedEClearance::where('remarks', '!=', 'Approved')
+        ->orWhereNull('remarks')
+        ->get()
+        ->map(function ($emp) {
+            $middle = ($emp->middle_initial && $emp->middle_initial !== '-') ? $emp->middle_initial . ' ' : '';
+            return [
+                'user_id' => $emp->id,
+                'employee_number' => $emp->employee_number,
+                'employee_name' => "{$emp->first_name} {$middle}{$emp->last_name}",
+                'division_department' => $emp->division_department,
+                'position' => $emp->position,
+                'effectivity_date' => $emp->effectivity_date,
+                'advise_of_hr' => $emp->advise_of_hr,
+                'employee_type' => $emp->employee_type,
+                'wisedit_deactivation' => $emp->wisedit_deactivation,
+                'wiseda_exit_clearance' => $emp->wiseda_exit_clearance,
+                'remarks' => $emp->remarks,
+            ];
+        });
 
-        return response()->json($employees);
-    }
+    return response()->json($employees);
+}
+
 
     public function getCompleted()
     {
@@ -72,15 +73,30 @@ class ClearanceStatusController extends Controller
     }
 
     public function approve($id)
-    {
-        try {
-            $clearance = IssuedEClearance::findOrFail($id);
-            $clearance->remarks = 'Approved';
-            $clearance->save();
+{
+    try {
+        $clearance = IssuedEClearance::findOrFail($id);
+        $clearance->remarks = 'Approved';
+        $clearance->save();
 
-            return response()->json(['message' => 'Marked as approved successfully.']);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to mark as approved.', 'error' => $e->getMessage()], 500);
+        // Unassign all devices assigned to this employee
+        $assignments = \App\Models\DeviceAssignment::where('employee_id', $clearance->employee_id)->get();
+
+        foreach ($assignments as $assignment) {
+            // Set the remarks to "Free" in the device
+            $device = $assignment->device;
+            if ($device) {
+                $device->remarks = 'Free';
+                $device->save();
+            }
+            // Delete the assignment
+            $assignment->delete();
         }
+
+        return response()->json(['message' => 'Marked as approved and unassigned devices.']);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Failed to mark as approved.', 'error' => $e->getMessage()], 500);
     }
+}
+
 }

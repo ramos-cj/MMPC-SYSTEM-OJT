@@ -410,19 +410,19 @@ const handleDelete = async (id: number) => {
                 <FaTimes className="close-icon" onClick={closeModal} />
             </div>
 
-            {/* Profile Picture & Name */}
+             {/* Profile Picture & Name */}
             <div className="profile-section">
-                <FaUsers className="user-icon" />
-                <p className="employee-name">
-  {selectedEmployee.first_name}{" "}
-  {(selectedEmployee.middle_initial &&
-    selectedEmployee.middle_initial !== "N/A" &&
-    selectedEmployee.middle_initial !== "-" &&
-    selectedEmployee.middle_initial.trim() !== "")
-    ? `${selectedEmployee.middle_initial.replace(".", "")}. `
-    : ""}
-  {selectedEmployee.last_name}
-</p>
+              <FaUsers className="user-icon" />
+              <p className="employee-name">
+                {selectedEmployee.first_name}{" "}
+                {(selectedEmployee.middle_initial &&
+                selectedEmployee.middle_initial !== "N/A" &&
+                selectedEmployee.middle_initial !== "-" &&
+                selectedEmployee.middle_initial.trim() !== "")
+                  ? `${selectedEmployee.middle_initial.replace(".", "")}. `
+                  : ""}
+                {selectedEmployee.last_name}
+              </p>
 
             </div>
 
@@ -594,10 +594,19 @@ const handleDelete = async (id: number) => {
             <div>
 
             <div className="exit-clearance-wrapper">
-              {/* Profile Picture & Name */}
-            <div className="exit-profile-section">
-                <FaUsers className="exit-user-icon" />
-                <p className="exit-employee-name">{issueExitClearanceEmployee.first_name} {issueExitClearanceEmployee.middle_initial ?? ""} {issueExitClearanceEmployee.last_name}</p>
+               {/* Profile Picture & Name */}
+               <div className="exit-profile-section">
+               <FaUsers className="exit-user-icon" />
+                <p className="employee-name">
+                  {issueExitClearanceEmployee.first_name}{" "}
+                  {(issueExitClearanceEmployee.middle_initial &&
+                  issueExitClearanceEmployee.middle_initial !== "N/A" &&
+                  issueExitClearanceEmployee.middle_initial !== "-" &&
+                  issueExitClearanceEmployee.middle_initial.trim() !== "")
+                    ? `${issueExitClearanceEmployee.middle_initial.replace(".", "")}. `
+                    : ""}
+                  {issueExitClearanceEmployee.last_name}
+                </p>
             </div>
             {/* Employee Details (2 Columns) */}
             <div className="exit-employee-details">

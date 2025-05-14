@@ -1,0 +1,141 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\YourImportClass;
+use App\Exports\EmployeeExport;
+use App\Exports\DeviceExport;
+use App\Exports\DeviceAssignmentExport;
+use App\Exports\IssuedClearanceExport;
+use App\Models\FileLog;
+use Maatwebsite\Excel\Excel as ExcelType;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+
+class ExitFileController extends Controller
+{
+    public function importFile(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx,pdf'
+    ]);
+
+    $file = $request->file('file');
+    $originalName = $file->getClientOriginalName(); // ✅ Get original file name
+    $filename = $originalName . '_' . time() . '.' . $file->getClientOriginalExtension(); // Append timestamp for uniqueness
+    $filePath = $file->storeAs('private/public/imported-files', $filename);
+
+    try {
+        if ($file->getClientOriginalExtension() === 'xlsx') {
+            Excel::import(new YourImportClass, $file);
+        }
+
+        FileLog::create([
+            'file_name' => $originalName, // ✅ Save original name in the database
+            'action' => 'Import',
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'File imported successfully!']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => 'Error importing file.', 'error' => $e->getMessage()]);
+    }
+    }
+
+    public function exportEmployees()
+    {
+    return Excel::download(new EmployeeExport, 'EmployeesData.xlsx');
+    }
+
+    public function exportDevices()
+    {
+    return Excel::download(new DeviceExport, 'DevicesData.xlsx');
+    }
+    public function exportDeviceAssignments()
+    {
+    return Excel::download(new DeviceAssignmentExport, 'DeviceAssignmentsData.xlsx');
+    }
+
+    public function exportFile(Request $request)
+{
+    $selectedData = $request->input('selectedData');
+    $templateName = $request->input('templateName', 'ExportedData_' . time());
+
+    $exportClasses = [
+        'IssuedClearance' => new IssuedClearanceExport(),
+        'Employee' => new EmployeeExport()
+    ];
+
+    $exports = [];
+    $sheetNames = [];
+
+    foreach ($selectedData as $dataType) {
+        if (isset($exportClasses[$dataType])) {
+            $exports[] = $exportClasses[$dataType];
+            $sheetNames[] = $dataType;
+        }
+    }
+
+    if (empty($exports)) {
+        return response()->json(['success' => false, 'message' => 'No data selected for export.']);
+    }
+
+    $multiExport = new class($exports, $sheetNames) implements WithMultipleSheets {
+        use Exportable;
+
+        private $exports;
+        private $sheetNames;
+
+        public function __construct($exports, $sheetNames)
+        {
+            $this->exports = $exports;
+            $this->sheetNames = $sheetNames;
+        }
+
+        public function sheets(): array
+        {
+            $sheets = [];
+            foreach ($this->exports as $index => $export) {
+                $sheets[] = new class($export, $this->sheetNames[$index]) implements FromCollection, WithHeadings {
+                    private $export;
+                    private $sheetName;
+
+                    public function __construct($export, $sheetName)
+                    {
+                        $this->export = $export;
+                        $this->sheetName = $sheetName;
+                    }
+
+                    public function collection()
+                    {
+                        return $this->export->collection();
+                    }
+
+                    public function headings(): array
+                    {
+                        return $this->export->headings();
+                    }
+                };
+            }
+            return $sheets;
+        }
+    };
+
+    FileLog::create([
+        'file_name' => $templateName . '.xlsx',
+        'action' => 'Export',
+    ]);
+
+    return Excel::download($multiExport, $templateName . '.xlsx');
+}
+
+    public function getLogs()
+    {
+        $logs = FileLog::all();
+        return response()->json($logs);
+    }
+}

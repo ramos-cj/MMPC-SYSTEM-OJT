@@ -7,7 +7,7 @@ use App\Models\Device;
 use App\Models\DeviceAssignment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Validation\Rule;
 
 class InventoryDeviceManagementController extends Controller
 {
@@ -40,8 +40,8 @@ public function getDevice($id)
 
 public function store(Request $request)
 {
-    $request->validate([
-        'tag_no' => 'required|string|unique:devices',
+    $rules = [
+        'tag_no' => ['required', 'string'],
         'activation_updates' => 'required|string',
         'classification' => 'required|string',
         'estimated_acquisition_year' => 'required|string',
@@ -55,7 +55,14 @@ public function store(Request $request)
         'condition' => 'required|string',
         'need_to_be_repair' => 'nullable|string',
         'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
+    ];
+
+    // ✅ Only enforce uniqueness if tag_no is not N/A
+    if ($request->tag_no !== 'N/A') {
+        $rules['tag_no'][] = Rule::unique('devices');
+    }
+
+    $request->validate($rules);
 
     $device = new Device();
     $device->tag_no = $request->tag_no;
@@ -72,13 +79,12 @@ public function store(Request $request)
     $device->remarks = $request->remarks;
     $device->need_to_be_repair = ($request->condition === "Bad") ? $request->need_to_be_repair : null;
 
-    // ✅ Save Image in Private Directory
     if ($request->hasFile('image_file')) {
         $file = $request->file('image_file');
         $filename = time() . '.' . $file->getClientOriginalExtension();
         $file->storeAs('public/device-images', $filename);
         $device->image_file = $filename;
-    }    
+    }
 
     $device->save();
 
@@ -139,6 +145,14 @@ public function update(Request $request, $id)
         $device->remarks = $request->remarks;
         $device->need_to_be_repair = ($request->condition === "Bad") ? $request->need_to_be_repair : null;
         
+        // If the condition is "Bad", remove the employee assignment
+        if ($request->condition === "Bad") {
+            // Remove the device assignment
+            DeviceAssignment::where('device_id', $device->id)->delete();
+
+            // Also update remarks and set employee name to "Unassigned"
+            $device->remarks = 'Free';
+        }
 
         // ✅ Handle image replacement
         if ($request->hasFile('image_file')) {
@@ -184,6 +198,25 @@ public function update(Request $request, $id)
         ], 500);
     }
 }
+
+// Remove assignment of device when condition is updated to "Bad"
+public function removeAssignment($device_id)
+{
+    try {
+        $assignment = DeviceAssignment::where('device_id', $device_id)->first();
+
+        if ($assignment) {
+            // Remove the assignment
+            $assignment->delete();
+            return response()->json(['message' => 'Device assignment removed successfully.']);
+        }
+
+        return response()->json(['message' => 'No assignment found for this device.'], 404);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+}
+
 
 public function delete($id)
 {

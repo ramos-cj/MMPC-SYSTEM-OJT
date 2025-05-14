@@ -175,8 +175,8 @@ const InventoryDeviceAssignment: React.FC = () => {
                     brand_model: selectedBrand,
                     accessories: selectedAccessories,
                     computer_name: selectedComputer,
-                    remarks: selectedRemarks, 
-                  }),
+                    remarks: selectedRemarks,
+                }),
                 credentials: "include",
             });
     
@@ -187,22 +187,34 @@ const InventoryDeviceAssignment: React.FC = () => {
             }
     
             const data = await response.json();
-            alert(data.message);
+            // Show success message
+            alert("Device assigned successfully!");
     
-            fetch("/assigned-devices")
-                .then((res) => res.json())
-                .then((updatedData) => setAssignedDevices(updatedData));
+            // Prepend the newly assigned device to the list
+            setAssignedDevices((prevDevices) => {
+                // Prepend the new device at the start of the list
+                return [data.assignedDevice, ...prevDevices];
+            });
     
+            // Clear form fields after successful assignment
             setSelectedEmployee("");
             setSelectedClassification("");
             setSelectedBrand("");
             setSelectedComputer("");
-            setSelectedAccessories(""); 
+            setSelectedAccessories("");
+            setSelectedRemarks([]); // Reset the remarks checkboxes
+    
+            // Reload the page to reflect the backend data changes
+            setTimeout(() => {
+                window.location.reload(); // Reload the page after the success message
+            }, 2000); // Delay of 2 seconds to allow the success message to be seen
+    
         } catch (err) {
             console.error("Error:", err);
             alert("Error assigning device. Please check the console for details.");
         }
     };
+    
     
     const openTransferModal = (device: Device) => {
         console.log("Opening transfer modal for:", device); // Debugging log

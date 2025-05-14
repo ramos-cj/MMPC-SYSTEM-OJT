@@ -10,160 +10,157 @@ import { useEffect, useState } from 'react';
 import axios from "axios";
 
 
-const ExitimportFiles = () => {
-        const [selectedFile, setSelectedFile] = useState<File | null>(null);
-        const [importedFiles, setImportedFiles] = useState<any[]>([]);
-        const [loading, setLoading] = useState(false);
-        const [selectedExports, setSelectedExports] = useState<string[]>([]);
-        const [searchTerm, setSearchTerm] = useState("");
-        const [templateName, setTemplateName] = useState("");
-        const [entriesPerPage, setEntriesPerPage] = useState(15);
-        const [currentPage, setCurrentPage] = useState(1);
+const ExitImportFiles = () => {
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [importedFiles, setImportedFiles] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [selectedExports, setSelectedExports] = useState<string[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [templateName, setTemplateName] = useState("");
+    const [entriesPerPage, setEntriesPerPage] = useState(15);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const filteredFiles = importedFiles.filter(file =>
+        file.file_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const totalPages = Math.ceil(filteredFiles.length / entriesPerPage);
+
+    const displayedFiles = filteredFiles.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
+
+    useEffect(() => {
+        fetchFiles();
+    }, []);
+
+    const fetchFiles = async () => {
+        try {
+            const response = await axios.get('/inventory/file-logs');
+            setImportedFiles(response.data);
+        } catch (error) {
+            console.error("Error fetching logs:", error);
+        }
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0] || null;
+        setSelectedFile(file);
+    };
+
+    const handleImport = async () => {
+        if (!selectedFile) return;
     
-        const filteredFiles = importedFiles.filter(file =>
-            file.file_name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("file_name", selectedFile.name);
+        setLoading(true);
     
-        const totalPages = Math.ceil(filteredFiles.length / entriesPerPage);
+        try {
+            const response = await axios.post('/inventory/import', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
     
-        const displayedFiles = filteredFiles.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
-    
-    
-        useEffect(() => {
-            fetchFiles();
-        }, []);
-    
-        const fetchFiles = async () => {
-            try {
-                const response = await axios.get('/inventory/file-logs');
-                setImportedFiles(response.data);
-            } catch (error) {
-                console.error("Error fetching logs:", error);
-            }
-        };
-    
-        const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-            const file = event.target.files?.[0] || null;
-            setSelectedFile(file);
-        };
-    
-        const handleImport = async () => {
-            if (!selectedFile) return;
-        
-            const formData = new FormData();
-            formData.append("file", selectedFile);
-            formData.append("file_name", selectedFile.name); // ✅ Include original file name
-            setLoading(true);
-        
-            try {
-                const response = await axios.post('/inventory/import', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-        
-                if (response.data.success) {
-                    alert(response.data.message);
-                    fetchFiles();
-                } else {
-                    alert("Import Failed: " + response.data.message);
-                }
-            } catch (error) {
-                alert("Error importing file.");
-                console.error("Error:", error);
-            } finally {
-                setLoading(false);
-                setSelectedFile(null);
-            }
-        };    
-    
-        const handleExport = async () => {
-            if (selectedExports.length === 0) {
-                alert("Please select at least one data type to export.");
-                return;
-            }
-    
-            if (!templateName.trim()) {
-                alert("Please enter a template name.");
-                return;
-            }
-    
-            try {
-                const response = await axios.post('/inventory/export', 
-                    { 
-                        selectedData: selectedExports,
-                        templateName: templateName.trim()  // ✅ Include template name
-                    }, 
-                    {
-                        responseType: 'blob',
-                        headers: { 'Content-Type': 'application/json' }
-                    }
-                );
-    
-                const urlBlob = window.URL.createObjectURL(new Blob([response.data]));
-                const link = document.createElement('a');
-                link.href = urlBlob;
-                link.setAttribute('download', `${templateName.trim()}.xlsx`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (error) {
-                alert("Error exporting data.");
-                console.error(error);
-            }
-        };
-    
-        const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-            const { value, checked } = event.target;
-            if (checked) {
-                setSelectedExports(prev => [...prev, value]);
+            if (response.data.success) {
+                alert(response.data.message);
+                fetchFiles();
             } else {
-                setSelectedExports(prev => prev.filter(item => item !== value));
+                alert("Import Failed: " + response.data.message);
             }
-        };
-    
-        return (
-            <div className="inventory-page">
-                <SidebarExitClearance />
-                <div className="inventory-import-container">
-                    <div className="import-header">
-                        <h2>Import Files</h2>
-                    </div>
-                    <div className="file-actions">
-                        <div className="import-box">
+        } catch (error) {
+            alert("Error importing file.");
+            console.error("Error:", error);
+        } finally {
+            setLoading(false);
+            setSelectedFile(null);
+        }
+    };    
+
+    const handleExport = async () => {
+        if (selectedExports.length === 0) {
+            alert("Please select at least one data type to export.");
+            return;
+        }
+
+        if (!templateName.trim()) {
+            alert("Please enter a template name.");
+            return;
+        }
+
+        try {
+            const response = await axios.post('/inventory/export', 
+                { 
+                    selectedData: selectedExports,
+                    templateName: templateName.trim() 
+                }, 
+                {
+                    responseType: 'blob',
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+
+            const urlBlob = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = urlBlob;
+            link.setAttribute('download', `${templateName.trim()}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            alert("Error exporting data.");
+            console.error(error);
+        }
+    };
+
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { value, checked } = event.target;
+        if (checked) {
+            setSelectedExports(prev => [...prev, value]);
+        } else {
+            setSelectedExports(prev => prev.filter(item => item !== value));
+        }
+    };
+
+    return (
+        <div className="inventory-page">
+            <SidebarExitClearance />
+            <div className="inventory-import-container">
+                <div className="import-header">
+                    <h2>Import Files</h2>
+                </div>
+                <div className="file-actions">
+                    <div className="import-box">
                         <h4>Choose files to import</h4>  
-                            <input className="import-text"type="file" onChange={handleFileChange} />
-                            <button onClick={handleImport} disabled={loading} className="import-btn">
-                                {loading ? "Importing..." : <><FaUpload /> Import</>}
-                            </button>
-                        </div>
-    
-                        <div className="export-box">
+                        <input className="import-text" type="file" onChange={handleFileChange} />
+                        <button onClick={handleImport} disabled={loading} className="import-btn">
+                            {loading ? "Importing..." : <><FaUpload /> Import</>}
+                        </button>
+                    </div>
+
+                    <div className="export-box">
                         <h4>Template Name:</h4>   
                         <div className="template-box">   
-                        <input
-                            type="text"
-                            placeholder="Enter Template Name"
-                            value={templateName}
-                            onChange={(e) => setTemplateName(e.target.value)}
-                            className="template-name-input"
-                        />
+                            <input
+                                type="text"
+                                placeholder="Enter Template Name"
+                                value={templateName}
+                                onChange={(e) => setTemplateName(e.target.value)}
+                                className="template-name-input"
+                            />
                         </div>
-                            <div className="export-box-list">
+                        <div className="export-box-list">
                             <h5>Choose files to export:</h5>
                             <div>
-                                <label><input type="checkbox" value="Employees" onChange={handleCheckboxChange} /> Employee</label>
-                                <label><input type="checkbox" value="Devices" onChange={handleCheckboxChange} /> Devices</label>
-                                <label><input type="checkbox" value="DeviceAssignments" onChange={handleCheckboxChange} /> Devices Assignment</label>
+                                <label><input type="checkbox" value="IssuedClearance" onChange={handleCheckboxChange} /> Issued Clearance</label>
+                                <label><input type="checkbox" value="Employee" onChange={handleCheckboxChange} /> Employee</label>
                             </div>
-                            </div>
-                
-    
-                            <button onClick={handleExport} className="export-btn"><FaDownload /> Export</button>
                         </div>
+
+                        <button onClick={handleExport} className="export-btn"><FaDownload /> Export</button>
                     </div>
-    
-                    <div className="table-container">
+                </div>
+
+                <div className="table-container">
                     <div className="filter-container">
-                    <label className="entries-label">
+                        <label className="entries-label">
                             Show
                             <select value={entriesPerPage} onChange={(e) => setEntriesPerPage(Number(e.target.value))}>
                                 {[15, 30, 45, 60, 75, 100].map(num => (
@@ -172,9 +169,9 @@ const ExitimportFiles = () => {
                             </select>
                              entries
                         </label>
-    
+
                         <div className="search-container">
-                        <FaSearch className="search-icon" />
+                            <FaSearch className="search-icon" />
                             <input
                                 type="text"
                                 placeholder="Search..."
@@ -182,9 +179,9 @@ const ExitimportFiles = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        </div>
-                        
-                        <div className="import-table">
+                    </div>
+
+                    <div className="import-table">
                         <h3>Recently Managed Files</h3>
                         <table>
                             <thead>
@@ -195,7 +192,7 @@ const ExitimportFiles = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                            {displayedFiles.map((file, index) => (
+                                {displayedFiles.map((file, index) => (
                                     <tr key={index}>
                                         <td>{file.file_name}</td>
                                         <td>{file.action}</td>
@@ -204,9 +201,8 @@ const ExitimportFiles = () => {
                                 ))}
                             </tbody>
                         </table>
-                        </div>
-    
-                        {/* Pagination Controls */}
+                    </div>
+
                     <div className="pagination">
                         <button disabled={currentPage === 1} onClick={() => setCurrentPage(currentPage - 1)}>Previous</button>
                         {[...Array(totalPages)].map((_, index) => (
@@ -220,10 +216,10 @@ const ExitimportFiles = () => {
                         ))}
                         <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)}>Next</button>
                     </div>
-                    </div>
                 </div>
             </div>
-        );
-    };
-    
-    export default ExitimportFiles ;
+        </div>
+    );
+};
+
+export default ExitImportFiles;

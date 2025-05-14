@@ -66,9 +66,14 @@ class YourImportClass implements OnEachRow, WithHeadingRow
             $employee = Employee::where('employee_number', $row['employee_number'])->first();
         }
 
+        $classification = strtolower(trim($row['classification'] ?? ''));
+
         // Determine Unique Identifier
         $uniqueKey = [];
-        if (!empty($row['computer_name'])) {
+
+        if (in_array($classification, ['tablet', 'phone']) && !empty($row['serial_number'])) {
+            $uniqueKey = ['serial_number' => $row['serial_number']];
+        } elseif (!empty($row['computer_name'])) {
             $uniqueKey = ['computer_name' => $row['computer_name']];
         } elseif (!empty($row['tag_no'])) {
             $uniqueKey = ['tag_no' => $row['tag_no']];
@@ -141,6 +146,7 @@ class YourImportClass implements OnEachRow, WithHeadingRow
         Log::error("Error saving Device Data: " . $e->getMessage());
     }
 }
+
 
     private function assignDeviceToEmployee(array $row, $device)
     {

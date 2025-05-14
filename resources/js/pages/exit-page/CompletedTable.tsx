@@ -5,6 +5,7 @@ interface Props {
 }
 
 const CompletedTable: React.FC<Props> = ({ data }) => {
+  
   return (
     <table>
       <thead>

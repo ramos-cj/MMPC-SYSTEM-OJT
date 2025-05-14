@@ -158,6 +158,17 @@ const ExitClearance: React.FC = () => {
       alert("Error deleting exit clearance.");
     }
   };
+
+  const getFullName = (user: Employee) => {
+    const middleInitial =
+      user.middle_initial &&
+      user.middle_initial !== "N/A" &&
+      user.middle_initial !== "-" &&
+      user.middle_initial.trim() !== ""
+        ? `${user.middle_initial.replace(".", "")}. `
+        : "";
+    return `${user.first_name} ${middleInitial}${user.last_name}`;
+  };
   
   return (
     <div className="exit-clearance-container">
@@ -243,9 +254,7 @@ const ExitClearance: React.FC = () => {
       <tr key={employee.id}>
         <td>{employee.id}</td>
         <td>{employee.employee_number}</td>
-        <td>{employee.first_name}{" "}
-            {employee.middle_initial && employee.middle_initial !== '-' ? employee.middle_initial + ' ' : ''}
-            {employee.last_name}</td>
+        <td>{getFullName(employee)}</td>
         <td>{employee.division_department}</td>
         <td>{employee.position}</td>
         <td>

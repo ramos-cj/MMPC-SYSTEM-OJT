@@ -73,6 +73,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory-devicemanagement/get/{id}', [InventoryDeviceManagementController::class, 'getDevice']);
     Route::post('/inventory-devicemanagement/save', [InventoryDeviceManagementController::class, 'store']);
     Route::delete('/inventory-devicemanagement/delete/{id}', [InventoryDeviceManagementController::class, 'delete']);
+    Route::delete('/inventory-deviceassignment/remove-assignment/{device_id}', [InventoryDeviceAssignmentController::class, 'removeAssignment']);
+
     Route::match(['PUT', 'POST'], '/inventory-devicemanagement/update/{id}', [InventoryDeviceManagementController::class, 'update']);
     Route::post('/inventory-devicemanagement/update/{id}', [InventoryDeviceManagementController::class, 'update']);
     Route::get('/device-images/{filename}', [InventoryDeviceManagementController::class, 'getDeviceImage'])
@@ -108,8 +110,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/inventory/export/device-assignments', [InventoryFileController::class, 'exportDeviceAssignments']);
     Route::post('/inventory/export', [InventoryFileController::class, 'exportFile']);
     Route::get('/inventory-user-management/print-aar/{id}', [InventoryUserManagementController::class, 'generateAAR']);
-
-
+    Route::post('/inventory-user-management/upload-aar/{id}', [InventoryUserManagementController::class, 'uploadAAR']);
+    Route::get('/inventory-user-management/view-aar/{id}', [InventoryUserManagementController::class, 'viewAAR']);
 
     Route::post('/logout', function () {
         Auth::logout();

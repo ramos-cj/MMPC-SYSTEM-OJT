@@ -381,6 +381,27 @@ text-align: left; /* Ensures text is aligned to the left */
   background-color: #f9f9f9;
 }
 
+.aar-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  justify-content: center;
+}
+.aar-link {
+  cursor: pointer;
+  font-weight: bold;
+  color: #770002;
+  background: none;
+  border: none;
+  padding: 0;
+  text-decoration: underline;
+}
+.aar-link.upload:hover,
+.aar-link.view:hover {
+  color: #770002;
+}
+
+
 /* Blurred Background */
 .blurred .userlist-content {
   filter: blur(3px);

@@ -37,6 +37,7 @@ const InventoryUserList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const employeeTypes: string[] = [
     "Regular Employee",
@@ -222,7 +223,7 @@ const handleDelete = async (id: number) => {
   }
 };
 
-const handlePrintAAR = async (employeeId: number) => {
+const handlePrintAAR = async (employeeId: number, fullName: string) => {
   try {
     const response = await fetch(`/inventory-user-management/print-aar/${employeeId}`, {
       method: "GET",
@@ -232,9 +233,11 @@ const handlePrintAAR = async (employeeId: number) => {
 
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
+
+    const safeName = fullName.replace(/\s+/g, "_"); // replace spaces with underscores
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `AAR_${employeeId}.docx`); // Change extension to .docx
+    link.setAttribute("download", `AAR_${safeName}.docx`);
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -244,7 +247,57 @@ const handlePrintAAR = async (employeeId: number) => {
   }
 };
 
-  
+const handleUploadAAR = async (e: React.ChangeEvent<HTMLInputElement>, employeeId: number) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("aar", file);
+
+  try {
+    const response = await fetch(`/inventory-user-management/upload-aar/${employeeId}`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error("Failed to upload AAR.");
+    alert("AAR uploaded successfully!");
+  } catch (error) {
+    console.error("Error uploading AAR:", error);
+    alert("Failed to upload AAR.");
+  }
+};
+
+const handleViewAAR = async (employeeId: number, fullName: string) => {
+  try {
+    const response = await fetch(`/inventory-user-management/view-aar/${employeeId}`);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "AAR not found.");
+    }
+
+    const blob = await response.blob();
+    const fileType = blob.type;
+    const url = window.URL.createObjectURL(blob);
+
+    if (fileType.startsWith("image/")) {
+      window.open(url, "_blank");
+    } else {
+      const safeName = fullName.replace(/\s+/g, "_");
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Scanned_AAR_${safeName}.${fileType.includes("pdf") ? "pdf" : "docx"}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+  } catch (error: any) {
+    console.error("Error loading AAR:", error);
+    alert(error.message || "Failed to load scanned AAR.");
+  }
+};
+
   return (
     <div className={`inventory-userlist-container ${selectedEmployee ? "blurred" : ""}`}>
       <SidebarInventory />
@@ -337,7 +390,7 @@ const handlePrintAAR = async (employeeId: number) => {
       <td className="userlist-actions">
       <FaEdit className="edit-icon" onClick={() => handleEditClick(user)} />
       <FaTrash className="delete-icon" onClick={() => handleDelete(user.employee_id)} />
-      <IoDocumentText className="edit-icon" onClick={() => handlePrintAAR(user.employee_id)} />
+      <IoDocumentText className="edit-icon" onClick={() => handlePrintAAR(user.employee_id, getFullName(user))} />
     </td>
 
     </tr>
@@ -370,20 +423,42 @@ const handlePrintAAR = async (employeeId: number) => {
             </div>
 
             {/* Profile Picture & Name */}
-            <div className="profile-section">
-                <FaUsers className="user-icon" />
-                <p className="employee-name">
-  {selectedEmployee.first_name}{" "}
-  {(selectedEmployee.middle_initial &&
+<div className="profile-section">
+  <FaUsers className="user-icon" />
+  <p className="employee-name">
+    {selectedEmployee.first_name}{" "}
+    {(selectedEmployee.middle_initial &&
     selectedEmployee.middle_initial !== "N/A" &&
     selectedEmployee.middle_initial !== "-" &&
     selectedEmployee.middle_initial.trim() !== "")
-    ? `${selectedEmployee.middle_initial.replace(".", "")}. `
-    : ""}
-  {selectedEmployee.last_name}
-</p>
+      ? `${selectedEmployee.middle_initial.replace(".", "")}. `
+      : ""}
+    {selectedEmployee.last_name}
+  </p>
 
-            </div>
+  <div className="aar-actions">
+    <label htmlFor="aar-upload" className="aar-link upload">Upload AAR</label>
+    <input
+  id="aar-upload"
+  type="file"
+  accept=".docx,.pdf,.png,.jpg,.jpeg,.webp"
+  style={{ display: "none" }}
+  onChange={(e) => handleUploadAAR(e, selectedEmployee.employee_id)}
+/>
+    <button
+  className="aar-link view"
+  onClick={() =>
+    handleViewAAR(
+      selectedEmployee.employee_id,
+      `${selectedEmployee.first_name}_${selectedEmployee.last_name}`
+    )
+  }
+>
+  View Scanned AAR
+</button>
+
+  </div>
+</div>
 
             {/* Employee Details (2 Columns) */}
             <div className="employee-details">
