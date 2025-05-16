@@ -12,7 +12,6 @@ class Device extends Model
     protected $fillable = [
         'tag_no',
         'activation_updates',
-        'accessories',
         'classification',
         'estimated_acquisition_year',
         'brand_model',
@@ -24,7 +23,15 @@ class Device extends Model
         'remarks',
         'condition',
         'image_file',
+        'supplier_name',          // New field
+        'invoice_number',         // New field
+        'warranty_years',         // New field
+        'last_inventory_count',   // New field
+        'it_in_charge',           // New field
+        'ticket_number',          // New field
+        'reason_for_disposal',    // New field
     ];
+    
 
     public function employeeAssignments()
 {

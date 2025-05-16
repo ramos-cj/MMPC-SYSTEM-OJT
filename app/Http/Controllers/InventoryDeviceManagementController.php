@@ -40,6 +40,7 @@ public function getDevice($id)
 
 public function store(Request $request)
 {
+    // Define the validation rules for all fields
     $rules = [
         'tag_no' => ['required', 'string'],
         'activation_updates' => 'required|string',
@@ -54,17 +55,28 @@ public function store(Request $request)
         'remarks' => 'nullable|string',
         'condition' => 'required|string',
         'need_to_be_repair' => 'nullable|string',
-        'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'supplier_name' => 'nullable|string',  // Add validation for the new fields
+        'invoice_number' => 'nullable|string',
+        'warranty_years' => 'nullable|string',
+        'last_inventory_count' => 'nullable|string',
+        'it_in_charge' => 'nullable|string',
+        'ticket_number' => 'nullable|string',  // For "Disposed" devices
+        'reason_for_disposal' => 'nullable|string',  // For "Disposed" devices
+        'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',  // Image validation
     ];
 
-    // ✅ Only enforce uniqueness if tag_no is not N/A
+    // Only enforce uniqueness if tag_no is not N/A
     if ($request->tag_no !== 'N/A') {
         $rules['tag_no'][] = Rule::unique('devices');
     }
 
+    // Validate incoming data
     $request->validate($rules);
 
+    // Initialize a new device
     $device = new Device();
+
+    // Assign values from the request to the device
     $device->tag_no = $request->tag_no;
     $device->activation_updates = $request->activation_updates;
     $device->classification = $request->classification;
@@ -75,10 +87,20 @@ public function store(Request $request)
     $device->qr_code = $request->qr_code;
     $device->with_warranty = $request->with_warranty;
     $device->computer_name = $request->computer_name;
-    $device->condition = $request->condition;
     $device->remarks = $request->remarks;
+    $device->condition = $request->condition;
     $device->need_to_be_repair = ($request->condition === "Bad") ? $request->need_to_be_repair : null;
+    
+    // Set the new fields
+    $device->supplier_name = $request->supplier_name;
+    $device->invoice_number = $request->invoice_number;
+    $device->warranty_years = $request->warranty_years;
+    $device->last_inventory_count = $request->last_inventory_count;
+    $device->it_in_charge = $request->it_in_charge;
+    $device->ticket_number = $request->ticket_number;
+    $device->reason_for_disposal = $request->reason_for_disposal;
 
+    // Handle image upload (if present)
     if ($request->hasFile('image_file')) {
         $file = $request->file('image_file');
         $filename = time() . '.' . $file->getClientOriginalExtension();
@@ -86,14 +108,17 @@ public function store(Request $request)
         $device->image_file = $filename;
     }
 
+    // Save the device in the database
     $device->save();
 
+    // Return success message
     return redirect()->route('inventory-devicelist')->with([
         'success' => true,
         'message' => 'Device saved successfully!',
         'device' => $device
     ]);
 }
+
 
 public function getDeviceImage($filename)
 {
@@ -109,12 +134,12 @@ public function getDeviceImage($filename)
 public function update(Request $request, $id)
 {
     try {
-        $device = Device::with('employeeAssignments.employee')->findOrFail($id);
+        $device = Device::with('employeeAssignments')->findOrFail($id); // Ensure you load employeeAssignments
 
+        // Validate incoming request
         $request->validate([
             'tag_no' => 'nullable|string|max:255',
             'activation_updates' => 'required|string',
-            'accessories' => 'nullable|string',
             'classification' => 'required|string',
             'estimated_acquisition_year' => 'required|string',
             'brand_model' => 'required|string',
@@ -127,12 +152,13 @@ public function update(Request $request, $id)
             'condition' => 'required|string',
             'need_to_be_repair' => 'nullable|string',
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'ticket_number' => 'nullable|string', // Added for "Disposed" devices
+            'reason_for_disposal' => 'nullable|string', // Added for "Disposed" devices
         ]);
 
-        // ✅ Assign new values (excluding image)
+        // Update device fields
         $device->tag_no = $request->tag_no;
         $device->activation_updates = $request->activation_updates;
-        $device->accessories = $request->accessories;
         $device->classification = $request->classification;
         $device->estimated_acquisition_year = $request->estimated_acquisition_year;
         $device->brand_model = $request->brand_model;
@@ -141,56 +167,65 @@ public function update(Request $request, $id)
         $device->qr_code = $request->qr_code;
         $device->with_warranty = $request->with_warranty;
         $device->computer_name = $request->computer_name;
-        $device->condition = $request->condition;
         $device->remarks = $request->remarks;
-        $device->need_to_be_repair = ($request->condition === "Bad") ? $request->need_to_be_repair : null;
-        
-        // If the condition is "Bad", remove the employee assignment
-        if ($request->condition === "Bad") {
-            // Remove the device assignment
-            DeviceAssignment::where('device_id', $device->id)->delete();
+        $device->condition = $request->condition;
+        $device->need_to_be_repair = $request->condition === "Bad" ? $request->need_to_be_repair : null;
 
-            // Also update remarks and set employee name to "Unassigned"
-            $device->remarks = 'Free';
+        // Add the new fields
+        $device->supplier_name = $request->supplier_name;
+        $device->invoice_number = $request->invoice_number;
+        $device->warranty_years = $request->warranty_years;
+        $device->last_inventory_count = $request->last_inventory_count;
+        $device->it_in_charge = $request->it_in_charge;
+
+        // Handle employee assignment removal if device is free or disposed
+        if ($request->remarks === "Free" || $request->remarks === "Disposed") {
+            $deviceAssignment = DeviceAssignment::where('device_id', $device->id)->first();
+            if ($deviceAssignment) {
+                // Remove the device assignment
+                $deviceAssignment->delete();
+            }
         }
 
-        // ✅ Handle image replacement
+        // If remarks are "Disposed", handle ticket number and reason for disposal
+        if ($request->remarks === "Disposed") {
+            $device->ticket_number = $request->ticket_number;
+            $device->reason_for_disposal = $request->reason_for_disposal;
+        }
+
+        // If image file is uploaded, handle file storage
         if ($request->hasFile('image_file')) {
-            // ✅ Delete old image if it exists
+            // Delete old image if it exists
             if ($device->image_file) {
                 Storage::delete('public/device-images/' . $device->image_file);
             }
 
-            // ✅ Store new image
+            // Store new image
             $file = $request->file('image_file');
             $filename = time() . '.' . $file->getClientOriginalExtension();
             $file->storeAs('public/device-images', $filename);
 
-            // ✅ Assign new image to device
+            // Assign new image to device
             $device->image_file = $filename;
         }
 
+        // Save the updated device details
         $device->save();
 
+        // Update the device assignment remarks if necessary
         if ($request->has('device_remarks')) {
             $assignment = DeviceAssignment::where('device_id', $device->id)->first();
             if ($assignment) {
                 $assignment->device_remarks = $request->device_remarks;
                 $assignment->save();
             }
-        }        
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Device updated successfully!',
-            'device' => [
-                ...$device->toArray(),
-                'employee_name' => ($device->employeeAssignments->first()?->employee 
-                    ? $device->employeeAssignments->first()->employee->first_name . ' ' . $device->employeeAssignments->first()->employee->last_name 
-                    : 'Unassigned'),
-                'device_remarks' => $assignment ? $assignment->device_remarks : null,
-            ]
-        ]);        
+            'device' => $device
+        ]);
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
@@ -198,6 +233,7 @@ public function update(Request $request, $id)
         ], 500);
     }
 }
+
 
 // Remove assignment of device when condition is updated to "Bad"
 public function removeAssignment($device_id)

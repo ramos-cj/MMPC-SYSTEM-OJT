@@ -24,7 +24,15 @@ interface Device {
     activation_updates: string;
     image_file?: string;
     employee_name?: string;
-}
+    supplier_name?: string; // New field
+    invoice_number?: string; // New field
+    warranty_years?: string; // New field
+    last_inventory_count?: string; // New field (calendar type)
+    it_in_charge?: string; // New field
+    ticket_number?: string; // New field for disposed devices
+    reason_for_disposal?: string; // New field for disposed devices
+  }
+  
 
 export default function InventoryDeviceList() {
     const [devices, setDevices] = useState<Device[]>([]);
@@ -97,8 +105,10 @@ export default function InventoryDeviceList() {
         device.tag_no.includes(searchTerm)) &&
         (selectedClassification === "" || device.classification === selectedClassification) &&
         (selectedBrand === "" || device.brand_model === selectedBrand) &&
-        (selectedRemarks === "" || device.remarks === selectedRemarks)
-    );    
+        (selectedRemarks === "" || device.remarks === selectedRemarks) &&
+        device.remarks !== "" // Filter out devices with "Disposed" remark
+    );
+      
 
     // Pagination logic
     const indexOfLastEntry = currentPage * entriesPerPage;
@@ -129,7 +139,61 @@ export default function InventoryDeviceList() {
         setImagePreview(null);
         setSelectedFile(null);
     };
+  
+// Handle remarks dropdown change
+const handleRemarksChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    if (editDevice) {
+        const updatedDevice = { ...editDevice, [name]: value };
+  
+        // If remarks is set to "Free" or "Disposed", unassign the device from employee
+        if (value === "Free" || value === "Disposed") {
+            updatedDevice.employee_name = "Unassigned";  // Unassign the device
+        }
+  
+        setEditDevice(updatedDevice);
+  
+        const formData = new FormData();
+        Object.entries(updatedDevice).forEach(([key, value]) => {
+            if (value !== null && key !== "image_file") { // Exclude image file unless changed
+                formData.append(key, value.toString());
+            }
+        });
+  
+        // If remarks is "Disposed", add ticket number and reason for disposal
+        if (value === "Disposed") {
+            formData.append("ticket_number", updatedDevice.ticket_number || "");
+            formData.append("reason_for_disposal", updatedDevice.reason_for_disposal || "");
+        }
+  
+        try {
+            const response = await fetch(`/inventory-devicemanagement/update/${updatedDevice.id}`, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest", // Laravel expects AJAX
+                },
+            });
+  
+            if (response.ok) {
+                const updatedDeviceData = await response.json();
+                setDevices((prevDevices) =>
+                    prevDevices.map((device) =>
+                        device.id === updatedDeviceData.device.id
+                            ? { ...device, ...updatedDeviceData.device }
+                            : device
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("Error updating remarks:", error);
+        }
+    }
+};
 
+
+  
     // Handle form change
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         if (!editDevice) return;
@@ -147,76 +211,60 @@ export default function InventoryDeviceList() {
 
     // Submit updated device
     // Handle Save Changes
-const handleSaveChanges = async () => {
-    if (!editDevice) return;
-
-    // If the condition is set to "Bad", we need to remove the assignee, update remarks, and set to "Free"
-    if (editDevice.condition === "Bad") {
-        // Remove the employee assignment
-        editDevice.employee_name = "Unassigned";  // Mark as unassigned
-        editDevice.remarks = "Free";  // Update the remarks to "Free"
-
-        // Optionally, you may also need to delete the device assignment in the database
-        try {
-            await fetch(`/inventory-deviceassignment/remove-assignment/${editDevice.id}`, {
-                method: "DELETE",
-            });
-        } catch (error) {
-            console.error("Error removing device assignment:", error);
-        }
-    }
-
-    const formData = new FormData();
-    Object.entries(editDevice).forEach(([key, value]) => {
-        if (value !== null && key !== "image_file") { // Exclude image file unless changed
+    const handleSaveChanges = async () => {
+        if (!editDevice) return;
+      
+        // Prepare form data
+        const formData = new FormData();
+        Object.entries(editDevice).forEach(([key, value]) => {
+          if (value !== null && key !== "image_file") {
             formData.append(key, value.toString());
+          }
+        });
+      
+        // If remarks is set to "Disposed", append ticket number and reason
+        if (editDevice.remarks === "Disposed") {
+          formData.append("ticket_number", editDevice.ticket_number || "");
+          formData.append("reason_for_disposal", editDevice.reason_for_disposal || "");
         }
-    });
-
-    if (editDevice.device_remarks) {
-        formData.append("device_remarks", editDevice.device_remarks);
-    }
-
-    if (selectedFile) {
-        formData.append("image_file", selectedFile); // Send new image only if selected
-    }
-
-    formData.append("_method", "PUT"); // Laravel expects PUT request, but FormData requires POST
-
-    try {
-        const response = await fetch(`/inventory-devicemanagement/update/${editDevice.id}`, {
+      
+        if (selectedFile) {
+          formData.append("image_file", selectedFile);
+        }
+      
+        formData.append("_method", "PUT");
+      
+        try {
+          const response = await fetch(`/inventory-devicemanagement/update/${editDevice.id}`, {
             method: "POST", // Must be POST due to FormData
             body: formData,
             headers: {
-                "X-Requested-With": "XMLHttpRequest", // Laravel expects AJAX
+              "X-Requested-With": "XMLHttpRequest", // Laravel expects AJAX
             },
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text(); // Capture error details
+          });
+      
+          if (!response.ok) {
+            const errorText = await response.text();
             throw new Error(errorText);
-        }
-
-        const updatedDevice = await response.json();
-        alert("Device details updated successfully!");
-
-        // Update the state with the new device details
-        setDevices((prevDevices) =>
+          }
+      
+          const updatedDevice = await response.json();
+          alert("Device details updated successfully!");
+      
+          setDevices((prevDevices) =>
             prevDevices.map((device) =>
-                device.id === updatedDevice.device.id
-                    ? { ...device, ...updatedDevice.device }
-                    : device
+              device.id === updatedDevice.device.id
+                ? { ...device, ...updatedDevice.device }
+                : device
             )
-        );
-
-        closeEditModal(); // Close modal after saving
-    } catch (error) {
-        console.error("Error updating device:", error);
-        alert("Error updating device. Check console for details.");
-    }
-};
-
-       
+          );
+      
+          closeEditModal(); // Close modal after saving
+        } catch (error) {
+          console.error("Error updating device:", error);
+          alert("Error updating device. Check console for details.");
+        }
+      };      
 
     const handleDelete = async (id: number) => {
         if (!window.confirm("Are you sure you want to delete this device?")) return;
@@ -342,114 +390,143 @@ const handleSaveChanges = async () => {
                 </div>
             </div>
 
-            {/* Device Info Modal */}
-            {selectedDevice && (
-                <div className="modal-overlay">
-                    <div className="details-modal-content">
-                        {/* Header */}
+            {/* Device Details Modal */}
+{selectedDevice && (
+    <div className="modal-overlay">
+        <div className="details-modal-content">
+            {/* Header */}
             <div className="details-modal-header">
-              <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
-              <h2>Device's Information</h2>
-              <FaTimes className="close-icon1" onClick={closeModal} />
+                <img src={mmpcLogo} alt="MMPC Logo" className="mmpc-logo" />
+                <h2>Device's Information</h2>
+                <FaTimes className="close-icon1" onClick={closeModal} />
             </div>
 
-                        {/* Image Display */}
-                        <div className="image-device-details">
-                        {selectedDevice.image_file ? (<img src={`/device-image/${selectedDevice.image_file}`} 
-                        alt="Device Image"className="device-image"
-                        onError={(e) => e.currentTarget.style.display='none'} // Hide if not found
-                        />
-                    ) : (
+            {/* Image Display */}
+            <div className="image-device-details">
+                {selectedDevice.image_file ? (
+                    <a href={`/device-image/${selectedDevice.image_file}`} target="_blank" rel="noopener noreferrer">
+                    <img
+                        src={`/device-image/${selectedDevice.image_file}`}
+                        alt="Device Image"
+                        className="device-image"
+                        onError={(e) => (e.currentTarget.style.display = "none")} // Hide if not found
+                    />
+                    </a>
+                ) : (
                     <p>No Image Available</p>
+                )}
+            </div>
 
-                    )}
-                    </div>
+            {/* Device Details */}
+            <div className="device-details">
 
-{/* Device Details */}
-<div className="device-details">
-    <div className="input-group">
-        <label>Tag No:</label>
-        <input type="text" value={selectedDevice.tag_no || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>With Activation Updates:</label>
-        <input type="text" value={selectedDevice.activation_updates || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Classification:</label>
-        <input type="text" value={selectedDevice.classification || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Brand / Model:</label>
-        <input type="text" value={selectedDevice.brand_model || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Location:</label>
-        <input type="text" value={selectedDevice.location || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Have QR Code:</label>
-        <input type="text" value={selectedDevice.qr_code || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>With Activation:</label>
-        <input type="text" value={selectedDevice.with_warranty || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Computer Name:</label>
-        <input type="text" value={selectedDevice.computer_name || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Serial Number:</label>
-        <input type="text" value={selectedDevice.serial_number || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Estimated Acquisition Year:</label>
-        <input type="text" value={selectedDevice.estimated_acquisition_year || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Condition:</label>
-        <input type="text" value={selectedDevice.condition || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Remarks (Status):</label>
-        <input type="text" value={selectedDevice.remarks || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Assigned to:</label>
-        <input type="text" value={selectedDevice.employee_name || ''} readOnly />
-    </div>
-
-    <div className="input-group">
-        <label>Installed Software (Remarks):</label>
-        <textarea
-            value={selectedDevice.device_remarks}
-            readOnly
-            className="remarks-textarea"
-        />
-    </div>
-
-
-    <div className="input-group">
-        <label>Defects/Issues:</label>
-        <input type="text" value={selectedDevice.need_to_be_repair || ''} readOnly />
-    </div>
- </div>
-                    </div>
+            <div className="input-group">
+                    <label>Computer Name:</label>
+                    <input type="text" value={selectedDevice.computer_name || ''} readOnly />
                 </div>
-            )}
+
+                <div className="input-group">
+                    <label>Serial Number:</label>
+                    <input type="text" value={selectedDevice.serial_number || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Tag No:</label>
+                    <input type="text" value={selectedDevice.tag_no || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Classification:</label>
+                    <input type="text" value={selectedDevice.classification || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Brand / Model:</label>
+                    <input type="text" value={selectedDevice.brand_model || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Location:</label>
+                    <input type="text" value={selectedDevice.location || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>With Activation Updates:</label>
+                    <input type="text" value={selectedDevice.activation_updates || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Have QR Code:</label>
+                    <input type="text" value={selectedDevice.qr_code || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Estimated Acquisition Year:</label>
+                    <input type="text" value={selectedDevice.estimated_acquisition_year || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>With Warranty:</label>
+                    <input type="text" value={selectedDevice.with_warranty || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Warranty (Years):</label>
+                    <input type="text" value={selectedDevice.warranty_years || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Condition:</label>
+                    <input type="text" value={selectedDevice.condition || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Supplier Name:</label>
+                    <input type="text" value={selectedDevice.supplier_name || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Invoice Number:</label>
+                    <input type="text" value={selectedDevice.invoice_number || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Last Inventory Count:</label>
+                    <input type="text" value={selectedDevice.last_inventory_count || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>IT In-Charge:</label>
+                    <input type="text" value={selectedDevice.it_in_charge || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Installed Software (Remarks):</label>
+                    <textarea
+                        value={selectedDevice.device_remarks}
+                        readOnly
+                        className="remarks-textarea"
+                    />
+                </div>
+
+                <div className="input-group">
+                    <label>Defects/Issues:</label>
+                    <input type="text" value={selectedDevice.need_to_be_repair || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Remarks (Status):</label>
+                    <input type="text" value={selectedDevice.remarks || ''} readOnly />
+                </div>
+
+                <div className="input-group">
+                    <label>Assigned to:</label>
+                    <input type="text" value={selectedDevice.employee_name || ''} readOnly />
+                </div>
+            </div>
+        </div>
+    </div>
+)}
 
               {/* Edit Device Modal */}
              {editDevice && (
@@ -462,23 +539,38 @@ const handleSaveChanges = async () => {
             </div>
 
             <div className="modal-body">
-    <form className="edit-device-form">
-
-                     {/* Image Upload */}
-                    <div className="edit-image-section">
-                    {imagePreview || editDevice?.image_file ? (
-                        <img src={`/device-image/${editDevice?.image_file}`} alt="Device Image"/>
-                    ) : (
-                        
-                        <p>No Image Available</p>
-                    )}
-                    </div>
+                {/* Image Upload */}
+                <div className="image-edit-device">
+                <div className="edit-image-section">
+                <div className="image-preview">
+                                {editDevice.image_file ? (
+                                    <a href={`/device-image/${editDevice.image_file}`} target="_blank" rel="noopener noreferrer">
+                                        <button>Preview Image</button>
+                                    </a>
+                                ) : (
+                                    <p>No Image Available</p>
+                                )}
+                            </div>
+                            </div>
                     
             <div className="choose-image">
             <input type="file" name="image_file" onChange={handleFileChange}  />
             </div>
+            </div>
 
-            <div className="edit-grid">
+    <form className="edit-device-form">
+
+
+            <div className="field">
+                <label>Computer Name:</label>
+                <input type="text" name="computer_name" value={editDevice.computer_name || ""} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>Serial Number:</label>
+                <input type="text" name="serial_number" value={editDevice.serial_number} onChange={handleInputChange} />
+            </div>
+
             <div className="field">
                 <label>Tag No.:</label>
                 <input type="text" name="tag_no" value={editDevice.tag_no} onChange={handleInputChange} />
@@ -499,21 +591,8 @@ const handleSaveChanges = async () => {
             </div>
 
             <div className="field">
-                <label>Serial Number:</label>
-                <input type="text" name="serial_number" value={editDevice.serial_number} onChange={handleInputChange} />
-            </div>
-
-            <div className="field">
-                <label>Condition:</label>
-                <select name="condition" value={editDevice.condition} onChange={handleInputChange}>
-                    <option value="Good">Good Condition</option>
-                    <option value="Bad">Bad Conditiion</option>
-                </select>
-            </div>
-
-            <div className="field">
-                <label>Computer Name:</label>
-                <input type="text" name="computer_name" value={editDevice.computer_name || ""} onChange={handleInputChange} />
+                <label>Location:</label>
+                <input type="text" name="location" value={editDevice.location} onChange={handleInputChange} />
             </div>
 
             <div className="field">
@@ -525,21 +604,16 @@ const handleSaveChanges = async () => {
             </div>
 
             <div className="field">
-                <label>Estimated Acquisition Year:</label>
-                <input type="text" name="estimated_acquisition_year" value={editDevice.estimated_acquisition_year} onChange={handleInputChange} />
-            </div>
-
-            <div className="field">
-                <label>Location:</label>
-                <input type="text" name="location" value={editDevice.location} onChange={handleInputChange} />
-            </div>
-
-            <div className="field">
                 <label>QR Code:</label>
                 <select name="qr_code" value={editDevice.qr_code} onChange={handleInputChange}>
                     <option value="Yes">Yes</option>
                     <option value="No">No</option>
                 </select>
+            </div>
+
+            <div className="field">
+                <label>Estimated Acquisition Year:</label>
+                <input type="text" name="estimated_acquisition_year" value={editDevice.estimated_acquisition_year} onChange={handleInputChange} />
             </div>
 
             <div className="field">
@@ -551,8 +625,36 @@ const handleSaveChanges = async () => {
             </div>
 
             <div className="field">
-                <label>Remarks:</label>
-                <input type="text" name="remarks" value={editDevice.remarks || ""} onChange={handleInputChange} />
+                            <label>Warranty (Years):</label>
+                            <input type="text" name="warranty_years" value={editDevice.warranty_years || ''} onChange={handleInputChange} />
+                        </div>
+
+            <div className="field">
+                <label>Condition:</label>
+                <select name="condition" value={editDevice.condition} onChange={handleInputChange}>
+                    <option value="Good">Good Condition</option>
+                    <option value="Bad">Bad Conditiion</option>
+                </select>
+            </div>
+
+            <div className="field">
+                <label>Supplier Name:</label>
+                <input type="text" name="supplier_name" value={editDevice.supplier_name || ''} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>Invoice Number:</label>
+                <input type="text" name="invoice_number" value={editDevice.invoice_number || ''} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>Last Inventory Count:</label>
+                <input type="date" name="last_inventory_count" value={editDevice.last_inventory_count || ''} onChange={handleInputChange} />
+            </div>
+
+            <div className="field">
+                <label>IT In-Charge:</label>
+                <input type="text" name="it_in_charge" value={editDevice.it_in_charge || ''} onChange={handleInputChange} />
             </div>
 
             <div className="field">
@@ -578,12 +680,47 @@ const handleSaveChanges = async () => {
                                         </div>
                                     )}
 
-            </div>
+<div className="field">
+  <label>Remarks:</label>
+  <select
+    name="remarks"
+    value={editDevice.remarks || ""}
+    onChange={handleRemarksChange} // Ensure this function is used here
+  >
+    <option value="Free">Free</option>
+    <option value="Assigned">Assigned</option>
+    <option value="Disposed">Disposed</option>
+  </select>
+</div>
 
-                    {/* Save & Close Button */}
-                    <button type="button" onClick={handleSaveChanges} className="save-btn1">Save & Close</button>
+{/* Show the additional fields if "Disposed" is selected */}
+{editDevice.remarks === "Disposed" && (
+  <>
+    <div className="field">
+      <label>Ticket Number:</label>
+      <input
+        type="text"
+        name="ticket_number"
+        value={editDevice.ticket_number || ""}
+        onChange={handleInputChange}
+      />
+    </div>
+
+    <div className="field">
+      <label>Reason for Disposal:</label>
+      <textarea
+        name="reason_for_disposal"
+        value={editDevice.reason_for_disposal || ""}
+        onChange={handleInputChange}
+      />
+    </div>
+  </>
+)}          
+                
                 </form>
             </div>
+            {/* Save & Close Button */}
+            <button type="button" onClick={handleSaveChanges} className="save-btn1">Save & Close</button>
         </div>
     </div>
 )}

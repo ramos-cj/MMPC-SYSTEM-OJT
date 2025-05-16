@@ -140,6 +140,7 @@
     height: 30px;
 }
 
+
 /* Pagination */
 .pagination {
     display: flex;
@@ -295,14 +296,18 @@
     transition:cubic-bezier(0.075, 0.82, 0.165, 1)
   }
   
-
   .edit-modal {
     width: 600px;
     background: white;
     border-radius: 10px;
     padding: 20px;
     text-align: center;
-}
+    }
+
+  .image-edit-device{
+    position: absolute;
+    top: 85px;
+  }
 
 .details-modal-header {
     display: flex;
@@ -319,16 +324,45 @@
   
 }
 
-.edit-device-form {
+
+.device-details {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.input-group {
     display: flex;
     flex-direction: column;
+    align-items: flex-start; 
+}
+
+.input-group label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+    text-align: left; /* Ensures text stays left-aligned */
+}
+
+.input-group input {
     width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.image-device-details {
+    margin-top: 1%;
+    margin-bottom: .5%;
 }
 
 
-.edit-column {
-    display: flex;
-    flex-direction: column;
+.edit-device-form {
+    margin-top: 65px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
 }
 
 .edit-column label {
@@ -349,14 +383,6 @@
     justify-content: center; /* Centers the grid inside the modal */
     align-items: center;
 }
-.edit-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); /* Three equal columns */
-    gap: 15px; /* Adjusts spacing between fields */
-    width: 100%;
-    max-width: 1300px; /* Adjust as needed */
-}
-
 .field {
     display: flex;
     flex-direction: column;
@@ -387,36 +413,22 @@
     padding: 10px;
     border-radius: 4px;
     align-items: center;
-    width:27%;
-    display:flex;
-    margin-bottom: 1%;
-    margin-left: 34.5%;
 
 }
 
 .choose-image input[name="image_file"] {
-    display:flex;
     text-align: center; /* Doesn't affect file inputs, but good for consistency */
+    align-items: center;
+    padding-left: 140px;
     color: #b0acac;
+    background-color: #ffffff;
     width: auto;
-    max-width: 100%;
-    min-width: 40%;
-    margin-left: 15%;
-    padding-right: 9%;
 
 }
 
 
 .edit-image-section {
     margin-bottom: .5%;
-}
-
-.edit-image-section img {
-    width:320px; /* Adjust image size */
-    height: 300;
-    border-radius: 5px;
-    border: 1px solid #dddddd;
-    margin-left: 35%;
 }
 img, video {
     max-width: 200%;
@@ -426,10 +438,15 @@ img, video {
 .edit-image-section p {
     color: #db2727;
     font-size: 14px;
-    margin-left: 43%;
+    margin-left: 37%;
 }
 
-
+.edit-image-section button {
+    color: #db2727;
+    font-size: 14px;
+    margin-left: 37%;
+    cursor: pointer;
+}
 
 .save-btn1 {
     background-color: #d32f2f;
@@ -459,7 +476,7 @@ img, video {
 
 .device-details {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
 }
 
@@ -488,6 +505,7 @@ img, video {
     margin-top: 1%;
     margin-bottom: .5%;
 }
+
 
 .remarks-textarea {
     width: 100%;
