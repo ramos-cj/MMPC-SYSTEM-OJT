@@ -54,15 +54,19 @@ const InventoryDeviceManagement: React.FC = () => {
             if (value !== null) data.append(key, value as string | Blob);
         });
     
-        router.post("/inventory-devicemanagement/save", data, {
-            forceFormData: true,  // Ensure InertiaJS correctly handles FormData
+        const url = formData.remarks === "Disposed"
+            ? "/inventory-devicemanagement/save-disposed"
+            : "/inventory-devicemanagement/save";
+    
+        router.post(url, data, {
+            forceFormData: true,
             onSuccess: () => alert("Device saved successfully!"),
             onError: (errors) => {
                 const errorMsg = Object.values(errors).join("\n");
                 setErrorMessage(errorMsg);
             },
         });
-    };
+    };    
 
     return (
         <div className="device-management-container">

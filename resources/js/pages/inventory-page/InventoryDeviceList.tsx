@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Head } from "@inertiajs/react";
 import mmpcLogo from '@/assets/mmpc-logo1.png'; // Ensure the path is correct
 import SidebarInventory from "@/components/sidebar-inventory";
@@ -47,6 +48,8 @@ export default function InventoryDeviceList() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [brandMap, setBrandMap] = useState<{ [key: string]: string[] }>({});
     const [brandsAll, setBrandsAll] = useState<string[]>([]);
+    const [lastInventoryCount, setLastInventoryCount] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     // Dynamic Filter Options
     const [classifications, setClassifications] = useState<string[]>([]);
@@ -59,6 +62,16 @@ export default function InventoryDeviceList() {
             .then((res) => res.json())
             .then((data: Device[]) => {
                 setDevices(data);
+
+                // Extract max last_inventory_count date
+            const dates = data
+            .map(device => device.last_inventory_count)
+            .filter(date => !!date) as string[];
+
+        if (dates.length > 0) {
+            const maxDate = dates.reduce((a, b) => (a > b ? a : b));
+            setLastInventoryCount(maxDate);
+        }
     
                 const uniqueClassifications = [...new Set(data.map(device => device.classification))];
                 setClassifications(uniqueClassifications);
@@ -80,41 +93,56 @@ export default function InventoryDeviceList() {
             .catch(err => console.error("Error fetching devices:", err));
     });
 
-    // Fetch devices from API
     useEffect(() => {
         fetch("/devices")
-            .then((res) => res.json())
-            .then((data: Device[]) => {
-                setDevices(data);
-
-                // Extract unique classifications and brands for filters
-                const uniqueClassifications = [...new Set(data.map(device => device.classification))];
-                const uniqueBrands = [...new Set(data.map(device => device.brand_model))];
-
-                setClassifications(uniqueClassifications);
-                setBrands(uniqueBrands);
-            })
-            .catch(err => console.error("Error fetching devices:", err));
-    }, []);
-
-    // Filtering logic
-    const filteredDevices = devices.filter(device =>
+          .then((res) => res.json())
+          .then((data: Device[]) => {
+            // Filter out disposed devices here
+            const filteredData = data.filter(d => d.remarks !== "Disposed");
+            setDevices(filteredData);
+    
+            // Extract classifications and brands based on filtered data (non-disposed)
+            const uniqueClassifications = [...new Set(filteredData.map(device => device.classification))];
+            const brandMapping: { [key: string]: Set<string> } = {};
+            filteredData.forEach(device => {
+              const cls = device.classification;
+              if (!brandMapping[cls]) brandMapping[cls] = new Set();
+              brandMapping[cls].add(device.brand_model);
+            });
+            const convertedMap: { [key: string]: string[] } = {};
+            Object.keys(brandMapping).forEach(cls => {
+              convertedMap[cls] = Array.from(brandMapping[cls]);
+            });
+            setClassifications(uniqueClassifications);
+            setBrandMap(convertedMap);
+    
+            // Also set all unique brands
+            const uniqueBrands = [...new Set(filteredData.map(device => device.brand_model))];
+            setBrands(uniqueBrands);
+          })
+          .catch(err => console.error("Error fetching devices:", err));
+      }, []);
+    
+      // Filter devices for display (existing filtering logic)
+      const filteredDevices = devices.filter(device =>
         (device.brand_model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        device.computer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        device.employee_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        device.tag_no.includes(searchTerm)) &&
+          device.computer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          device.employee_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          device.tag_no.includes(searchTerm)) &&
         (selectedClassification === "" || device.classification === selectedClassification) &&
         (selectedBrand === "" || device.brand_model === selectedBrand) &&
         (selectedRemarks === "" || device.remarks === selectedRemarks) &&
-        device.remarks !== "" // Filter out devices with "Disposed" remark
-    );
-      
-
-    // Pagination logic
-    const indexOfLastEntry = currentPage * entriesPerPage;
-    const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-    const currentDevices = filteredDevices.slice(indexOfFirstEntry, indexOfLastEntry);
-    const totalPages = Math.ceil(filteredDevices.length / entriesPerPage);
+        device.remarks !== "Disposed" // Make sure disposed are excluded just in case
+      );
+    
+      // Calculate count for devices with remarks Free or Assigned
+      const countFreeOrAssigned = devices.filter(d => d.remarks === "Free" || d.remarks === "Assigned").length;
+    
+      // Pagination logic on filteredDevices
+      const indexOfLastEntry = currentPage * entriesPerPage;
+      const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
+      const currentDevices = filteredDevices.slice(indexOfFirstEntry, indexOfLastEntry);
+      const totalPages = Math.ceil(filteredDevices.length / entriesPerPage);
 
     // Open modal with selected device details
     const handleDeviceClick = (device: Device) => {
@@ -139,67 +167,37 @@ export default function InventoryDeviceList() {
         setImagePreview(null);
         setSelectedFile(null);
     };
+
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return "No inventory count date available";
+        const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
+        return new Date(dateString).toLocaleDateString("en-US", options);
+    };
+    
   
 // Handle remarks dropdown change
-const handleRemarksChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+const handleRemarksChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
-    if (editDevice) {
-        const updatedDevice = { ...editDevice, [name]: value };
+    if (!editDevice) return;
   
-        // If remarks is set to "Free" or "Disposed", unassign the device from employee
-        if (value === "Free" || value === "Disposed") {
-            updatedDevice.employee_name = "Unassigned";  // Unassign the device
-        }
+    const updatedDevice = { ...editDevice, [name]: value };
   
-        setEditDevice(updatedDevice);
-  
-        const formData = new FormData();
-        Object.entries(updatedDevice).forEach(([key, value]) => {
-            if (value !== null && key !== "image_file") { // Exclude image file unless changed
-                formData.append(key, value.toString());
-            }
-        });
-  
-        // If remarks is "Disposed", add ticket number and reason for disposal
-        if (value === "Disposed") {
-            formData.append("ticket_number", updatedDevice.ticket_number || "");
-            formData.append("reason_for_disposal", updatedDevice.reason_for_disposal || "");
-        }
-  
-        try {
-            const response = await fetch(`/inventory-devicemanagement/update/${updatedDevice.id}`, {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest", // Laravel expects AJAX
-                },
-            });
-  
-            if (response.ok) {
-                const updatedDeviceData = await response.json();
-                setDevices((prevDevices) =>
-                    prevDevices.map((device) =>
-                        device.id === updatedDeviceData.device.id
-                            ? { ...device, ...updatedDeviceData.device }
-                            : device
-                    )
-                );
-            }
-        } catch (error) {
-            console.error("Error updating remarks:", error);
-        }
+    // Unassign if Free or Disposed locally
+    if (value === "Free" || value === "Disposed") {
+      updatedDevice.employee_name = "Unassigned";
     }
-};
-
-
+  
+    setEditDevice(updatedDevice);
+  
+    // DO NOT CALL backend here
+  };
   
     // Handle form change
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         if (!editDevice) return;
         const { name, value } = e.target;
         setEditDevice(prev => prev ? { ...prev, [name]: value } : null);
-    };
+    };    
 
     // Handle file change
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,48 +207,51 @@ const handleRemarksChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         setImagePreview(URL.createObjectURL(file));
     };
 
-    // Submit updated device
-    // Handle Save Changes
     const handleSaveChanges = async () => {
         if (!editDevice) return;
-      
-        // Prepare form data
+    
         const formData = new FormData();
         Object.entries(editDevice).forEach(([key, value]) => {
           if (value !== null && key !== "image_file") {
             formData.append(key, value.toString());
           }
         });
-      
-        // If remarks is set to "Disposed", append ticket number and reason
+    
         if (editDevice.remarks === "Disposed") {
           formData.append("ticket_number", editDevice.ticket_number || "");
           formData.append("reason_for_disposal", editDevice.reason_for_disposal || "");
         }
-      
+    
         if (selectedFile) {
           formData.append("image_file", selectedFile);
         }
-      
+    
         formData.append("_method", "PUT");
-      
+    
         try {
           const response = await fetch(`/inventory-devicemanagement/update/${editDevice.id}`, {
-            method: "POST", // Must be POST due to FormData
+            method: "POST",
             body: formData,
             headers: {
-              "X-Requested-With": "XMLHttpRequest", // Laravel expects AJAX
+              "X-Requested-With": "XMLHttpRequest",
             },
           });
-      
+    
           if (!response.ok) {
             const errorText = await response.text();
             throw new Error(errorText);
           }
-      
+    
           const updatedDevice = await response.json();
+    
           alert("Device details updated successfully!");
-      
+    
+          // Redirect if backend says so
+          if (updatedDevice.redirect) {
+            navigate(updatedDevice.redirect);
+            return; // Skip updating device list or closing modal since we redirected
+          }
+    
           setDevices((prevDevices) =>
             prevDevices.map((device) =>
               device.id === updatedDevice.device.id
@@ -258,13 +259,14 @@ const handleRemarksChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
                 : device
             )
           );
-      
-          closeEditModal(); // Close modal after saving
+    
+          closeEditModal();
         } catch (error) {
           console.error("Error updating device:", error);
           alert("Error updating device. Check console for details.");
         }
-      };      
+      };
+          
 
     const handleDelete = async (id: number) => {
         if (!window.confirm("Are you sure you want to delete this device?")) return;
@@ -291,8 +293,12 @@ const handleRemarksChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
             <div className="dashboard-wrapper">
                 <SidebarInventory />
                 <div className="device-list-container">
-                    <h2>Device List ({devices.length} devices)</h2>
-
+                    <h2>Device List ({countFreeOrAssigned} devices)</h2>
+                    {lastInventoryCount && (
+    <p className="last-inventory-count1">
+      Last Inventory Count: {formatDate(lastInventoryCount)}
+    </p>
+  )}
                     {/* Filters */}
                     <div className="filter-container">
                         <label className="entries-label">
@@ -693,7 +699,6 @@ const handleRemarksChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
   </select>
 </div>
 
-{/* Show the additional fields if "Disposed" is selected */}
 {editDevice.remarks === "Disposed" && (
   <>
     <div className="field">
@@ -715,7 +720,7 @@ const handleRemarksChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
       />
     </div>
   </>
-)}          
+)}      
                 
                 </form>
             </div>

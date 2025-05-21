@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Device;
 use App\Models\DeviceAssignment;
+use App\Models\DisposedDevice;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -134,9 +135,8 @@ public function getDeviceImage($filename)
 public function update(Request $request, $id)
 {
     try {
-        $device = Device::with('employeeAssignments')->findOrFail($id); // Ensure you load employeeAssignments
+        $device = Device::with('employeeAssignments')->findOrFail($id);
 
-        // Validate incoming request
         $request->validate([
             'tag_no' => 'nullable|string|max:255',
             'activation_updates' => 'required|string',
@@ -152,11 +152,62 @@ public function update(Request $request, $id)
             'condition' => 'required|string',
             'need_to_be_repair' => 'nullable|string',
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'ticket_number' => 'nullable|string', // Added for "Disposed" devices
-            'reason_for_disposal' => 'nullable|string', // Added for "Disposed" devices
+            'ticket_number' => 'nullable|string',
+            'reason_for_disposal' => 'nullable|string',
         ]);
 
-        // Update device fields
+        $previousRemarks = $device->remarks;
+        $newRemarks = $request->remarks;
+
+        $isDisposing = ($previousRemarks !== "Disposed" && $newRemarks === "Disposed");
+
+        if ($isDisposing) {
+            // Move device to disposed_devices
+            $disposedDevice = DisposedDevice::create([
+                'tag_no' => $device->tag_no,
+                'activation_updates' => $device->activation_updates,
+                'brand_model' => $device->brand_model,
+                'accessories' => $device->accessories,
+                'classification' => $device->classification,
+                'estimated_acquisition_year' => $device->estimated_acquisition_year,
+                'location' => $device->location,
+                'serial_number' => $device->serial_number,
+                'qr_code' => $device->qr_code,
+                'with_warranty' => $device->with_warranty,
+                'computer_name' => $device->computer_name,
+                'remarks' => $newRemarks,
+                'assigned_to' => $device->assigned_to,
+                'condition' => $device->condition,
+                'image_file' => $device->image_file,
+                'need_to_be_repair' => $device->need_to_be_repair,
+                'supplier_name' => $device->supplier_name,
+                'invoice_number' => $device->invoice_number,
+                'warranty_years' => $device->warranty_years,
+                'last_inventory_count' => $device->last_inventory_count,
+                'it_in_charge' => $device->it_in_charge,
+                'ticket_number' => $request->ticket_number,
+                'reason_for_disposal' => $request->reason_for_disposal,
+            ]);
+
+            // Delete assignment if any
+            $assignment = DeviceAssignment::where('device_id', $device->id)->first();
+            if ($assignment) {
+                $assignment->delete();
+            }
+
+            // Delete original device
+            $device->delete();
+
+            // Return JSON with redirect instruction
+            return response()->json([
+                'success' => true,
+                'message' => 'Device moved to disposed devices successfully.',
+                'redirect' => '/inventory-disposedlist',
+                'disposedDevice' => $disposedDevice,
+            ]);
+        }
+
+        // Normal update when not disposing
         $device->tag_no = $request->tag_no;
         $device->activation_updates = $request->activation_updates;
         $device->classification = $request->classification;
@@ -167,52 +218,36 @@ public function update(Request $request, $id)
         $device->qr_code = $request->qr_code;
         $device->with_warranty = $request->with_warranty;
         $device->computer_name = $request->computer_name;
-        $device->remarks = $request->remarks;
+        $device->remarks = $newRemarks;
         $device->condition = $request->condition;
         $device->need_to_be_repair = $request->condition === "Bad" ? $request->need_to_be_repair : null;
-
-        // Add the new fields
         $device->supplier_name = $request->supplier_name;
         $device->invoice_number = $request->invoice_number;
         $device->warranty_years = $request->warranty_years;
         $device->last_inventory_count = $request->last_inventory_count;
         $device->it_in_charge = $request->it_in_charge;
 
-        // Handle employee assignment removal if device is free or disposed
-        if ($request->remarks === "Free" || $request->remarks === "Disposed") {
-            $deviceAssignment = DeviceAssignment::where('device_id', $device->id)->first();
-            if ($deviceAssignment) {
-                // Remove the device assignment
-                $deviceAssignment->delete();
-            }
-        }
-
-        // If remarks are "Disposed", handle ticket number and reason for disposal
-        if ($request->remarks === "Disposed") {
-            $device->ticket_number = $request->ticket_number;
-            $device->reason_for_disposal = $request->reason_for_disposal;
-        }
-
-        // If image file is uploaded, handle file storage
         if ($request->hasFile('image_file')) {
-            // Delete old image if it exists
             if ($device->image_file) {
                 Storage::delete('public/device-images/' . $device->image_file);
             }
-
-            // Store new image
             $file = $request->file('image_file');
             $filename = time() . '.' . $file->getClientOriginalExtension();
             $file->storeAs('public/device-images', $filename);
-
-            // Assign new image to device
             $device->image_file = $filename;
         }
 
-        // Save the updated device details
         $device->save();
 
-        // Update the device assignment remarks if necessary
+        // Remove assignment if remarks changed to Free or Disposed
+        if (($previousRemarks !== $newRemarks) && ($newRemarks === 'Free' || $newRemarks === 'Disposed')) {
+            $assignment = DeviceAssignment::where('device_id', $device->id)->first();
+            if ($assignment) {
+                $assignment->delete();
+            }
+        }
+
+        // Update assignment remarks if provided
         if ($request->has('device_remarks')) {
             $assignment = DeviceAssignment::where('device_id', $device->id)->first();
             if ($assignment) {
@@ -224,12 +259,12 @@ public function update(Request $request, $id)
         return response()->json([
             'success' => true,
             'message' => 'Device updated successfully!',
-            'device' => $device
+            'device' => $device,
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'error' => $e->getMessage()
+            'error' => $e->getMessage(),
         ], 500);
     }
 }
@@ -265,4 +300,106 @@ public function delete($id)
 
     return response()->json(['message' => 'Device deleted successfully']);
 }
+
+public function disposeDevice(Request $request, $id)
+{
+    $device = Device::findOrFail($id);
+
+    // Validate disposal-related data from $request as needed
+
+    // Create disposed device record
+    $disposedDevice = DisposedDevice::create([
+        'tag_no' => $device->tag_no,
+        'activation_updates' => $device->activation_updates,
+        'brand_model' => $device->brand_model,
+        'accessories' => $device->accessories,
+        'classification' => $device->classification,
+        'estimated_acquisition_year' => $device->estimated_acquisition_year,
+        'location' => $device->location,
+        'serial_number' => $device->serial_number,
+        'qr_code' => $device->qr_code,
+        'with_warranty' => $device->with_warranty,
+        'computer_name' => $device->computer_name,
+        'remarks' => $device->remarks,
+        'assigned_to' => $device->assigned_to,
+        'condition' => $device->condition,
+        'image_file' => $device->image_file,
+        'need_to_be_repair' => $device->need_to_be_repair,
+        'supplier_name' => $device->supplier_name,
+        'invoice_number' => $device->invoice_number,
+        'warranty_years' => $device->warranty_years,
+        'last_inventory_count' => $device->last_inventory_count,
+        'it_in_charge' => $device->it_in_charge,
+        'ticket_number' => $request->input('ticket_number'),
+        'reason_for_disposal' => $request->input('reason_for_disposal'),
+    ]);
+
+    // Delete from devices table
+    $device->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Device marked as disposed and moved successfully.',
+        'disposedDevice' => $disposedDevice,
+    ]);
+}
+
+public function storeDisposed(Request $request)
+{
+    $rules = [
+        'tag_no' => ['required', 'string'],
+        'activation_updates' => 'required|string',
+        'classification' => 'required|string',
+        'estimated_acquisition_year' => 'required|string',
+        'brand_model' => 'required|string',
+        'location' => 'required|string',
+        'serial_number' => 'required|string|unique:disposed_devices',
+        'qr_code' => 'required|string',
+        'with_warranty' => 'required|string',
+        'computer_name' => 'nullable|string',
+        'remarks' => 'required|string',
+        'condition' => 'required|string',
+        'need_to_be_repair' => 'nullable|string',
+        'supplier_name' => 'nullable|string',
+        'invoice_number' => 'nullable|string',
+        'warranty_years' => 'nullable|string',
+        'last_inventory_count' => 'nullable|string',
+        'it_in_charge' => 'nullable|string',
+        'ticket_number' => 'nullable|string',
+        'reason_for_disposal' => 'nullable|string',
+        'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ];
+
+    $request->validate($rules);
+
+    $disposedDevice = new DisposedDevice();
+
+    foreach ($rules as $field => $rule) {
+        if ($request->has($field)) {
+            $disposedDevice->$field = $request->$field;
+        }
+    }
+
+    if ($request->hasFile('image_file')) {
+        $file = $request->file('image_file');
+        $filename = time() . '.' . $file->getClientOriginalExtension();
+        $file->storeAs('public/device-images', $filename);
+        $disposedDevice->image_file = $filename;
+    }
+
+    $disposedDevice->save();
+
+    return redirect()->route('inventory-disposedlist')->with([
+        'success' => true,
+        'message' => 'Disposed device saved successfully!',
+        'device' => $disposedDevice
+    ]);
+}
+
+public function getDisposedDevices()
+{
+    $disposedDevices = DisposedDevice::all();
+    return response()->json($disposedDevices);
+}
+
 }

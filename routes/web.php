@@ -69,6 +69,11 @@ Route::middleware(['auth'])->group(function () {
         return Inertia::render('inventory-page/InventoryDeviceManagement');
     })->name('inventory-devicemanagement');
 
+    Route::post('/inventory-devicemanagement/dispose/{id}', [InventoryDeviceManagementController::class, 'disposeDevice']);
+    Route::get('/disposed-devices', [InventoryDeviceManagementController::class, 'getDisposedDevices']);
+    Route::post('/inventory-devicemanagement/save-disposed', [InventoryDeviceManagementController::class, 'storeDisposed']);
+
+
     Route::get('/inventory-devicemanagement/list', [InventoryDeviceManagementController::class, 'list']);
     Route::get('/inventory-devicemanagement/get/{id}', [InventoryDeviceManagementController::class, 'getDevice']);
     Route::post('/inventory-devicemanagement/save', [InventoryDeviceManagementController::class, 'store']);
@@ -80,6 +85,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/device-images/{filename}', [InventoryDeviceManagementController::class, 'getDeviceImage'])
     ->where('filename', '.*')
     ->name('device.image');
+
+     Route::get('/inventory-disposedlist', function () {
+        return Inertia::render('inventory-page/InventoryDisposedList');
+    })->name('inventory-disposedlist');
 
 
     Route::get('/inventory-deviceassignment', function () {

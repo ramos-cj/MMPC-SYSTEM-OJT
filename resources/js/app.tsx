@@ -17,6 +17,7 @@ createInertiaApp({
         root.render(
             <BrowserRouter> {/* ✅ Wrap the entire app in BrowserRouter */}
                 <App {...props} />
+                
             </BrowserRouter>
         );
     },

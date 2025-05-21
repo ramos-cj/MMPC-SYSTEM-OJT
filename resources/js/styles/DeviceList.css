@@ -408,6 +408,14 @@
     align-items: center;
 }
 
+.last-inventory-count1 {
+    font-style: italic;
+    color: #555;
+    margin: 0;
+    font-size: 0.9rem;
+    text-align: right;
+    margin-bottom: 1%;
+  }
 
 .choose-image {
     padding: 10px;

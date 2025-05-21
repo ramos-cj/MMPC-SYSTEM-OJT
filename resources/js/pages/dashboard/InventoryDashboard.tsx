@@ -9,13 +9,14 @@ const InventoryDashboard: React.FC = () => {
     const [stats, setStats] = useState({
         totalEmployees: 0,
         totalLaptops: 0,
-        totalTablets: 0,
+        totalDisposedDevices: 0,
         totalPhones: 0,
         totalAccessories: 0,
         totalGoodCondition: 0,
         totalBadCondition: 0,
         totalImportedFiles: 0,
         latestUpdate: "",
+        lastInventoryCount: "",
         assetSummary: [] as { classification: string; total: number; warrantyExpired: number }[],
     });
     
@@ -44,6 +45,8 @@ const InventoryDashboard: React.FC = () => {
                     <h2>Admin Dashboard</h2>
                     <p className="last-update">Last Update (As of {formatDate(stats.latestUpdate)})</p>
 
+                    <p className="last-inventory-count">Last Inventory Count: {stats.lastInventoryCount ? formatDate(stats.lastInventoryCount) : "No inventory count available"}</p>
+
                     <div className="stats-container">
                         {/* Employees -> User List */}
                         <div className="stat-card">
@@ -61,17 +64,17 @@ const InventoryDashboard: React.FC = () => {
                             <div className="more-info" onClick={() => Inertia.visit('/inventory-devicelist')}>More Info <FaArrowRight /></div>
                         </div>
                         <div className="stat-card">
-                            <div className="icon"><FaTabletAlt /></div>
-                            <h3>{stats.totalTablets}</h3>
-                            <p>Tablets</p>
-                            <div className="more-info" onClick={() => Inertia.visit('/inventory-devicelist')}>More Info <FaArrowRight /></div>
-                        </div>
-                        <div className="stat-card">
                             <div className="icon"><FaPhone /></div>
                             <h3>{stats.totalPhones}</h3>
                             <p>Phones</p>
                             <div className="more-info" onClick={() => Inertia.visit('/inventory-devicelist')}>More Info <FaArrowRight /></div>
                         </div>
+                        <div className="stat-card">
+    <div className="icon"><FaTabletAlt /></div> {/* Or use a different icon */}
+    <h3>{stats.totalDisposedDevices}</h3>
+    <p>Disposed Devices</p>
+    <div className="more-info" onClick={() => Inertia.visit('/inventory-disposedlist')}>More Info <FaArrowRight /></div>
+</div>
                         <div className="stat-card">
                             <div className="icon"><FaCogs /></div>
                             <h3>{stats.totalAccessories}</h3>

@@ -3,7 +3,7 @@ import { router, usePage } from "@inertiajs/react";
 import { FaBars, FaUsers, FaClipboardList, FaSignOutAlt, FaTools, FaFileImport, FaPowerOff, FaTimes} from "react-icons/fa";
 import { MdAssignment, MdManageAccounts, MdDevices, MdList } from "react-icons/md";
 import "../styles/sidebar.css";
-import logo from "../assets/mmpc-logo.png";
+import logo from "../assets/sidebar_logo.png";
 
 const SidebarInventory: React.FC = () => {
     const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
@@ -57,6 +57,12 @@ const SidebarInventory: React.FC = () => {
                             <MdList />
                             <span className={isCollapsed ? "hidden" : ""}>Device List</span>
                         </li>
+
+                        <li className={url === "/inventory-disposedlist" ? "active" : ""} onClick={() => handleNavigation("/inventory-disposedlist")}>
+                            <MdList />
+                            <span className={isCollapsed ? "hidden" : ""}>Disposed Device List</span>
+                        </li>
+
                         <li className={url === "/inventory-usermanagement" ? "active" : ""} onClick={() => handleNavigation("/inventory-usermanagement")}>
                             <MdManageAccounts />
                             <span className={isCollapsed ? "hidden" : ""}>User Management</span>
@@ -89,7 +95,7 @@ const SidebarInventory: React.FC = () => {
                     <button className="menu-btn" onClick={toggleSidebar}>
                         <FaBars />
                     </button>
-                    <span className="header1-title">Mitsubishi Motors Philippines Corporation</span>
+                    <span className="header1-title">IT Infrastructure Inventory System</span>
                 </div>
             </div>
 
